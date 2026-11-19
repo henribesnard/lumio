@@ -58,6 +58,24 @@
     color: var(--color-foreground);
   }
 
+  /* Halo animé de la mascotte Lumi (désactivé si prefers-reduced-motion, règle globale ci-dessous). */
+  .mascot-halo {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: mascot-halo 2.4s ease-in-out infinite;
+  }
+  @keyframes mascot-halo {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(1.06);
+    }
+  }
+
   /* Micro-interactions désactivées si l'utilisateur préfère réduire les animations. */
   @media (prefers-reduced-motion: reduce) {
     *,

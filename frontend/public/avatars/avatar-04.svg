@@ -1,11 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Blue diamond with dots -->
-  <rect x="12" y="12" width="40" height="40" rx="4" fill="#3B82F6" transform="rotate(45 32 32)"/>
-  <circle cx="24" cy="28" r="3" fill="white"/>
-  <circle cx="40" cy="28" r="3" fill="white"/>
-  <circle cx="24" cy="29" r="1.5" fill="#1E3A8A"/>
-  <circle cx="40" cy="29" r="1.5" fill="#1E3A8A"/>
-  <circle cx="32" cy="40" r="2" fill="#BFDBFE"/>
-  <circle cx="24" cy="40" r="1.5" fill="#BFDBFE"/>
-  <circle cx="40" cy="40" r="1.5" fill="#BFDBFE"/>
+  <circle cx="32" cy="32" r="30" fill="#F9D8E7"/>
+  <g fill="#DB2777"><path d="M32 12 L51 25 L43 48 L21 48 L13 25 Z"/></g>
+  <circle cx="25.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="38.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="26.6" cy="31" r="2.1" fill="#1C2333"/><circle cx="39.6" cy="31" r="2.1" fill="#1C2333"/><path d="M25 39 Q32 46 39 39" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
 </svg>

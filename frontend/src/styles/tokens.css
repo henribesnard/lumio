@@ -53,10 +53,14 @@
 
   /* --- Mascotte « Lumi la luciole » --- */
   --color-mascot-body: #4f46e5;
+  --color-mascot-head: #4338ca;
   --color-mascot-outline: #3730a3;
   --color-mascot-glow: #fbbf24;
   --color-mascot-face: #1c2333;
   --color-mascot-wing: #c7d2fe;
+  --color-mascot-dim: #6e7a94;
+  --color-mascot-dim-soft: #98a5c0;
+  --color-on-dark: #ffffff;
 
   /* --- Spacing & Sizing --- */
   --space-1: 0.25rem;
