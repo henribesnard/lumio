@@ -41,7 +41,7 @@ export function Notice({ variant = "info", children, onDismiss }: NoticeProps) {
         <button
           onClick={onDismiss}
           aria-label="Fermer l'avis"
-          className="ml-2 rounded-full p-1 opacity-60 transition-opacity hover:opacity-100 focus:outline-none focus-visible:opacity-100"
+          className="ml-2 rounded-full p-1 opacity-60 transition-opacity hover:opacity-100 focus:outline-none focus-visible:shadow-focus focus-visible:opacity-100"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />

@@ -1,15 +1,16 @@
 /**
- * Point d'entrée des pages /__design* (prévisualisation design).
+ * Point d'entrée de la page /__design/components (prévisualisation des composants).
+ *
  * Monté uniquement en mode maquette + dev (voir main.tsx) : jamais dans le
- * build de production.
+ * build de production. La prévisualisation des pistes de la phase 1 a été
+ * retirée après validation de la piste retenue (voir docs/design/DIRECTION.md).
  */
 import ReactDOM from "react-dom/client";
-import { PistesPage } from "./PistesPage";
+
 import { ComponentsPage } from "./ComponentsPage";
+
 import "./preview.css";
 
 export function renderDesignPreview() {
-  const path = window.location.pathname;
-  const page = path.startsWith("/__design/components") ? <ComponentsPage /> : <PistesPage />;
-  ReactDOM.createRoot(document.getElementById("root")!).render(page);
+  ReactDOM.createRoot(document.getElementById("root")!).render(<ComponentsPage />);
 }

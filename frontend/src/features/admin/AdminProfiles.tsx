@@ -20,7 +20,7 @@ const NIVEAUX = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
 const AVATARS = Array.from({ length: 12 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
 
 const selectClass =
-  "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out focus:outline-none focus:border-primary hover:border-foreground-muted";
+  "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out focus:outline-none focus-visible:shadow-focus focus:border-primary hover:border-foreground-muted";
 
 export function AdminProfiles() {
   const navigate = useNavigate();
@@ -136,7 +136,7 @@ export function AdminProfiles() {
                         onClick={() => setForm((f) => ({ ...f, avatar: a }))}
                         aria-pressed={selected}
                         aria-label={`Avatar ${a}${selected ? " (sélectionné)" : ""}`}
-                        className={`rounded-full transition-all duration-fast ease-out focus:outline-none ${
+                        className={`rounded-full transition-all duration-fast ease-out focus:outline-none focus-visible:shadow-focus ${
                           selected
                             ? "ring-2 ring-primary ring-offset-2 ring-offset-surface"
                             : "ring-2 ring-transparent hover:ring-border"

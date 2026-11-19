@@ -54,7 +54,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             ref={closeRef}
             onClick={onClose}
             aria-label="Fermer la fenêtre"
-            className="rounded-full p-1.5 text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none"
+            className="rounded-full p-1.5 text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />

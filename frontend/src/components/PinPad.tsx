@@ -92,7 +92,7 @@ export function PinPad({
                   "flex items-center justify-center min-w-touch min-h-touch",
                   "rounded-button bg-surface-alt text-foreground border border-border",
                   "text-body font-medium transition-colors duration-fast ease-out",
-                  "hover:bg-surface active:bg-primary-light focus:outline-none",
+                  "hover:bg-surface active:bg-primary-light focus:outline-none focus-visible:shadow-focus",
                   isDisabled || value.length === 0
                     ? "opacity-50 cursor-not-allowed"
                     : "cursor-pointer",
@@ -130,7 +130,7 @@ export function PinPad({
                 "rounded-button bg-surface text-foreground border border-border shadow-card",
                 "text-subheading font-semibold transition-all duration-fast ease-out",
                 "hover:bg-surface-alt hover:-translate-y-0.5 active:bg-primary-light active:translate-y-0",
-                "focus:outline-none",
+                "focus:outline-none focus-visible:shadow-focus",
                 isDisabled || value.length >= maxLength
                   ? "opacity-50 cursor-not-allowed"
                   : "cursor-pointer",

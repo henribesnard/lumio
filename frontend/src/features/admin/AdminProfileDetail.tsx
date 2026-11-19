@@ -33,7 +33,7 @@ const TABS = [
 ];
 
 const fieldClass =
-  "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus:border-primary hover:border-foreground-muted";
+  "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus-visible:shadow-focus focus:border-primary hover:border-foreground-muted";
 
 const textareaClass = `${fieldClass} resize-y leading-body`;
 
@@ -280,7 +280,7 @@ export function AdminProfileDetail() {
                         onClick={() => setForm((f) => ({ ...f, avatar: a }))}
                         aria-pressed={selected}
                         aria-label={`Avatar ${a}${selected ? " (sélectionné)" : ""}`}
-                        className={`rounded-full transition-all duration-fast ease-out focus:outline-none ${
+                        className={`rounded-full transition-all duration-fast ease-out focus:outline-none focus-visible:shadow-focus ${
                           selected
                             ? "ring-2 ring-primary ring-offset-2 ring-offset-surface"
                             : "ring-2 ring-transparent hover:ring-border"
@@ -454,7 +454,7 @@ export function AdminProfileDetail() {
                   <button
                     key={c.id}
                     onClick={() => navigate(`/admin/conversations/${c.id}`)}
-                    className="flex w-full items-center justify-between gap-4 rounded-input border border-border bg-surface p-4 text-left shadow-card transition-all duration-fast ease-out hover:-translate-y-0.5 hover:shadow-modal focus:outline-none"
+                    className="flex w-full items-center justify-between gap-4 rounded-input border border-border bg-surface p-4 text-left shadow-card transition-all duration-fast ease-out hover:-translate-y-0.5 hover:shadow-modal focus:outline-none focus-visible:shadow-focus"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-small font-medium text-foreground">{c.titre}</p>

@@ -8,7 +8,9 @@ interface ToggleProps {
 export function Toggle({ checked, onChange, label, disabled = false }: ToggleProps) {
   return (
     <label
-      className={`inline-flex items-center gap-2 ${disabled ? "opacity-50" : "cursor-pointer"}`}
+      className={`inline-flex items-center gap-2 ${
+        disabled ? "cursor-not-allowed text-foreground-muted" : "cursor-pointer"
+      }`}
     >
       <button
         type="button"
@@ -16,7 +18,7 @@ export function Toggle({ checked, onChange, label, disabled = false }: TogglePro
         aria-checked={checked}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-med ease-out focus:outline-none ${
+        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-med ease-out focus:outline-none focus-visible:shadow-focus ${
           checked ? "bg-primary" : "bg-border"
         } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       >

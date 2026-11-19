@@ -39,7 +39,7 @@ export function ChatInput({
           placeholder={placeholder}
           rows={1}
           aria-label={placeholder}
-          className="w-full resize-none rounded-input border border-border bg-surface-alt px-3 py-2 pr-16 text-body text-foreground leading-body transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus:border-primary disabled:opacity-50"
+          className="w-full resize-none rounded-input border border-border bg-surface-alt px-3 py-2 pr-16 text-body text-foreground leading-body transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus-visible:shadow-focus focus:border-primary disabled:opacity-50"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -58,7 +58,7 @@ export function ChatInput({
         type="submit"
         disabled={disabled || !text.trim()}
         aria-label="Envoyer le message"
-        className="flex h-touch w-touch shrink-0 items-center justify-center rounded-button bg-primary text-on-dark transition-all duration-fast ease-out hover:bg-primary-hover active:scale-95 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex h-touch w-touch shrink-0 items-center justify-center rounded-button bg-primary text-on-dark transition-all duration-fast ease-out hover:bg-primary-hover active:scale-95 focus:outline-none focus-visible:shadow-focus disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-[var(--size-icon)] w-[var(--size-icon)]" aria-hidden="true">
           <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />

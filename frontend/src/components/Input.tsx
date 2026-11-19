@@ -33,7 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           "w-full rounded-input border bg-surface px-3 py-2",
           "text-body text-foreground placeholder:text-foreground-muted",
           "min-h-[var(--size-touch-target)]",
-          "transition-colors duration-fast ease-out focus:outline-none",
+          "transition-colors duration-fast ease-out focus:outline-none focus-visible:shadow-focus",
           error
             ? "border-danger focus:border-danger"
             : "border-border hover:border-foreground-muted focus:border-primary",

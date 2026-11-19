@@ -14,11 +14,10 @@ export function ProfileCard({ prenom, avatar, status = "active", onClick }: Prof
     <button
       onClick={onClick}
       disabled={inactive}
-      aria-label={locked ? `${prenom}, profil verrouillé` : prenom}
       aria-disabled={inactive || undefined}
       className={[
         "flex flex-col items-center gap-2 rounded-card bg-surface p-6 shadow-card",
-        "transition-all duration-fast ease-out focus:outline-none",
+        "transition-all duration-fast ease-out focus:outline-none focus-visible:shadow-focus",
         "min-h-[var(--size-touch-target)]",
         inactive
           ? "opacity-50 cursor-not-allowed"

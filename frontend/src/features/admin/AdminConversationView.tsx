@@ -80,7 +80,7 @@ export function AdminConversationView() {
                   {/* Détails modération & garde-fou */}
                   {hasGuard && (
                     <details className="mt-3 border-t border-border pt-2">
-                      <summary className="cursor-pointer rounded-button text-tiny font-medium text-foreground-muted hover:text-foreground focus:outline-none">
+                      <summary className="cursor-pointer rounded-button text-tiny font-medium text-foreground-muted hover:text-foreground focus:outline-none focus-visible:shadow-focus">
                         Détails de modération et de garde-fou
                       </summary>
                       <div className="mt-2 space-y-2">

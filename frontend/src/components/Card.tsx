@@ -11,7 +11,7 @@ export function Card({ children, className = "", onClick }: CardProps) {
       onClick={onClick}
       className={`rounded-card bg-surface p-6 shadow-card ${
         onClick
-          ? "cursor-pointer text-left transition-all duration-fast ease-out hover:shadow-modal hover:-translate-y-0.5 focus:outline-none active:translate-y-0"
+          ? "cursor-pointer text-left transition-all duration-fast ease-out hover:shadow-modal hover:-translate-y-0.5 focus:outline-none focus-visible:shadow-focus active:translate-y-0"
           : ""
       } ${className}`}
     >

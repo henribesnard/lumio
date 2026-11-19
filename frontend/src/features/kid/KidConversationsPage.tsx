@@ -113,7 +113,7 @@ export function KidConversationsPage() {
         </div>
         <button
           onClick={handleLogout}
-          className="rounded-button border border-border px-3 py-1.5 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none min-h-[var(--size-touch-target)]"
+          className="rounded-button border border-border px-3 py-1.5 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)]"
         >
           Quitter
         </button>
@@ -163,7 +163,7 @@ export function KidConversationsPage() {
                     <button
                       key={suggestion}
                       onClick={handleNewConversation}
-                      className="flex items-start gap-2 rounded-card border border-border bg-surface px-3 py-3 text-left text-small font-medium text-foreground transition-all duration-fast ease-out hover:border-primary hover:bg-primary-light/60 focus:outline-none active:scale-[0.98]"
+                      className="flex items-start gap-2 rounded-card border border-border bg-surface px-3 py-3 text-left text-small font-medium text-foreground transition-all duration-fast ease-out hover:border-primary hover:bg-primary-light/60 focus:outline-none focus-visible:shadow-focus active:scale-[0.98]"
                       style={{ minHeight: "var(--size-touch-target)" }}
                     >
                       <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-primary" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -188,7 +188,7 @@ export function KidConversationsPage() {
                 <button
                   key={conv.id}
                   onClick={() => navigate(`/chat/${conv.id}`)}
-                  className="flex w-full items-center justify-between gap-3 rounded-card bg-surface px-4 py-3 text-left shadow-card transition-all duration-fast ease-out hover:bg-surface-alt hover:shadow-modal focus:outline-none active:scale-[0.99]"
+                  className="flex w-full items-center justify-between gap-3 rounded-card bg-surface px-4 py-3 text-left shadow-card transition-all duration-fast ease-out hover:bg-surface-alt hover:shadow-modal focus:outline-none focus-visible:shadow-focus active:scale-[0.99]"
                   style={{ minHeight: "var(--size-touch-target)" }}
                 >
                   <div className="min-w-0">

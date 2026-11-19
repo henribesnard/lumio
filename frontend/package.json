@@ -11,6 +11,10 @@
     "format": "prettier --write src/",
     "test": "vitest run",
     "test:watch": "vitest",
+    "screenshots": "node --experimental-strip-types scripts/screenshots.ts",
+    "axe": "node --experimental-strip-types scripts/axe.ts",
+    "check-tokens": "node --experimental-strip-types scripts/check-tokens.ts",
+    "keyboard": "node --experimental-strip-types scripts/keyboard.ts",
     "generate-api": "openapi-typescript ../docs/openapi.json -o src/api/schema.d.ts"
   },
   "dependencies": {

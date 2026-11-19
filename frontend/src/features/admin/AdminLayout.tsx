@@ -70,7 +70,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden w-60 flex-col border-r border-border bg-surface lg:flex">
         <div className="border-b border-border px-4 py-4">
-          <NavLink to="/admin" aria-label="Lumio — tableau de bord" className="inline-block focus:outline-none">
+          <NavLink to="/admin" aria-label="Lumio — tableau de bord" className="inline-block focus:outline-none focus-visible:shadow-focus">
             <Logo height={34} />
           </NavLink>
         </div>
@@ -81,7 +81,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-2.5 rounded-button px-3 py-2 text-small font-medium transition-colors duration-fast ease-out focus:outline-none ${
+                `flex items-center gap-2.5 rounded-button px-3 py-2 text-small font-medium transition-colors duration-fast ease-out focus:outline-none focus-visible:shadow-focus ${
                   isActive
                     ? "bg-primary-light text-primary"
                     : "text-foreground-muted hover:bg-surface-alt hover:text-foreground"

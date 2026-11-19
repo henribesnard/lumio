@@ -75,7 +75,7 @@ export function AdminSafetyEvents() {
                 setLoading(true);
               }}
               aria-pressed={filter === f.key}
-              className={`rounded-button px-3 py-1.5 text-small font-medium transition-colors duration-fast ease-out focus:outline-none min-h-[var(--size-touch-target)] ${
+              className={`rounded-button px-3 py-1.5 text-small font-medium transition-colors duration-fast ease-out focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)] ${
                 filter === f.key
                   ? "bg-primary text-on-dark"
                   : "border border-border bg-surface text-foreground-muted hover:bg-surface-alt hover:text-foreground"

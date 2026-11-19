@@ -113,7 +113,7 @@ export function AdminSecurity() {
               </div>
 
               <details>
-                <summary className="cursor-pointer text-tiny text-foreground-muted hover:text-foreground focus:outline-none">
+                <summary className="cursor-pointer text-tiny text-foreground-muted hover:text-foreground focus:outline-none focus-visible:shadow-focus">
                   Afficher l'URI otpauth
                 </summary>
                 <p className="mt-1 break-all rounded-input bg-surface-alt p-2 font-mono text-tiny text-foreground-muted">

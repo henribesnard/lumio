@@ -25,7 +25,7 @@ export function ConfirmDialog({
       <div className="flex justify-end gap-3">
         <button
           onClick={onClose}
-          className="rounded-button border border-border bg-surface px-4 py-2 text-small font-medium text-foreground transition-colors duration-fast hover:bg-surface-alt focus:outline-none"
+          className="rounded-button border border-border bg-surface px-4 py-2 text-small font-medium text-foreground transition-colors duration-fast hover:bg-surface-alt focus:outline-none focus-visible:shadow-focus"
         >
           Annuler
         </button>
@@ -34,7 +34,7 @@ export function ConfirmDialog({
             onConfirm();
             onClose();
           }}
-          className={`rounded-button px-4 py-2 text-small font-medium text-on-dark transition-colors duration-fast focus:outline-none ${
+          className={`rounded-button px-4 py-2 text-small font-medium text-on-dark transition-colors duration-fast focus:outline-none focus-visible:shadow-focus ${
             danger ? "bg-danger hover:bg-danger/85" : "bg-primary hover:bg-primary-hover"
           }`}
         >
