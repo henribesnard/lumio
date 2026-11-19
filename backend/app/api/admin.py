@@ -613,3 +613,74 @@ async def revoke_device(
         target_id=device.id,
         ip_address=get_real_ip(request),
     )
+
+
+# ---------------------------------------------------------------------------
+# TOTP Setup
+# ---------------------------------------------------------------------------
+@router.post("/totp/setup")
+async def totp_setup(
+    admin: Admin = Depends(require_admin),
+) -> dict:
+    import pyotp
+
+    secret = pyotp.random_base32()
+    totp = pyotp.TOTP(secret)
+    provisioning_uri = totp.provisioning_uri(name=admin.email, issuer_name="Lumio")
+    return {"secret": secret, "uri": provisioning_uri}
+
+
+@router.post("/totp/confirm", status_code=204)
+async def totp_confirm(
+    request: Request,
+    admin: Admin = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    import pyotp
+
+    body = await request.json()
+    secret = body.get("secret", "")
+    code = body.get("code", "")
+
+    if not secret or not code:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "missing_fields", "message": "Secret et code requis."}},
+        )
+
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(code):
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "invalid_totp", "message": "Code TOTP invalide."}},
+        )
+
+    admin.totp_secret = secret
+    await log_action(
+        db,
+        admin_id=admin.id,
+        action="enable_totp",
+        ip_address=get_real_ip(request),
+    )
+
+
+@router.delete("/totp", status_code=204)
+async def totp_disable(
+    request: Request,
+    admin: Admin = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    admin.totp_secret = None
+    await log_action(
+        db,
+        admin_id=admin.id,
+        action="disable_totp",
+        ip_address=get_real_ip(request),
+    )
+
+
+@router.get("/totp/status")
+async def totp_status(
+    admin: Admin = Depends(require_admin),
+) -> dict:
+    return {"enabled": admin.totp_secret is not None}

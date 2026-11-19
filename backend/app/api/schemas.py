@@ -244,6 +244,7 @@ class KidMeResponse(BaseModel):
     prenom: str
     avatar: str
     age: int
+    quota_messages_jour: int
     quota_messages_restant: int
     quota_tokens_restant: int
     hors_plage_horaire: bool

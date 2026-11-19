@@ -59,6 +59,7 @@ async def kid_me(
         prenom=profile.prenom,
         avatar=profile.avatar,
         age=profile.age,
+        quota_messages_jour=profile.quota_messages_jour,
         quota_messages_restant=msg_remaining,
         quota_tokens_restant=tok_remaining,
         hors_plage_horaire=not is_within_time_window(profile),

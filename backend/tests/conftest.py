@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import uuid
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, patch
@@ -10,7 +11,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import event
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.config import Settings, get_settings
@@ -19,14 +20,18 @@ from app.db.models import Admin, Profile, TrustedDevice
 from app.auth.passwords import hash_password, hash_pin
 from app.auth.sessions import _sign
 
+# Detect database backend from env — defaults to SQLite for local dev
+_TEST_DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///")
+_IS_POSTGRES = _TEST_DATABASE_URL.startswith("postgresql")
+
 
 # ---------------------------------------------------------------------------
 # Test settings
 # ---------------------------------------------------------------------------
 def get_test_settings() -> Settings:
     return Settings(
-        database_url="sqlite+aiosqlite:///",
-        database_url_sync="sqlite:///",
+        database_url=_TEST_DATABASE_URL,
+        database_url_sync=os.environ.get("DATABASE_URL_SYNC", "sqlite:///"),
         session_secret="test-secret-at-least-32-chars-long",
         public_url="http://testserver",
         mistral_api_key="test-key",
@@ -38,12 +43,19 @@ def get_test_settings() -> Settings:
 # ---------------------------------------------------------------------------
 @pytest_asyncio.fixture
 async def db_engine():
-    engine = create_async_engine("sqlite+aiosqlite:///", echo=False)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    engine = create_async_engine(_TEST_DATABASE_URL, echo=False)
+    if _IS_POSTGRES:
+        # On Postgres tables already exist via Alembic — truncate between tests
+        async with engine.begin() as conn:
+            for table in reversed(Base.metadata.sorted_tables):
+                await conn.execute(text(f"TRUNCATE TABLE {table.name} CASCADE"))
+    else:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
     yield engine
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    if not _IS_POSTGRES:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
 
 

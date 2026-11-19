@@ -57,6 +57,7 @@ export const handlers = [
       prenom: profile.prenom,
       avatar: profile.avatar,
       age: profile.age,
+      quota_messages_jour: profile.quota_messages_jour,
       quota_messages_restant: profile.quota_messages_jour - 3,
       quota_tokens_restant: profile.quota_tokens_jour - 2000,
       hors_plage_horaire: false,
@@ -211,4 +212,15 @@ export const handlers = [
       exported_at: new Date().toISOString(),
     });
   }),
+
+  // ---- Admin: TOTP ----
+  http.get("/api/admin/totp/status", () => HttpResponse.json({ enabled: false })),
+  http.post("/api/admin/totp/setup", () =>
+    HttpResponse.json({
+      secret: "JBSWY3DPEHPK3PXP",
+      uri: "otpauth://totp/Lumio:admin@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Lumio",
+    }),
+  ),
+  http.post("/api/admin/totp/confirm", () => new HttpResponse(null, { status: 204 })),
+  http.delete("/api/admin/totp", () => new HttpResponse(null, { status: 204 })),
 ];

@@ -62,6 +62,7 @@ export interface KidMeResponse {
   prenom: string;
   avatar: string;
   age: number;
+  quota_messages_jour: number;
   quota_messages_restant: number;
   quota_tokens_restant: number;
   hors_plage_horaire: boolean;

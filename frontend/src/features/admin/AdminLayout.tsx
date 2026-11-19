@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: "/admin/profiles", label: "Profils" },
   { to: "/admin/safety", label: "Alertes" },
   { to: "/admin/devices", label: "Appareils" },
+  { to: "/admin/security", label: "Sécurité" },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
