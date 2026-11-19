@@ -34,8 +34,6 @@ export function buildShots(): ShotDef[] {
   const push = (s: ShotDef) => shots.push(s);
 
   /* ===== Prévisualisation design ===== */
-  push({ name: "00-design-pistes", vp: "desktop", url: "/__design", fullPage: true });
-  push({ name: "00-design-pistes-mobile", vp: "mobile", url: "/__design", fullPage: true });
   push({ name: "00-design-components", vp: "desktop", url: "/__design/components", fullPage: true });
 
   /* ===== 1. Choix du profil ===== */

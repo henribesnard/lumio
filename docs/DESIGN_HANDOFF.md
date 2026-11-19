@@ -172,6 +172,8 @@ Les variables sont dans `src/styles/tokens.css`.
 | TagInput | tags, onChange, placeholder | `components/TagInput.tsx` |
 | EmptyState | icon, title, description, action | `components/EmptyState.tsx` |
 | Toast | (via ToastProvider + useToast) | `components/Toast.tsx` |
+| Logo | withWordmark, height | `components/Logo.tsx` |
+| Mascot | state (ecoute/reflect/indice/bravo/pause), size | `components/Mascot.tsx` |
 
 ## Design tokens
 
@@ -187,13 +189,16 @@ Voir `src/styles/tokens.css` pour la liste complète. Les principaux :
 `--font-sans`, `--font-mono`, `--text-display` → `--text-tiny`
 
 ### Espacement
-`--size-touch-target`, `--size-avatar-sm/md/lg`
+`--space-1` → `--space-6`, `--size-touch-target`, `--size-avatar-sm/md/lg`, `--size-pin-dot`, `--size-icon`
 
 ### Rayon
 `--radius-card`, `--radius-button`, `--radius-input`, `--radius-full`
 
 ### Ombres
-`--shadow-card`, `--shadow-modal`
+`--shadow-card`, `--shadow-modal`, `--shadow-focus`
+
+### Divers
+`--color-on-dark`, `--color-mascot-*` (corps/tête/contour/lueur/visage/ailes/atténué), `--leading-body`, `--duration-fast/med/slow`, `--ease-out`
 
 ## Mode maquette
 
@@ -209,6 +214,12 @@ Données de démo :
 - **Inès** (13 ans, 4e) : conversation sur l'histoire, profil verrouillé (demo)
 - Alertes : 1 critique (détresse), 2 warnings (jailbreak + info perso), 1 acquittée
 - PIN de démo : `5678` pour tous les profils
+
+Pages de prévisualisation design (mode maquette + dev uniquement, absentes du build de production) :
+- `/__design/components` : chaque composant × chaque état × les 3 thèmes
+- Captures : `npm run screenshots` (voir `frontend/scripts/screenshots.ts`) → `docs/design/screenshots/`
+- Audit accessibilité : `node --experimental-strip-types scripts/axe.ts` → `docs/design/axe-report.json`
+- Vérification des tokens : `node --experimental-strip-types scripts/check-tokens.ts` (aussi test vitest)
 
 ## Schémas OpenAPI
 
