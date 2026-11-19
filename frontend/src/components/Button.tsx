@@ -11,12 +11,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-white hover:bg-primary-hover focus:ring-primary/50",
+  primary:
+    "bg-primary text-on-dark hover:bg-primary-hover active:bg-primary-hover focus:outline-none",
   secondary:
-    "bg-surface text-foreground border border-border hover:bg-surface-alt focus:ring-primary/30",
-  danger: "bg-danger text-white hover:bg-danger/80 focus:ring-danger/50",
+    "bg-surface text-foreground border border-border hover:bg-surface-alt active:bg-primary-light focus:outline-none",
+  danger:
+    "bg-danger text-on-dark hover:bg-danger/85 active:bg-danger/80 focus:outline-none",
   ghost:
-    "bg-transparent text-foreground hover:bg-surface-alt focus:ring-primary/30",
+    "bg-transparent text-foreground hover:bg-surface-alt active:bg-primary-light focus:outline-none",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -39,13 +41,13 @@ export function Button({
   return (
     <button
       disabled={isDisabled}
+      aria-busy={loading || undefined}
       className={[
         "inline-flex items-center justify-center gap-2 font-sans font-medium",
-        "rounded-button transition-colors duration-150",
-        "focus:outline-none focus:ring-2 focus:ring-offset-2",
+        "rounded-button transition-colors duration-fast ease-out",
         variantClasses[variant],
         sizeClasses[size],
-        isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+        isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]",
         className,
       ]
         .filter(Boolean)
@@ -54,7 +56,7 @@ export function Button({
     >
       {loading && (
         <svg
-          className="animate-spin h-4 w-4"
+          className="animate-spin h-[var(--size-icon)] w-[var(--size-icon)]"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

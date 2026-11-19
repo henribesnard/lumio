@@ -21,11 +21,11 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <p className="mb-6 text-body text-foreground-muted">{message}</p>
+      <p className="mb-6 text-body text-foreground-muted leading-body">{message}</p>
       <div className="flex justify-end gap-3">
         <button
           onClick={onClose}
-          className="rounded-button border border-border px-4 py-2 text-small font-medium text-foreground hover:bg-surface-alt"
+          className="rounded-button border border-border bg-surface px-4 py-2 text-small font-medium text-foreground transition-colors duration-fast hover:bg-surface-alt focus:outline-none"
         >
           Annuler
         </button>
@@ -34,7 +34,9 @@ export function ConfirmDialog({
             onConfirm();
             onClose();
           }}
-          className={`rounded-button px-4 py-2 text-small font-medium text-white ${danger ? "bg-danger hover:bg-danger/80" : "bg-primary hover:bg-primary-hover"}`}
+          className={`rounded-button px-4 py-2 text-small font-medium text-on-dark transition-colors duration-fast focus:outline-none ${
+            danger ? "bg-danger hover:bg-danger/85" : "bg-primary hover:bg-primary-hover"
+          }`}
         >
           {confirmLabel}
         </button>

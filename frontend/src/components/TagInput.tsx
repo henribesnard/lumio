@@ -6,11 +6,7 @@ interface TagInputProps {
   placeholder?: string;
 }
 
-export function TagInput({
-  tags,
-  onChange,
-  placeholder = "Ajouter...",
-}: TagInputProps) {
+export function TagInput({ tags, onChange, placeholder = "Ajouter..." }: TagInputProps) {
   const [input, setInput] = useState("");
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -31,7 +27,7 @@ export function TagInput({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 rounded-input border border-border bg-surface-alt px-2 py-1.5 focus-within:border-primary">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-input border border-border bg-surface-alt px-2 py-1.5 transition-colors duration-fast focus-within:border-primary">
       {tags.map((tag, i) => (
         <span
           key={i}
@@ -41,9 +37,12 @@ export function TagInput({
           <button
             type="button"
             onClick={() => removeTag(i)}
-            className="hover:text-danger"
+            aria-label={`Retirer ${tag}`}
+            className="rounded-full p-0.5 transition-colors hover:bg-danger/10 hover:text-danger focus:outline-none"
           >
-            &times;
+            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+            </svg>
           </button>
         </span>
       ))}
@@ -52,7 +51,8 @@ export function TagInput({
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={tags.length === 0 ? placeholder : ""}
-        className="min-w-[80px] flex-1 bg-transparent py-1 text-small text-foreground outline-none"
+        aria-label={placeholder}
+        className="min-w-[80px] flex-1 bg-transparent py-1 text-small text-foreground placeholder:text-foreground-muted outline-none"
       />
     </div>
   );

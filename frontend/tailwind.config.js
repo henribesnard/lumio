@@ -19,6 +19,7 @@ export default {
         warning: "var(--color-warning)",
         danger: "var(--color-danger)",
         info: "var(--color-info)",
+        "on-dark": "var(--color-on-dark)",
       },
       fontFamily: {
         sans: "var(--font-sans)",
