@@ -204,7 +204,9 @@ export function buildShots(): ShotDef[] {
       {
         pattern: "/api/kid/conversations/[^/]+/messages",
         method: "POST",
-        sse: sseFromText(SAFETY_TEXT),
+        sse: sseFromText(SAFETY_TEXT, {
+          safetyEvents: [{ type: "distress", severity: "critical" }],
+        }),
       },
     ],
   });

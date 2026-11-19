@@ -98,14 +98,23 @@ export function mockApi(page: Page, specs: MockSpec[]) {
 }
 
 /** Construit un payload SSE (événements token/done) à partir d'un texte. */
-export function sseFromText(text: string, opts: { notice?: string; delayMs?: number } = {}): string {
+export function sseFromText(
+  text: string,
+  opts: { notice?: string; safetyEvents?: unknown[] } = {},
+): string {
   const parts: string[] = [];
   if (opts.notice) parts.push(`event: notice\ndata: ${JSON.stringify({ message: opts.notice })}`);
   for (const w of text.split(" ")) {
     parts.push(`event: token\ndata: ${JSON.stringify({ text: w + " " })}`);
   }
   parts.push(
-    `event: done\ndata: ${JSON.stringify({ full_text: text, message_id: "msg-demo-1", safety_events: [], tokens_in: 120, tokens_out: 40 })}`,
+    `event: done\ndata: ${JSON.stringify({
+      full_text: text,
+      message_id: "msg-demo-1",
+      safety_events: opts.safetyEvents ?? [],
+      tokens_in: 120,
+      tokens_out: 40,
+    })}`,
   );
   return parts.join("\n\n");
 }
