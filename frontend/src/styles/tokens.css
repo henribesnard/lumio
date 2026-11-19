@@ -1,0 +1,122 @@
+/*
+ * Lumio Design Tokens
+ * ===================
+ * Toutes les valeurs visuelles passent par ces variables CSS.
+ * Le designer modifie CE fichier et les composants suivent.
+ *
+ * Thèmes : [data-age="6-8"], [data-age="9-14"], [data-theme="admin"]
+ */
+
+:root {
+  /* --- Typography --- */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-display: 2rem;
+  --text-heading: 1.5rem;
+  --text-subheading: 1.25rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-tiny: 0.75rem;
+
+  /* --- Colors (default: kid 9-14) --- */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: #e0e7ff;
+  --color-secondary: #8b5cf6;
+  --color-accent: #f59e0b;
+
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-background: #f1f5f9;
+  --color-foreground: #1e293b;
+  --color-foreground-muted: #64748b;
+  --color-border: #e2e8f0;
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  /* --- Spacing & Sizing --- */
+  --size-touch-target: 48px;
+
+  /* --- Border Radius --- */
+  --radius-card: 1rem;
+  --radius-button: 0.75rem;
+  --radius-input: 0.5rem;
+  --radius-full: 9999px;
+
+  /* --- Shadows --- */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* --- Chat bubble --- */
+  --color-bubble-child: #e0e7ff;
+  --color-bubble-child-text: #1e293b;
+  --color-bubble-assistant: #ffffff;
+  --color-bubble-assistant-text: #1e293b;
+  --color-bubble-notice: #fef3c7;
+  --color-bubble-notice-text: #92400e;
+
+  /* --- Avatar --- */
+  --size-avatar-sm: 2rem;
+  --size-avatar-md: 3rem;
+  --size-avatar-lg: 5rem;
+}
+
+/* --- Theme: Young kids (6-8) --- */
+[data-age="6-8"] {
+  --text-display: 2.5rem;
+  --text-heading: 2rem;
+  --text-subheading: 1.5rem;
+  --text-body: 1.25rem;
+  --text-small: 1.1rem;
+  --text-tiny: 0.9rem;
+
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-light: #ede9fe;
+  --color-secondary: #ec4899;
+  --color-accent: #fbbf24;
+
+  --radius-card: 1.5rem;
+  --radius-button: 1rem;
+
+  --size-touch-target: 56px;
+  --size-avatar-sm: 2.5rem;
+  --size-avatar-md: 4rem;
+  --size-avatar-lg: 6rem;
+
+  --color-bubble-child: #ede9fe;
+  --color-bubble-assistant: #fce7f3;
+  --color-bubble-assistant-text: #1e293b;
+}
+
+/* --- Theme: Older kids (9-14) — default above --- */
+[data-age="9-14"] {
+  /* Uses root defaults */
+}
+
+/* --- Theme: Admin dashboard --- */
+[data-theme="admin"] {
+  --color-primary: #0f172a;
+  --color-primary-hover: #1e293b;
+  --color-primary-light: #f1f5f9;
+  --color-secondary: #475569;
+  --color-accent: #6366f1;
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+
+  --text-display: 1.75rem;
+  --text-heading: 1.375rem;
+  --text-subheading: 1.125rem;
+  --text-body: 0.9375rem;
+  --text-small: 0.8125rem;
+
+  --size-touch-target: 40px;
+  --radius-card: 0.75rem;
+  --radius-button: 0.5rem;
+}

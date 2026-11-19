@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lumio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lumio}
+      POSTGRES_DB: ${POSTGRES_DB:-lumio}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lumio}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    # Postgres n'est jamais publié
+    expose:
+      - "5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8100}:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lumio}:${POSTGRES_PASSWORD:-lumio}@db:5432/${POSTGRES_DB:-lumio}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-lumio}:${POSTGRES_PASSWORD:-lumio}@db:5432/${POSTGRES_DB:-lumio}
+      SESSION_SECRET: ${SESSION_SECRET}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      MISTRAL_TUTOR_MODEL: ${MISTRAL_TUTOR_MODEL:-mistral-small-latest}
+      MISTRAL_MEDIUM_MODEL: ${MISTRAL_MEDIUM_MODEL:-mistral-medium-latest}
+      MISTRAL_GUARD_MODEL: ${MISTRAL_GUARD_MODEL:-mistral-small-latest}
+      MISTRAL_MODERATION_MODEL: ${MISTRAL_MODERATION_MODEL:-mistral-moderation-latest}
+      PUBLIC_URL: ${PUBLIC_URL:-https://lumio.wezon.fr}
+      TZ: ${TZ:-Europe/Paris}
+      CONVERSATION_RETENTION_DAYS: ${CONVERSATION_RETENTION_DAYS:-365}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3100}:80"
+
+volumes:
+  pgdata:

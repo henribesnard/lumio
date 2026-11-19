@@ -1,0 +1,99 @@
+# Réponses prédéfinies par tranche d'âge pour les situations sensibles.
+# Utilisées à la place d'une génération LLM pour éviter toute hallucination.
+
+distress:
+  "6-8":
+    - "Je vois que tu ne te sens pas bien. C'est normal d'avoir des moments difficiles. 💙"
+    - "Parle vite à un adulte que tu aimes : un parent, un maître ou une maîtresse."
+    - "Tu peux aussi appeler le 119, c'est gratuit et des gens très gentils sont là pour t'écouter."
+  "9-11":
+    - "Je comprends que c'est difficile pour toi en ce moment. Ce que tu ressens est important."
+    - "Je te conseille d'en parler rapidement à un adulte de confiance : tes parents, un enseignant ou l'infirmier scolaire."
+    - "Tu peux aussi appeler gratuitement le 119 (enfance en danger) ou le 3018 (harcèlement). Ils sont là pour t'aider."
+  "12-14":
+    - "Ce que tu traverses a l'air difficile, et c'est courageux d'en parler. Ce que tu ressens compte."
+    - "Je t'encourage à en discuter avec un adulte de confiance : un parent, un professeur, le conseiller d'éducation ou l'infirmier scolaire."
+    - "Tu peux aussi contacter le 119 (enfance en danger) ou le 3018 (harcèlement et cyberharcèlement). Ce sont des lignes gratuites et confidentielles."
+
+self_harm:
+  "6-8":
+    - "Tu es important et tu comptes beaucoup. 💙"
+    - "Dis vite à un adulte que tu aimes ce que tu ressens."
+    - "Appelle le 119, c'est gratuit. Des gens très gentils vont t'aider."
+  "9-11":
+    - "Ce que tu ressens est important et tu mérites d'être aidé."
+    - "S'il te plaît, parle tout de suite à un adulte de confiance : un parent, un enseignant ou l'infirmier de ton école."
+    - "Tu peux aussi appeler le 119 gratuitement, à tout moment. Tu n'es pas seul."
+  "12-14":
+    - "Ce que tu ressens en ce moment est important, et en parler est un premier pas courageux."
+    - "Je t'encourage fortement à en discuter immédiatement avec un adulte de confiance : tes parents, un professeur, un CPE ou un professionnel de santé."
+    - "Le 119 (enfance en danger) et le 3114 (prévention du suicide) sont des lignes gratuites, disponibles 24h/24. N'hésite pas à les appeler."
+
+abuse_disclosure:
+  "6-8":
+    - "Merci de me l'avoir dit. C'est courageux. 💙"
+    - "Ce n'est pas de ta faute. Tu n'as rien fait de mal."
+    - "Parle vite à un adulte que tu aimes. Tu peux aussi appeler le 119, c'est gratuit."
+  "9-11":
+    - "Merci de ta confiance. Ce que tu décris est grave et ce n'est pas de ta faute."
+    - "Il est très important que tu en parles à un adulte de confiance le plus vite possible : un parent, un enseignant ou l'infirmier scolaire."
+    - "Tu peux aussi appeler le 119 gratuitement. Des professionnels sont là pour t'aider et te protéger."
+  "12-14":
+    - "Je te remercie pour ta confiance. Ce que tu décris est sérieux et ce n'est en aucun cas de ta faute."
+    - "Il est essentiel que tu en parles à un adulte de confiance dès que possible : un parent, un enseignant, un CPE ou un professionnel de santé."
+    - "Le 119 est un numéro gratuit et confidentiel pour les enfants en danger. Tu peux les appeler à tout moment."
+
+inappropriate_content:
+  "6-8":
+    - "Hmm, je ne peux pas parler de ça ! 🙈"
+    - "Et si on parlait d'autre chose ? Tu veux qu'on apprenne quelque chose de super ?"
+  "9-11":
+    - "Ce sujet n'est pas adapté à notre discussion."
+    - "On peut parler de plein de choses intéressantes ensemble ! Qu'est-ce qui te ferait plaisir d'apprendre ?"
+  "12-14":
+    - "Ce sujet sort du cadre de ce qu'on peut aborder ensemble."
+    - "Si tu as des questions à ce sujet, je t'invite à en discuter avec un adulte de confiance. En attendant, on peut continuer à travailler sur autre chose ?"
+
+forbidden_topic:
+  "6-8":
+    - "Tes parents préfèrent qu'on ne parle pas de ça ensemble."
+    - "On fait autre chose ? J'ai plein d'idées ! 😊"
+  "9-11":
+    - "Tes parents ont souhaité que ce sujet ne soit pas abordé ici."
+    - "On peut explorer un autre sujet si tu veux. Qu'est-ce qui t'intéresse ?"
+  "12-14":
+    - "Ce sujet a été exclu de nos échanges par tes parents."
+    - "On peut tout à fait travailler sur autre chose. Qu'est-ce qui t'intéresserait ?"
+
+quota_reached:
+  "6-8":
+    - "Tu as bien travaillé aujourd'hui ! ⭐"
+    - "On a fini nos messages pour aujourd'hui. On se retrouve demain !"
+  "9-11":
+    - "Tu as utilisé tous tes messages pour aujourd'hui."
+    - "C'était chouette de travailler ensemble ! On se retrouve demain."
+  "12-14":
+    - "Tu as atteint ta limite de messages pour aujourd'hui."
+    - "Bonne session ! On reprend demain."
+
+outside_hours:
+  "6-8":
+    - "Dodo ! Ce n'est pas l'heure de Lumio. 🌙"
+    - "Reviens pendant les heures autorisées !"
+  "9-11":
+    - "Ce n'est pas le moment de discuter avec Lumio."
+    - "Reviens pendant les heures autorisées par tes parents !"
+  "12-14":
+    - "Les discussions avec Lumio ne sont pas disponibles en dehors des heures définies par tes parents."
+    - "On se retrouve aux heures autorisées !"
+
+technical_error:
+  "6-8":
+    - "Oups, j'ai eu un petit souci ! 🤖"
+    - "Réessaie dans un instant, ça va revenir !"
+  "9-11":
+    - "Désolé, j'ai rencontré un problème technique."
+    - "Réessaie dans quelques instants. Si ça continue, dis-le à un parent."
+  "12-14":
+    - "Un problème technique est survenu."
+    - "Réessaie dans un instant. Si le problème persiste, signale-le à tes parents."

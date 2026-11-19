@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Teal triangle with eyes -->
+  <polygon points="32,6 60,56 4,56" fill="#14B8A6"/>
+  <circle cx="26" cy="38" r="4" fill="white"/>
+  <circle cx="38" cy="38" r="4" fill="white"/>
+  <circle cx="27" cy="39" r="2" fill="#134E4A"/>
+  <circle cx="39" cy="39" r="2" fill="#134E4A"/>
+  <path d="M28 48 Q32 52 36 48" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

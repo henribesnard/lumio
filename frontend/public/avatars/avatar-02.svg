@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Orange star shape -->
+  <polygon points="32,4 39,24 60,24 43,36 50,56 32,44 14,56 21,36 4,24 25,24" fill="#F97316"/>
+  <circle cx="26" cy="28" r="2.5" fill="white"/>
+  <circle cx="38" cy="28" r="2.5" fill="white"/>
+  <circle cx="32" cy="36" r="2" fill="#C2410C"/>
+</svg>

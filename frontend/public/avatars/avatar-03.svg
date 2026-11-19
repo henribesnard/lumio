@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Green hexagon with eyes -->
+  <polygon points="32,4 56,18 56,46 32,60 8,46 8,18" fill="#22C55E"/>
+  <circle cx="24" cy="28" r="5" fill="white"/>
+  <circle cx="40" cy="28" r="5" fill="white"/>
+  <circle cx="25" cy="29" r="2.5" fill="#14532D"/>
+  <circle cx="41" cy="29" r="2.5" fill="#14532D"/>
+  <ellipse cx="32" cy="40" rx="6" ry="3" fill="#16A34A"/>
+  <path d="M28 42 Q32 46 36 42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>
