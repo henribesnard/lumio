@@ -301,8 +301,24 @@ export function buildShots(): ShotDef[] {
     await p.waitForTimeout(300);
   });
   adminShot("10-admin-profile-detail", "/admin/profiles/profile-lea");
-  adminShot("10-admin-profile-edit", "/admin/profiles/profile-lea", "desktop", async (p) => {
-    await p.getByRole("button", { name: /modifier/i }).click();
+  adminShot("10-admin-profile-comportement", "/admin/profiles/profile-lea", "desktop", async (p) => {
+    await p.getByRole("tab", { name: /comportement/i }).click();
+    await p.waitForTimeout(300);
+  });
+  adminShot("10-admin-profile-limites", "/admin/profiles/profile-lea", "desktop", async (p) => {
+    await p.getByRole("tab", { name: /limites/i }).click();
+    await p.waitForTimeout(300);
+  });
+  adminShot("10-admin-profile-prompt", "/admin/profiles/profile-lea", "desktop", async (p) => {
+    await p.getByRole("tab", { name: /aperçu du prompt/i }).click();
+    await p.waitForTimeout(600);
+  });
+  adminShot("10-admin-profile-conversations", "/admin/profiles/profile-lea", "desktop", async (p) => {
+    await p.getByRole("tab", { name: /conversations/i }).click();
+    await p.waitForTimeout(300);
+  });
+  adminShot("10-admin-profile-danger", "/admin/profiles/profile-lea", "desktop", async (p) => {
+    await p.getByRole("tab", { name: /zone dangereuse/i }).click();
     await p.waitForTimeout(300);
   });
   adminShot("11-admin-conversation", "/admin/conversations/conv-lea-1");

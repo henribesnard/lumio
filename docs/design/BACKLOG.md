@@ -17,14 +17,16 @@
 | # | Élément | Écran |
 |---|---|---|
 | F1 | Filtrer les conversations archivées (`archived: true`) dans la liste enfant | Historique (`/chat`) |
-| F2 | Lien « Espace parents » vers `/admin/login` sur l'écran « Appareil non reconnu » | Choix du profil — **fait en phase 5** (KidSelectPage est dans le périmètre) |
+| F2 | Éditeur complet des plages horaires (l'admin voit les créneaux en lecture seule) | Profil → onglet « Limites » |
+| F3 | Le mock de message contient encore des emoji (🌟🎉) dans certains contenus de démo | Chat — données de démo uniquement, l'UI n'en ajoute pas |
 
 ## Déjà livré (ne plus lister)
 
-- Écran dédié « Appareil non reconnu » (PR #1, `KidSelectPage.tsx`) — stylé en phase 5.
-- Suggestions par tranche d'âge (grille 2×2) sur l'accueil vide (PR #1, `KidConversationsPage.tsx`).
-- Barre de quota visuelle dans le header (PR #1) — présentée positivement, sans rouge (phase 5).
-- Page admin « Sécurité » TOTP : états désactivé / activation (secret + URI + code) / activé (PR #1, `AdminSecurity.tsx`, route `/admin/security`).
+- Écran dédié « Appareil non reconnu » (PR #1, `KidSelectPage.tsx`) — stylé en phase 5 avec lien « Espace parents » vers `/admin/login`.
+- Suggestions par tranche d'âge (grille 2×2) sur l'accueil (PR #1, `KidConversationsPage.tsx`) — stylées en phase 5.
+- Barre de quota visuelle (PR #1) — présentée positivement (« Encore N messages aujourd'hui »), jamais de rouge (phase 5).
+- Page admin « Sécurité » TOTP : états désactivé / activation (secret + URI + code + erreur) / activé / confirmation de désactivation (PR #1, `AdminSecurity.tsx`, route `/admin/security`) — stylée en phase 5.
+- Onglet « Aperçu du prompt » sur le profil admin, alimenté par `GET /api/admin/profiles/:id/prompt-preview` (endpoint existant, lecture seule).
 
 ## Problèmes pré-existants constatés sur `main` (hors design)
 
