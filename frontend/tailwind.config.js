@@ -44,6 +44,18 @@ export default {
       boxShadow: {
         card: "var(--shadow-card)",
         modal: "var(--shadow-modal)",
+        focus: "var(--shadow-focus)",
+      },
+      lineHeight: {
+        body: "var(--leading-body)",
+      },
+      transitionDuration: {
+        fast: "var(--duration-fast)",
+        med: "var(--duration-med)",
+        slow: "var(--duration-slow)",
+      },
+      transitionTimingFunction: {
+        out: "var(--ease-out)",
       },
     },
   },
