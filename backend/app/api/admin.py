@@ -7,7 +7,7 @@ import uuid
 from datetime import date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import and_, delete, func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
@@ -26,7 +26,7 @@ from app.api.schemas import (
 )
 from app.auth.dependencies import get_real_ip, require_admin
 from app.auth.passwords import hash_pin, is_trivial_pin
-from app.auth.sessions import generate_device_token, set_device_cookie
+from app.auth.sessions import generate_device_token
 from app.config import get_settings
 from app.db import get_db
 from app.db.models import (
@@ -67,7 +67,12 @@ async def create_profile(
     if is_trivial_pin(body.pin):
         raise HTTPException(
             status_code=400,
-            detail={"error": {"code": "trivial_pin", "message": "Ce code PIN est trop simple. Choisis un code moins évident."}},
+            detail={
+                "error": {
+                    "code": "trivial_pin",
+                    "message": "Ce code PIN est trop simple. Choisis un code moins évident.",
+                }
+            },
         )
 
     profile = Profile(
@@ -273,9 +278,7 @@ async def get_learner_notes(
     admin: Admin = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> list[LearnerNotes]:
-    result = await db.execute(
-        select(LearnerNotes).where(LearnerNotes.profile_id == profile_id)
-    )
+    result = await db.execute(select(LearnerNotes).where(LearnerNotes.profile_id == profile_id))
     return list(result.scalars().all())
 
 
@@ -349,20 +352,19 @@ async def export_profile(
             {"role": m.role, "contenu": m.contenu, "created_at": m.created_at.isoformat()}
             for m in msg_result.scalars().all()
         ]
-        conversations.append({
-            "titre": conv.titre,
-            "created_at": conv.created_at.isoformat(),
-            "messages": messages,
-        })
+        conversations.append(
+            {
+                "titre": conv.titre,
+                "created_at": conv.created_at.isoformat(),
+                "messages": messages,
+            }
+        )
 
     # Learner notes
     notes_result = await db.execute(
         select(LearnerNotes).where(LearnerNotes.profile_id == profile_id)
     )
-    notes = [
-        {"matiere": n.matiere, "notes": n.notes}
-        for n in notes_result.scalars().all()
-    ]
+    notes = [{"matiere": n.matiere, "notes": n.notes} for n in notes_result.scalars().all()]
 
     return {
         "prenom": profile.prenom,
@@ -377,9 +379,7 @@ async def export_profile(
 # ---------------------------------------------------------------------------
 # Conversations (admin view)
 # ---------------------------------------------------------------------------
-@router.get(
-    "/profiles/{profile_id}/conversations", response_model=list[ConversationResponse]
-)
+@router.get("/profiles/{profile_id}/conversations", response_model=list[ConversationResponse])
 async def list_profile_conversations(
     profile_id: uuid.UUID,
     admin: Admin = Depends(require_admin),
@@ -408,9 +408,7 @@ async def get_conversation_messages_admin(
     messages = list(result.scalars().all())
 
     # Log the access
-    conv_result = await db.execute(
-        select(Conversation).where(Conversation.id == conversation_id)
-    )
+    conv_result = await db.execute(select(Conversation).where(Conversation.id == conversation_id))
     conv = conv_result.scalar_one_or_none()
     if conv:
         await log_action(
@@ -488,17 +486,15 @@ async def get_stats(
 
     # Active profiles
     active_result = await db.execute(
-        select(func.count(func.distinct(UsageDaily.profile_id))).where(
-            UsageDaily.date >= since
-        )
+        select(func.count(func.distinct(UsageDaily.profile_id))).where(UsageDaily.date >= since)
     )
     active_profiles = active_result.scalar() or 0
 
     # Safety events by severity
     events_result = await db.execute(
-        select(SafetyEvent.severity, func.count()).where(
-            SafetyEvent.created_at >= datetime.combine(since, datetime.min.time())
-        ).group_by(SafetyEvent.severity)
+        select(SafetyEvent.severity, func.count())
+        .where(SafetyEvent.created_at >= datetime.combine(since, datetime.min.time()))
+        .group_by(SafetyEvent.severity)
     )
     safety_by_severity = {row[0]: row[1] for row in events_result.all()}
 
@@ -517,13 +513,15 @@ async def get_stats(
     for row in profile_usage_result.all():
         p_result = await db.execute(select(Profile.prenom).where(Profile.id == row[0]))
         prenom = p_result.scalar() or "?"
-        usage_by_profile.append({
-            "profile_id": str(row[0]),
-            "prenom": prenom,
-            "messages": row[1] or 0,
-            "tokens_in": row[2] or 0,
-            "tokens_out": row[3] or 0,
-        })
+        usage_by_profile.append(
+            {
+                "profile_id": str(row[0]),
+                "prenom": prenom,
+                "messages": row[1] or 0,
+                "tokens_in": row[2] or 0,
+                "tokens_out": row[3] or 0,
+            }
+        )
 
     return StatsResponse(
         period_days=days,
@@ -560,8 +558,6 @@ async def create_device(
     admin: Admin = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> TrustedDevice:
-    from fastapi.responses import JSONResponse
-
     token = generate_device_token()
     token_hash = hashlib.sha256(token.encode()).hexdigest()
 
@@ -613,3 +609,74 @@ async def revoke_device(
         target_id=device.id,
         ip_address=get_real_ip(request),
     )
+
+
+# ---------------------------------------------------------------------------
+# TOTP Setup
+# ---------------------------------------------------------------------------
+@router.post("/totp/setup")
+async def totp_setup(
+    admin: Admin = Depends(require_admin),
+) -> dict:
+    import pyotp
+
+    secret = pyotp.random_base32()
+    totp = pyotp.TOTP(secret)
+    provisioning_uri = totp.provisioning_uri(name=admin.email, issuer_name="Lumio")
+    return {"secret": secret, "uri": provisioning_uri}
+
+
+@router.post("/totp/confirm", status_code=204)
+async def totp_confirm(
+    request: Request,
+    admin: Admin = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    import pyotp
+
+    body = await request.json()
+    secret = body.get("secret", "")
+    code = body.get("code", "")
+
+    if not secret or not code:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "missing_fields", "message": "Secret et code requis."}},
+        )
+
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(code):
+        raise HTTPException(
+            status_code=400,
+            detail={"error": {"code": "invalid_totp", "message": "Code TOTP invalide."}},
+        )
+
+    admin.totp_secret = secret
+    await log_action(
+        db,
+        admin_id=admin.id,
+        action="enable_totp",
+        ip_address=get_real_ip(request),
+    )
+
+
+@router.delete("/totp", status_code=204)
+async def totp_disable(
+    request: Request,
+    admin: Admin = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    admin.totp_secret = None
+    await log_action(
+        db,
+        admin_id=admin.id,
+        action="disable_totp",
+        ip_address=get_real_ip(request),
+    )
+
+
+@router.get("/totp/status")
+async def totp_status(
+    admin: Admin = Depends(require_admin),
+) -> dict:
+    return {"enabled": admin.totp_secret is not None}

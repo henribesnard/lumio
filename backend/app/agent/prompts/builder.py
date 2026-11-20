@@ -46,9 +46,7 @@ def build_system_prompt(
     template = _read("04_profil.md")
     notes_text = "Aucune note pour le moment."
     if learner_notes:
-        notes_text = "\n".join(
-            f"- {n.matiere} : {n.notes}" for n in learner_notes
-        )
+        notes_text = "\n".join(f"- {n.matiere} : {n.notes}" for n in learner_notes)
 
     sujets = ", ".join(profile.sujets_interdits) if profile.sujets_interdits else "Aucun"
     consignes = profile.consignes_admin or "Aucune consigne particulière."

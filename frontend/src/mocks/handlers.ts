@@ -3,17 +3,32 @@
  * VITE_USE_MOCKS=true npm run dev
  */
 import { http, HttpResponse, delay } from "msw";
-import { mockProfiles, mockConversations, mockMessages, mockSafetyEvents, mockDevices, mockStats, mockLearnerNotes } from "./data";
+import {
+  mockProfiles,
+  mockConversations,
+  mockMessages,
+  mockSafetyEvents,
+  mockDevices,
+  mockStats,
+  mockLearnerNotes,
+} from "./data";
 
 // Simulated auth state
-let currentUser: { role: string; admin_id?: string; profile_id?: string; prenom?: string } | null = null;
+let currentUser: {
+  role: string;
+  admin_id?: string;
+  profile_id?: string;
+  prenom?: string;
+} | null = null;
 
 export const handlers = [
   // ---- Health ----
-  http.get("/api/health", () => HttpResponse.json({ status: "ok", version: "0.1.0" })),
+  http.get("/api/health", () =>
+    HttpResponse.json({ status: "ok", version: "0.1.0" }),
+  ),
 
   // ---- Auth ----
-  http.post("/api/auth/admin/login", async ({ request }) => {
+  http.post("/api/auth/admin/login", async () => {
     await delay(300);
     currentUser = { role: "admin", admin_id: "admin-001" };
     return HttpResponse.json(currentUser, {
@@ -25,9 +40,21 @@ export const handlers = [
     await delay(300);
     const body = (await request.json()) as { profile_id: string; pin: string };
     const profile = mockProfiles.find((p) => p.id === body.profile_id);
-    if (!profile) return HttpResponse.json({ error: { code: "not_found", message: "Profil introuvable." } }, { status: 404 });
-    if (body.pin !== "5678") return HttpResponse.json({ error: { code: "invalid_pin", message: "Code PIN incorrect." } }, { status: 401 });
-    currentUser = { role: "kid", profile_id: profile.id, prenom: profile.prenom };
+    if (!profile)
+      return HttpResponse.json(
+        { error: { code: "not_found", message: "Profil introuvable." } },
+        { status: 404 },
+      );
+    if (body.pin !== "5678")
+      return HttpResponse.json(
+        { error: { code: "invalid_pin", message: "Code PIN incorrect." } },
+        { status: 401 },
+      );
+    currentUser = {
+      role: "kid",
+      profile_id: profile.id,
+      prenom: profile.prenom,
+    };
     return HttpResponse.json(currentUser);
   }),
 
@@ -37,14 +64,23 @@ export const handlers = [
   }),
 
   http.get("/api/auth/me", () => {
-    if (!currentUser) return HttpResponse.json({ error: { code: "not_authenticated", message: "Non connecté." } }, { status: 401 });
+    if (!currentUser)
+      return HttpResponse.json(
+        { error: { code: "not_authenticated", message: "Non connecté." } },
+        { status: 401 },
+      );
     return HttpResponse.json(currentUser);
   }),
 
   // ---- Kid: profiles ----
   http.get("/api/kid/profiles", () => {
     return HttpResponse.json(
-      mockProfiles.map((p) => ({ id: p.id, prenom: p.prenom, avatar: p.avatar, actif: p.actif })),
+      mockProfiles.map((p) => ({
+        id: p.id,
+        prenom: p.prenom,
+        avatar: p.avatar,
+        actif: p.actif,
+      })),
     );
   }),
 
@@ -52,11 +88,16 @@ export const handlers = [
   http.get("/api/kid/me", () => {
     const profileId = currentUser?.profile_id;
     const profile = mockProfiles.find((p) => p.id === profileId);
-    if (!profile) return HttpResponse.json({ error: { code: "not_found", message: "?" } }, { status: 401 });
+    if (!profile)
+      return HttpResponse.json(
+        { error: { code: "not_found", message: "?" } },
+        { status: 401 },
+      );
     return HttpResponse.json({
       prenom: profile.prenom,
       avatar: profile.avatar,
       age: profile.age,
+      quota_messages_jour: profile.quota_messages_jour,
       quota_messages_restant: profile.quota_messages_jour - 3,
       quota_tokens_restant: profile.quota_tokens_jour - 2000,
       hors_plage_horaire: false,
@@ -66,7 +107,9 @@ export const handlers = [
   // ---- Kid: conversations ----
   http.get("/api/kid/conversations", () => {
     const profileId = currentUser?.profile_id;
-    return HttpResponse.json(mockConversations.filter((c) => c.profile_id === profileId));
+    return HttpResponse.json(
+      mockConversations.filter((c) => c.profile_id === profileId),
+    );
   }),
 
   http.post("/api/kid/conversations", async ({ request }) => {
@@ -91,11 +134,10 @@ export const handlers = [
   }),
 
   // ---- Kid: send message (SSE) ----
-  http.post("/api/kid/conversations/:id/messages", async ({ request }) => {
-    const body = (await request.json()) as { contenu: string };
-
+  http.post("/api/kid/conversations/:id/messages", async () => {
     // Simulated SSE response
-    const responseText = "Bonne question ! Qu'est-ce que tu sais déjà sur ce sujet ? Essaie de me dire ce qui te vient en tête, et on avancera ensemble.";
+    const responseText =
+      "Bonne question ! Qu'est-ce que tu sais déjà sur ce sujet ? Essaie de me dire ce qui te vient en tête, et on avancera ensemble.";
     const words = responseText.split(" ");
     const encoder = new TextEncoder();
 
@@ -113,7 +155,9 @@ export const handlers = [
           tokens_in: 150,
           tokens_out: 30,
         });
-        controller.enqueue(encoder.encode(`event: done\ndata: ${doneData}\n\n`));
+        controller.enqueue(
+          encoder.encode(`event: done\ndata: ${doneData}\n\n`),
+        );
         controller.close();
       },
     });
@@ -131,40 +175,66 @@ export const handlers = [
 
   http.get("/api/admin/profiles/:id", ({ params }) => {
     const profile = mockProfiles.find((p) => p.id === params.id);
-    if (!profile) return HttpResponse.json({ error: { code: "not_found", message: "Introuvable." } }, { status: 404 });
+    if (!profile)
+      return HttpResponse.json(
+        { error: { code: "not_found", message: "Introuvable." } },
+        { status: 404 },
+      );
     return HttpResponse.json(profile);
   }),
 
   http.patch("/api/admin/profiles/:id", async ({ params, request }) => {
     const body = await request.json();
     const profile = mockProfiles.find((p) => p.id === params.id);
-    if (!profile) return HttpResponse.json({ error: { code: "not_found", message: "Introuvable." } }, { status: 404 });
+    if (!profile)
+      return HttpResponse.json(
+        { error: { code: "not_found", message: "Introuvable." } },
+        { status: 404 },
+      );
     Object.assign(profile, body);
     return HttpResponse.json(profile);
   }),
 
-  http.delete("/api/admin/profiles/:id", () => new HttpResponse(null, { status: 204 })),
+  http.delete(
+    "/api/admin/profiles/:id",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 
-  http.put("/api/admin/profiles/:id/pin", () => new HttpResponse(null, { status: 204 })),
+  http.put(
+    "/api/admin/profiles/:id/pin",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 
-  http.post("/api/admin/profiles/:id/unlock", () => new HttpResponse(null, { status: 204 })),
+  http.post(
+    "/api/admin/profiles/:id/unlock",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 
-  http.get("/api/admin/profiles/:id/prompt-preview", ({ params }) => {
-    return HttpResponse.json({ prompt: "Tu es Lumio, un tuteur bienveillant...\n[Prompt système complet pour ce profil]" });
+  http.get("/api/admin/profiles/:id/prompt-preview", () => {
+    return HttpResponse.json({
+      prompt:
+        "Tu es Lumio, un tuteur bienveillant...\n[Prompt système complet pour ce profil]",
+    });
   }),
 
   // ---- Admin: learner notes ----
   http.get("/api/admin/profiles/:id/learner-notes", ({ params }) => {
-    return HttpResponse.json(mockLearnerNotes.filter((n) => n.profile_id === params.id));
+    return HttpResponse.json(
+      mockLearnerNotes.filter((n) => n.profile_id === params.id),
+    );
   }),
 
   // ---- Admin: conversations ----
   http.get("/api/admin/profiles/:id/conversations", ({ params }) => {
-    return HttpResponse.json(mockConversations.filter((c) => c.profile_id === params.id));
+    return HttpResponse.json(
+      mockConversations.filter((c) => c.profile_id === params.id),
+    );
   }),
 
   http.get("/api/admin/conversations/:id/messages", ({ params }) => {
-    return HttpResponse.json(mockMessages.filter((m) => m.conversation_id === params.id));
+    return HttpResponse.json(
+      mockMessages.filter((m) => m.conversation_id === params.id),
+    );
   }),
 
   // ---- Admin: safety events ----
@@ -173,11 +243,15 @@ export const handlers = [
     const status = url.searchParams.get("status");
     let events = mockSafetyEvents;
     if (status === "pending") events = events.filter((e) => !e.acknowledged_at);
-    if (status === "acknowledged") events = events.filter((e) => !!e.acknowledged_at);
+    if (status === "acknowledged")
+      events = events.filter((e) => !!e.acknowledged_at);
     return HttpResponse.json(events);
   }),
 
-  http.post("/api/admin/safety-events/:id/ack", () => new HttpResponse(null, { status: 204 })),
+  http.post(
+    "/api/admin/safety-events/:id/ack",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 
   // ---- Admin: stats ----
   http.get("/api/admin/stats", () => HttpResponse.json(mockStats)),
@@ -198,10 +272,13 @@ export const handlers = [
     return HttpResponse.json(device, { status: 201 });
   }),
 
-  http.delete("/api/admin/devices/:id", () => new HttpResponse(null, { status: 204 })),
+  http.delete(
+    "/api/admin/devices/:id",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 
   // ---- Admin: export ----
-  http.get("/api/admin/profiles/:id/export", ({ params }) => {
+  http.get("/api/admin/profiles/:id/export", () => {
     return HttpResponse.json({
       prenom: "Léa",
       age: 7,
@@ -211,4 +288,20 @@ export const handlers = [
       exported_at: new Date().toISOString(),
     });
   }),
+
+  // ---- Admin: TOTP ----
+  http.get("/api/admin/totp/status", () =>
+    HttpResponse.json({ enabled: false }),
+  ),
+  http.post("/api/admin/totp/setup", () =>
+    HttpResponse.json({
+      secret: "JBSWY3DPEHPK3PXP",
+      uri: "otpauth://totp/Lumio:admin@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Lumio",
+    }),
+  ),
+  http.post(
+    "/api/admin/totp/confirm",
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.delete("/api/admin/totp", () => new HttpResponse(null, { status: 204 })),
 ];

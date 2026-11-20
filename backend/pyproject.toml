@@ -38,8 +38,8 @@ target-version = "py312"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "S", "B", "A", "C4", "SIM", "TCH"]
-ignore = ["S101", "S106"]  # Allow assert in tests, hardcoded passwords in examples
+select = ["E", "F", "I", "N", "W", "UP", "S", "B", "A", "C4", "SIM"]
+ignore = ["S101", "S106", "B008"]  # Allow assert in tests, hardcoded passwords in examples, FastAPI Depends()
 
 [tool.mypy]
 python_version = "3.12"
@@ -53,6 +53,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
 
+[tool.setuptools.packages.find]
+include = ["app*"]
+
 [build-system]
 requires = ["setuptools>=75"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"

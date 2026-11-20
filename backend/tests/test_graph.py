@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from app.agent.graph import run_agent
 from app.agent.moderation import detect_personal_info, get_safe_response
-from app.db.models import LearnerNotes, Message, Profile
 from app.auth.passwords import hash_pin
+from app.db.models import Profile
 
 
 def _make_profile(**kwargs) -> Profile:
@@ -32,10 +31,7 @@ def _make_profile(**kwargs) -> Profile:
         "locked_until": None,
     }
     defaults.update(kwargs)
-    p = Profile.__new__(Profile)
-    for k, v in defaults.items():
-        object.__setattr__(p, k, v)
-    return p
+    return Profile(**defaults)
 
 
 class TestPersonalInfoDetection:
@@ -241,4 +237,7 @@ class TestAgentGraph:
             done = [e for e in events if e["type"] == "done"]
             assert len(done) == 1
             # Should contain a fallback message
-            assert "réessaie" in done[0]["data"]["full_text"].lower() or "souci" in done[0]["data"]["full_text"].lower()
+            assert (
+                "réessaie" in done[0]["data"]["full_text"].lower()
+                or "souci" in done[0]["data"]["full_text"].lower()
+            )

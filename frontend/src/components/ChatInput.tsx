@@ -7,7 +7,12 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
-export function ChatInput({ onSend, disabled = false, maxLength = 1000, placeholder = "Écris ton message..." }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  disabled = false,
+  maxLength = 1000,
+  placeholder = "Écris ton message...",
+}: ChatInputProps) {
   const [text, setText] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
@@ -20,7 +25,10 @@ export function ChatInput({ onSend, disabled = false, maxLength = 1000, placehol
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-end gap-2 border-t border-border bg-surface p-3">
+    <form
+      onSubmit={handleSubmit}
+      className="flex items-end gap-2 border-t border-border bg-surface p-3"
+    >
       <div className="relative flex-1">
         <textarea
           value={text}
@@ -45,7 +53,12 @@ export function ChatInput({ onSend, disabled = false, maxLength = 1000, placehol
         disabled={disabled || !text.trim()}
         className="flex h-touch w-touch items-center justify-center rounded-button bg-primary text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="h-5 w-5"
+        >
           <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
         </svg>
       </button>

@@ -17,11 +17,13 @@ import { AdminProfileDetail } from "@/features/admin/AdminProfileDetail";
 import { AdminConversationView } from "@/features/admin/AdminConversationView";
 import { AdminSafetyEvents } from "@/features/admin/AdminSafetyEvents";
 import { AdminDevices } from "@/features/admin/AdminDevices";
+import { AdminSecurity } from "@/features/admin/AdminSecurity";
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  if (!user || user.role !== "admin") return <Navigate to="/admin/login" replace />;
+  if (!user || user.role !== "admin")
+    return <Navigate to="/admin/login" replace />;
   return <>{children}</>;
 }
 
@@ -114,6 +116,15 @@ export function AppRouter() {
         element={
           <RequireAdmin>
             <AdminDevices />
+          </RequireAdmin>
+        }
+      />
+
+      <Route
+        path="/admin/security"
+        element={
+          <RequireAdmin>
+            <AdminSecurity />
           </RequireAdmin>
         }
       />

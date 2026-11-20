@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     database_url_sync: str = "postgresql://lumio:lumio@db:5432/lumio"
 
     # --- Sécurité ---
-    session_secret: str = "CHANGE_ME_IN_PRODUCTION"
+    session_secret: str = "CHANGE_ME_IN_PRODUCTION"  # noqa: S105
     public_url: str = "https://lumio.wezon.fr"
 
     # --- Mistral ---

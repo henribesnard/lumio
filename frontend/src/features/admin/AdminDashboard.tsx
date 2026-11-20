@@ -7,7 +7,9 @@ import { AdminLayout } from "./AdminLayout";
 export function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<StatsResponse | null>(null);
-  const [criticalEvents, setCriticalEvents] = useState<SafetyEventResponse[]>([]);
+  const [criticalEvents, setCriticalEvents] = useState<SafetyEventResponse[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +28,9 @@ export function AdminDashboard() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-4xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Tableau de bord</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Tableau de bord
+        </h2>
 
         {/* Critical alerts */}
         {criticalEvents.length > 0 && (
@@ -36,7 +40,10 @@ export function AdminDashboard() {
             </h3>
             <div className="space-y-2">
               {criticalEvents.slice(0, 3).map((event) => (
-                <div key={event.id} className="flex items-center justify-between text-small">
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between text-small"
+                >
                   <span className="text-foreground">
                     {event.type} — {event.extrait?.slice(0, 60)}...
                   </span>
@@ -53,7 +60,9 @@ export function AdminDashboard() {
         )}
 
         {loading ? (
-          <div className="animate-pulse text-foreground-muted">Chargement...</div>
+          <div className="animate-pulse text-foreground-muted">
+            Chargement...
+          </div>
         ) : stats ? (
           <>
             {/* Stats cards */}
@@ -66,13 +75,13 @@ export function AdminDashboard() {
                   (stats.safety_events_by_severity.critical || 0) +
                   (stats.safety_events_by_severity.warning || 0)
                 }
-                highlight={
-                  (stats.safety_events_by_severity.critical || 0) > 0
-                }
+                highlight={(stats.safety_events_by_severity.critical || 0) > 0}
               />
               <StatCard
                 label="Tokens utilisés"
-                value={Math.round((stats.total_tokens_in + stats.total_tokens_out) / 1000)}
+                value={Math.round(
+                  (stats.total_tokens_in + stats.total_tokens_out) / 1000,
+                )}
                 suffix="k"
               />
             </div>
@@ -87,9 +96,15 @@ export function AdminDashboard() {
                   <table className="w-full text-left text-small">
                     <thead className="border-b border-border">
                       <tr>
-                        <th className="pb-2 font-semibold text-foreground">Prénom</th>
-                        <th className="pb-2 font-semibold text-foreground">Messages</th>
-                        <th className="pb-2 font-semibold text-foreground">Tokens</th>
+                        <th className="pb-2 font-semibold text-foreground">
+                          Prénom
+                        </th>
+                        <th className="pb-2 font-semibold text-foreground">
+                          Messages
+                        </th>
+                        <th className="pb-2 font-semibold text-foreground">
+                          Tokens
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -109,7 +124,9 @@ export function AdminDashboard() {
             )}
           </>
         ) : (
-          <p className="text-foreground-muted">Impossible de charger les statistiques.</p>
+          <p className="text-foreground-muted">
+            Impossible de charger les statistiques.
+          </p>
         )}
       </div>
     </AdminLayout>
@@ -134,7 +151,9 @@ function StatCard({
       }`}
     >
       <p className="text-tiny text-foreground-muted">{label}</p>
-      <p className={`text-heading font-bold ${highlight ? "text-danger" : "text-foreground"}`}>
+      <p
+        className={`text-heading font-bold ${highlight ? "text-danger" : "text-foreground"}`}
+      >
         {value}
         {suffix}
       </p>

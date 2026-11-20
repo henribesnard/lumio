@@ -1,13 +1,16 @@
 import { type InputHTMLAttributes, forwardRef, useId } from "react";
 
-interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
+interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   label?: string;
   error?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, error, disabled, className = "", id: externalId, ...rest },
-  ref
+  ref,
 ) {
   const generatedId = useId();
   const id = externalId ?? generatedId;
@@ -16,10 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label
-          htmlFor={id}
-          className="text-small font-medium text-foreground"
-        >
+        <label htmlFor={id} className="text-small font-medium text-foreground">
           {label}
         </label>
       )}

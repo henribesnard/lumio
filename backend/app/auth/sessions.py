@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import secrets
-import uuid
 from datetime import datetime, timedelta
 
 from fastapi import Request, Response
@@ -62,16 +61,17 @@ def set_csrf_cookie(response: Response) -> str:
     return token
 
 
-def verify_csrf(request: Request) -> bool:
-    """Verify Origin header and CSRF double-submit token."""
-    # Check Origin header
+def verify_origin(request: Request) -> bool:
+    """Reject requests whose Origin header doesn't match PUBLIC_URL."""
     origin = request.headers.get("origin")
-    if origin:
-        allowed = settings.public_url.rstrip("/")
-        if origin.rstrip("/") != allowed:
-            return False
+    if not origin:
+        return True  # no Origin header (e.g. same-origin, non-browser)
+    allowed = settings.public_url.rstrip("/")
+    return origin.rstrip("/") == allowed
 
-    # Double-submit: cookie vs header
+
+def verify_csrf_token(request: Request) -> bool:
+    """Verify CSRF double-submit cookie vs header."""
     cookie_token = request.cookies.get(CSRF_COOKIE)
     header_token = request.headers.get("x-csrf-token")
     if not cookie_token or not header_token:

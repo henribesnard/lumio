@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import hashlib
-from datetime import datetime, timedelta
-from unittest.mock import patch
+import time
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import _pin_ip_attempts
 from app.auth.passwords import hash_pin, is_trivial_pin, verify_pin
-from app.db.models import Admin, Profile, SessionRecord, TrustedDevice
+from app.db.models import Admin, Profile
 
 
 # ---------------------------------------------------------------------------
@@ -66,7 +65,7 @@ class TestAdminLogin:
 
     @pytest.mark.asyncio
     async def test_lockout_after_5_failures(self, client: AsyncClient, admin_user: Admin):
-        for i in range(5):
+        for _i in range(5):
             response = await client.post(
                 "/api/auth/admin/login",
                 json={"email": "admin@test.com", "password": "wrong"},
@@ -110,14 +109,12 @@ class TestKidLogin:
         assert response.status_code == 401
 
     @pytest.mark.asyncio
-    async def test_pin_lockout(
-        self, client: AsyncClient, child_profile: Profile, trusted_device
-    ):
+    async def test_pin_lockout(self, client: AsyncClient, child_profile: Profile, trusted_device):
         device, token = trusted_device
         from tests.conftest import make_device_cookie
 
         cookies = make_device_cookie(token)
-        for i in range(5):
+        for _i in range(5):
             response = await client.post(
                 "/api/auth/kid/login",
                 json={"profile_id": str(child_profile.id), "pin": "9999"},
@@ -156,6 +153,35 @@ class TestKidLogin:
             cookies=cookies,
         )
         assert response.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_ip_rate_limit(self, client: AsyncClient, child_profile: Profile):
+        """IP rate limiter blocks after too many attempts."""
+        # Seed the in-memory rate limiter with enough entries to exceed the limit
+        ip = "127.0.0.1"  # test client IP via ASGI transport
+        now = time.time()
+        _pin_ip_attempts[ip] = [now] * 25  # well above the 20/15min default
+
+        try:
+            response = await client.post(
+                "/api/auth/kid/login",
+                json={"profile_id": str(child_profile.id), "pin": "5678"},
+            )
+            assert response.status_code == 429
+            assert response.json()["error"]["code"] == "rate_limited"
+        finally:
+            _pin_ip_attempts.pop(ip, None)
+
+    @pytest.mark.asyncio
+    async def test_origin_header_enforced(self, client: AsyncClient, child_profile: Profile):
+        """Origin header is verified even on CSRF-token-exempt login path."""
+        response = await client.post(
+            "/api/auth/kid/login",
+            json={"profile_id": str(child_profile.id), "pin": "5678"},
+            headers={"Origin": "https://evil.example.com"},
+        )
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "csrf_failed"
 
 
 # ---------------------------------------------------------------------------

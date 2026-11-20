@@ -46,7 +46,8 @@ Les variables sont dans `src/styles/tokens.css`.
   - Chargement (spinner)
   - Profils affichés (grille d'avatars + prénoms)
   - Aucun profil actif (message vide)
-  - Appareil non reconnu (erreur)
+  - **Appareil non reconnu** (écran dédié avec icône warning, titre « Appareil non reconnu », message demandant l'activation par un parent)
+  - Erreur générique (message simple)
   - Notice : « Tes parents peuvent lire tes conversations. »
 
 ### 2. Saisie du PIN (`/pin/:profileId`)
@@ -63,11 +64,11 @@ Les variables sont dans `src/styles/tokens.css`.
 - **Données** : `GET /api/kid/conversations`, `GET /api/kid/me`
 - **États** :
   - Liste de conversations (titre + date)
-  - Aucune conversation (empty state)
+  - **Aucune conversation + suggestions** : grille 2x2 d'idées adaptées à la tranche d'âge (6-8 / 9-14)
   - Bouton « Nouvelle conversation »
   - Hors plage horaire (bannière warning, bouton désactivé)
   - Quota atteint (bannière info, bouton désactivé)
-  - Header : avatar + prénom + quota restant + bouton Quitter
+  - Header : avatar + prénom + **barre de quota visuelle** (progress bar messages_restant / messages_jour) + bouton Quitter
 
 ### 4. Chat (`/chat/:conversationId`)
 - **But** : conversation avec Lumio
@@ -139,6 +140,14 @@ Les variables sont dans `src/styles/tokens.css`.
   - Liste d'appareils (label + dates)
   - Formulaire d'ajout (label)
   - Bouton Révoquer avec confirmation
+
+### 12. Sécurité du compte (`/admin/security`)
+- **But** : activer / désactiver l'authentification TOTP
+- **Données** : `GET /api/admin/totp/status`
+- **États** :
+  - TOTP désactivé : bouton « Activer le TOTP »
+  - **Flux d'activation** : secret affiché (texte + URI pour QR), champ de saisie du code 6 chiffres, bouton Confirmer / Annuler
+  - TOTP activé : badge vert + bouton « Désactiver le TOTP »
 
 ## Inventaire des composants
 

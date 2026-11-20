@@ -40,7 +40,10 @@ export function AdminLoginPage() {
   }
 
   return (
-    <div data-theme="admin" className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div
+      data-theme="admin"
+      className="flex min-h-screen items-center justify-center bg-background p-4"
+    >
       <div className="w-full max-w-md rounded-card bg-surface p-8 shadow-card">
         <h1 className="mb-6 text-center text-heading font-bold text-foreground">
           Administration Lumio
@@ -48,7 +51,10 @@ export function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="mb-1 block text-small font-medium text-foreground">
+            <label
+              htmlFor="email"
+              className="mb-1 block text-small font-medium text-foreground"
+            >
               Email
             </label>
             <input
@@ -63,7 +69,10 @@ export function AdminLoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-1 block text-small font-medium text-foreground">
+            <label
+              htmlFor="password"
+              className="mb-1 block text-small font-medium text-foreground"
+            >
               Mot de passe
             </label>
             <input
@@ -79,7 +88,10 @@ export function AdminLoginPage() {
 
           {needsTotp && (
             <div>
-              <label htmlFor="totp" className="mb-1 block text-small font-medium text-foreground">
+              <label
+                htmlFor="totp"
+                className="mb-1 block text-small font-medium text-foreground"
+              >
                 Code TOTP
               </label>
               <input

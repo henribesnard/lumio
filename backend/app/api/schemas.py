@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -102,6 +102,7 @@ class ProfileResponse(BaseModel):
 
 class ProfilePublic(BaseModel):
     """Minimal profile info for kid selection screen."""
+
     id: uuid.UUID
     prenom: str
     avatar: str
@@ -180,6 +181,7 @@ class MessageResponse(BaseModel):
 
 class MessageResponseKid(BaseModel):
     """Message response for kids — no moderation/guard details."""
+
     id: uuid.UUID
     conversation_id: uuid.UUID
     role: str
@@ -244,6 +246,7 @@ class KidMeResponse(BaseModel):
     prenom: str
     avatar: str
     age: int
+    quota_messages_jour: int
     quota_messages_restant: int
     quota_tokens_restant: int
     hors_plage_horaire: bool

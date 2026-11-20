@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface ToastItem {
   id: number;
@@ -19,7 +25,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const toast = useCallback((type: ToastItem["type"], message: string) => {
     const id = ++_id;
     setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      4000,
+    );
   }, []);
 
   const styles = {
@@ -33,7 +42,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
         {toasts.map((t) => (
-          <div key={t.id} className={`animate-in slide-in-from-right rounded-button px-4 py-3 text-small font-medium shadow-modal ${styles[t.type]}`}>
+          <div
+            key={t.id}
+            className={`animate-in slide-in-from-right rounded-button px-4 py-3 text-small font-medium shadow-modal ${styles[t.type]}`}
+          >
             {t.message}
           </div>
         ))}

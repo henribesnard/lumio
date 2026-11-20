@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import json
 from datetime import date, datetime
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Profile, UsageDaily
@@ -21,9 +20,7 @@ async def get_today_usage(db: AsyncSession, profile_id: str) -> UsageDaily | Non
     return result.scalar_one_or_none()
 
 
-async def get_remaining_quota(
-    db: AsyncSession, profile: Profile
-) -> tuple[int, int]:
+async def get_remaining_quota(db: AsyncSession, profile: Profile) -> tuple[int, int]:
     """Return (messages_remaining, tokens_remaining)."""
     usage = await get_today_usage(db, profile.id)
     if not usage:
@@ -86,12 +83,12 @@ def is_within_time_window(profile: Profile) -> bool:
     return False
 
 
-async def check_quota_and_schedule(
-    db: AsyncSession, profile: Profile
-) -> str | None:
+async def check_quota_and_schedule(db: AsyncSession, profile: Profile) -> str | None:
     """Return a friendly error message if quota exceeded or outside schedule, else None."""
     if not is_within_time_window(profile):
-        return "Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les heures autorisées !"
+        return (
+            "Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les heures autorisées !"
+        )
 
     msg_remaining, tok_remaining = await get_remaining_quota(db, profile)
     if msg_remaining <= 0:

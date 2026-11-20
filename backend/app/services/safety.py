@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +12,7 @@ from app.db.models import SafetyEvent
 async def create_safety_event(
     db: AsyncSession,
     *,
-    type: str,
+    event_type: str,
     severity: str,
     profile_id: uuid.UUID | None = None,
     conversation_id: uuid.UUID | None = None,
@@ -24,7 +23,7 @@ async def create_safety_event(
         profile_id=profile_id,
         conversation_id=conversation_id,
         message_id=message_id,
-        type=type,
+        type=event_type,
         severity=severity,
         extrait=extrait[:500] if extrait else None,
     )
