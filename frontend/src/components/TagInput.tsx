@@ -35,7 +35,7 @@ export function TagInput({
       {tags.map((tag, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-tiny font-medium text-primary"
+          className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-tiny font-medium text-link"
         >
           {tag}
           <button

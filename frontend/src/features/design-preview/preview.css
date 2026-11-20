@@ -153,7 +153,7 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 .dp-sample {
-  border: 1px dashed #c3ccdb;
+  border: 1px dashed var(--color-border-subtle);
   border-radius: 0.75rem;
   padding: 1rem;
 }
@@ -162,7 +162,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #55607a;
+  color: var(--color-foreground-muted);
   font-family: "Lexend", sans-serif;
 }
 .dp-row {
@@ -193,151 +193,10 @@
 }
 .dp-mascot span {
   font-size: 0.72rem;
-  color: #55607a;
+  color: var(--color-foreground-muted);
   font-family: "Lexend", sans-serif;
 }
 
-/* ============ PISTE A — Braise ============ */
-.piste-a {
-  --color-primary: #9a3412;
-  --color-primary-hover: #7c2d12;
-  --color-primary-light: #fbe3c8;
-  --color-secondary: #0f766e;
-  --color-accent: #f59e0b;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f4ead9;
-  --color-background: #fbf5eb;
-  --color-foreground: #2a2118;
-  --color-foreground-muted: #6b5d4f;
-  --color-border: #8f7b60;
-  --color-success: #15803d;
-  --color-warning: #92400e;
-  --color-danger: #b91c1c;
-  --color-info: #1d4ed8;
-  --color-bubble-child: #fbe3c8;
-  --color-bubble-child-text: #2a2118;
-  --color-bubble-assistant: #ffffff;
-  --color-bubble-assistant-text: #2a2118;
-  --color-bubble-notice: #fceed3;
-  --color-bubble-notice-text: #92400e;
-  --font-sans: "Atkinson Hyperlegible", "Lexend", system-ui, sans-serif;
-  --text-display: 2rem;
-  --text-heading: 1.5rem;
-  --text-subheading: 1.25rem;
-  --text-body: 1rem;
-  --text-small: 0.875rem;
-  --text-tiny: 0.75rem;
-  --radius-card: 1rem;
-  --radius-button: 0.75rem;
-  --radius-input: 0.5rem;
-  --radius-full: 9999px;
-  --size-touch-target: 48px;
-  --shadow-card: 0 1px 3px rgb(42 33 24 / 0.14);
-  --shadow-modal: 0 20px 25px -5px rgb(42 33 24 / 0.18);
-  --mascot-body: #f59e0b;
-  --mascot-outline: #9a3412;
-  --mascot-face: #2a2118;
-}
-.piste-a.admin-demo {
-  --color-background: #f6f4ef;
-  --color-surface: #ffffff;
-  --color-surface-alt: #efece5;
-  --color-foreground: #292524;
-  --color-foreground-muted: #6d6459;
-  --color-border: #b8ad9c;
-  --color-primary: #292524;
-  --color-primary-hover: #1c1917;
-  --color-primary-light: #efece5;
-  --color-accent: #9a3412;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --text-body: 0.9375rem;
-  --text-small: 0.8125rem;
-}
-.piste-a.age68-demo {
-  --text-display: 2.5rem;
-  --text-heading: 2rem;
-  --text-subheading: 1.5rem;
-  --text-body: 1.25rem;
-  --text-small: 1.1rem;
-  --text-tiny: 0.9rem;
-  --size-touch-target: 56px;
-  --radius-card: 1.5rem;
-  --radius-button: 1rem;
-}
-
-/* ============ PISTE B — Brume ============ */
-.piste-b {
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-light: #e4e9f8;
-  --color-secondary: #0e7490;
-  --color-accent: #f59e0b;
-  --color-surface: #ffffff;
-  --color-surface-alt: #e8ecf5;
-  --color-background: #f3f5fa;
-  --color-foreground: #1c2333;
-  --color-foreground-muted: #55607a;
-  --color-border: #6e7a94;
-  --color-success: #15803d;
-  --color-warning: #92400e;
-  --color-danger: #b91c1c;
-  --color-info: #1d4ed8;
-  --color-bubble-child: #e4e9f8;
-  --color-bubble-child-text: #1c2333;
-  --color-bubble-assistant: #ffffff;
-  --color-bubble-assistant-text: #1c2333;
-  --color-bubble-notice: #fceed3;
-  --color-bubble-notice-text: #92400e;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --text-display: 2rem;
-  --text-heading: 1.5rem;
-  --text-subheading: 1.25rem;
-  --text-body: 1rem;
-  --text-small: 0.875rem;
-  --text-tiny: 0.75rem;
-  --radius-card: 1rem;
-  --radius-button: 0.75rem;
-  --radius-input: 0.5rem;
-  --radius-full: 9999px;
-  --size-touch-target: 48px;
-  --shadow-card: 0 1px 3px rgb(28 35 51 / 0.12);
-  --shadow-modal: 0 20px 25px -5px rgb(28 35 51 / 0.2);
-  --mascot-body: #4f46e5;
-  --mascot-outline: #3730a3;
-  --mascot-face: #1c2333;
-}
-.piste-b.kid68-font {
-  --font-sans: "Lexend", "Inter", system-ui, sans-serif;
-}
-.piste-b.admin-demo {
-  --color-background: #f6f7f9;
-  --color-surface: #ffffff;
-  --color-surface-alt: #eceff5;
-  --color-foreground: #1c2333;
-  --color-foreground-muted: #55607a;
-  --color-border: #9aa5bb;
-  --color-primary: #1e293b;
-  --color-primary-hover: #0f172a;
-  --color-primary-light: #eceff5;
-  --color-accent: #4338ca;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --text-body: 0.9375rem;
-  --text-small: 0.8125rem;
-}
-.piste-b.age68-demo {
-  --font-sans: "Lexend", "Inter", system-ui, sans-serif;
-  --text-display: 2.5rem;
-  --text-heading: 2rem;
-  --text-subheading: 1.5rem;
-  --text-body: 1.25rem;
-  --text-small: 1.1rem;
-  --text-tiny: 0.9rem;
-  --size-touch-target: 56px;
-  --radius-card: 1.5rem;
-  --radius-button: 1rem;
-}
-
-/* zone d'affichage des échantillons */
 .dp-stage {
   border-radius: var(--radius-card);
   background: var(--color-background);

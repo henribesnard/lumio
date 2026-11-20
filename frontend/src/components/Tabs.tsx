@@ -22,7 +22,7 @@ export function Tabs({ tabs, activeKey, onChange }: TabsProps) {
             onClick={() => onChange(tab.key)}
             className={`px-4 py-2 text-small font-medium transition-colors duration-fast focus:outline-none focus-visible:shadow-focus ${
               active
-                ? "border-b-2 border-primary text-primary"
+                ? "border-b-2 border-primary text-link"
                 : "border-b-2 border-transparent text-foreground-muted hover:text-foreground"
             }`}
           >
