@@ -38,7 +38,7 @@ target-version = "py312"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "S", "B", "A", "C4", "SIM", "TCH"]
+select = ["E", "F", "I", "N", "W", "UP", "S", "B", "A", "C4", "SIM"]
 ignore = ["S101", "S106", "B008"]  # Allow assert in tests, hardcoded passwords in examples, FastAPI Depends()
 
 [tool.mypy]

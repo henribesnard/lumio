@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
     ConversationCreate,
@@ -28,11 +29,6 @@ from app.db.models import (
     TrustedDevice,
 )
 from app.services.quota import check_quota_and_schedule, get_remaining_quota, is_within_time_window
-
-if TYPE_CHECKING:
-    import uuid
-
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/kid", tags=["kid"])
 settings = get_settings()

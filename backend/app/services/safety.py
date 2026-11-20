@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import uuid
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import SafetyEvent
-
-if TYPE_CHECKING:
-    import uuid
-
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_safety_event(

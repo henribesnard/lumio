@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from app.db.models import LearnerNotes, Profile
+from app.db.models import LearnerNotes, Profile
 
 _PROMPT_DIR = Path(__file__).parent
 

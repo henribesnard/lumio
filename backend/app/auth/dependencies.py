@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.sessions import (
     ADMIN_COOKIE,
@@ -18,9 +18,6 @@ from app.auth.sessions import (
 from app.config import get_settings
 from app.db import get_db
 from app.db.models import Admin, Profile, TrustedDevice
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 settings = get_settings()
 

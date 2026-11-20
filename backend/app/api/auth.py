@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
     AdminLoginRequest,
@@ -29,9 +29,6 @@ from app.db import get_db
 from app.db.models import Admin, Profile, TrustedDevice
 from app.services.audit import log_action
 from app.services.safety import create_safety_event
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 settings = get_settings()

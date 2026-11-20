@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import uuid
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import delete, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
     ConversationResponse,
@@ -39,11 +40,6 @@ from app.db.models import (
     UsageDaily,
 )
 from app.services.audit import log_action
-
-if TYPE_CHECKING:
-    import uuid
-
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 settings = get_settings()

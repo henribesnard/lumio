@@ -5,7 +5,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import TYPE_CHECKING, Any, TypedDict
+from collections.abc import AsyncGenerator
+from typing import Any, TypedDict
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_mistralai import ChatMistralAI
@@ -17,11 +18,7 @@ from app.agent.moderation import (
 )
 from app.agent.prompts.builder import build_system_prompt, get_age_bracket
 from app.config import get_settings
-
-if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator
-
-    from app.db.models import LearnerNotes, Message, Profile
+from app.db.models import LearnerNotes, Message, Profile
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
