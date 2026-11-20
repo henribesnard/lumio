@@ -248,6 +248,7 @@ async def send_message(
                         contenu=full_text,
                         kind=done_data.get("kind"),
                         hint_level=done_data.get("hint_level"),
+                        visual=done_data.get("visual"),
                         tokens_in=done_data.get("tokens_in", 0),
                         tokens_out=done_data.get("tokens_out", 0),
                         modele=done_data.get("model"),

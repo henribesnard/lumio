@@ -84,6 +84,7 @@ async def create_profile(
         consignes_admin=body.consignes_admin,
         sujets_interdits=body.sujets_interdits,
         modele=body.modele,
+        supports_visuels=body.supports_visuels,
         quota_messages_jour=body.quota_messages_jour,
         quota_tokens_jour=body.quota_tokens_jour,
         plages_horaires=body.plages_horaires,

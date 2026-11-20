@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     mistral_timeout: int = 30
     mistral_max_retries: int = 2
 
+    # --- Supports visuels (prototype, voir docs/VISUAL_AIDS.md) ---
+    # Drapeau global ; il faut aussi activer « Supports visuels » sur le profil.
+    visual_aids_enabled: bool = False
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 

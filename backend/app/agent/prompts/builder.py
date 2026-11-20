@@ -29,6 +29,7 @@ def _age_prompt_file(age: int) -> str:
 def build_system_prompt(
     profile: Profile,
     learner_notes: list[LearnerNotes] | None = None,
+    visual_aids: bool = False,
 ) -> str:
     """Build the 4-layer system prompt for a given profile."""
     layers = []
@@ -63,6 +64,10 @@ def build_system_prompt(
 
     # Layer 5: structured output format (message type for the UI)
     layers.append(_read("05_format.md"))
+
+    # Layer 6 (optional): visual aids — only when the show_visual tool is offered
+    if visual_aids:
+        layers.append(_read("06_supports_visuels.md"))
 
     return "\n\n---\n\n".join(layers)
 

@@ -8,16 +8,23 @@ import logging
 from collections.abc import AsyncGenerator
 from typing import Any, TypedDict
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_mistralai import ChatMistralAI
 
 from app.agent.moderation import (
+    detect_personal_info,
     get_safe_response,
     run_input_guard,
     run_output_guard,
 )
 from app.agent.prompts.builder import build_system_prompt, get_age_bracket
 from app.agent.tutor_output import TutorReply, parse_tutor_output
+from app.agent.visuals import (
+    reveals_arithmetic_answer,
+    validate_visual,
+    visual_json_schema,
+    visual_texts,
+)
 from app.config import get_settings
 from app.db.models import LearnerNotes, Message, Profile
 
@@ -45,15 +52,84 @@ class AgentState(TypedDict, total=False):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-def _get_tutor_llm(model_override: str | None = None) -> Any:
-    """Tutor LLM in JSON mode (structured output: type + text, see 05_format.md)."""
+SHOW_VISUAL_TOOL_NAME = "show_visual"
+
+
+def _inline_refs(schema: dict) -> dict:
+    """Inline ``$defs`` references (simpler schema for function calling)."""
+    defs = schema.get("$defs", {})
+
+    def walk(node: Any) -> Any:
+        if isinstance(node, dict):
+            ref = node.get("$ref")
+            if isinstance(ref, str) and ref.startswith("#/$defs/"):
+                return walk(defs[ref.split("/")[-1]])
+            return {k: walk(v) for k, v in node.items() if k != "$defs"}
+        if isinstance(node, list):
+            return [walk(v) for v in node]
+        return node
+
+    out = walk(schema)
+    out.pop("discriminator", None)
+    return out
+
+
+def show_visual_tool() -> dict[str, Any]:
+    """Function-calling definition of the visual aid tool (see docs/VISUAL_AIDS.md)."""
+    return {
+        "type": "function",
+        "function": {
+            "name": SHOW_VISUAL_TOOL_NAME,
+            "description": (
+                "Dessine une feuille pour l'enfant : droite graduée, barres de fractions, "
+                "graphique, figure simple ou frise. N'y mets JAMAIS la réponse : "
+                "la valeur cherchée reste vide ou « ? »."
+            ),
+            "parameters": _inline_refs(visual_json_schema()),
+        },
+    }
+
+
+def visual_aids_active(profile: Profile) -> bool:
+    """Visual aids need the global flag AND the per-profile setting."""
+    return bool(settings.visual_aids_enabled and getattr(profile, "supports_visuels", False))
+
+
+def _get_tutor_llm(model_override: str | None = None, with_visual_tool: bool = False) -> Any:
+    """Tutor LLM in JSON mode (structured output: type + text, see 05_format.md).
+
+    The ``show_visual`` tool is bound only when visual aids are active for the
+    profile: otherwise the model does not even see it.
+    """
     model = model_override or settings.mistral_tutor_model
-    return ChatMistralAI(
+    llm: Any = ChatMistralAI(
         model=model,
         api_key=settings.mistral_api_key,
         temperature=settings.tutor_temperature,
         timeout=settings.mistral_timeout,
-    ).bind(response_format={"type": "json_object"})
+    )
+    if with_visual_tool:
+        llm = llm.bind_tools([show_visual_tool()], tool_choice="auto")
+    return llm.bind(response_format={"type": "json_object"})
+
+
+def _extract_visual(response: Any) -> tuple[dict | None, str | None]:
+    """First show_visual call of a response → (raw args, tool_call_id)."""
+    for call in getattr(response, "tool_calls", None) or []:
+        if isinstance(call, dict) and call.get("name") == SHOW_VISUAL_TOOL_NAME:
+            return call.get("args"), call.get("id")
+    return None, None
+
+
+def check_visual(spec: dict | None, child_message: str) -> tuple[dict | None, str | None]:
+    """Deterministic visual checks; returns (spec or None, reason when dropped)."""
+    if spec is None:
+        return None, None
+    if reveals_arithmetic_answer(spec, child_message):
+        return None, "reveals_answer"
+    if detect_personal_info(" ".join(visual_texts(spec))):
+        return None, "personal_info"
+    return spec, None
 
 
 def _build_chat_messages(
@@ -236,7 +312,8 @@ async def run_agent(
     # -----------------------------------------------------------------------
     # 3. Context assembly
     # -----------------------------------------------------------------------
-    system_prompt = build_system_prompt(profile, learner_notes)
+    visuals_on = visual_aids_active(profile)
+    system_prompt = build_system_prompt(profile, learner_notes, visual_aids=visuals_on)
 
     # Add homework_dump hint to context if detected
     if input_verdict.get("homework_dump"):
@@ -253,8 +330,10 @@ async def run_agent(
     # 4. Tutor call
     # -----------------------------------------------------------------------
     model_override = profile.modele
-    llm = _get_tutor_llm(model_override)
+    llm = _get_tutor_llm(model_override, with_visual_tool=visuals_on)
     rewrite_count = 0
+    visual: dict | None = None
+    visual_drop_reason: str | None = None
     max_rewrites = settings.max_rewrite_count
 
     reply: TutorReply | None = None
@@ -271,6 +350,10 @@ async def run_agent(
         except Exception as e:
             llm_failures += 1
             logger.error("Tutor LLM failed (attempt %d): %s", llm_failures, e)
+            if visuals_on:
+                # Never fail because of the tool: retry without visual aids.
+                visuals_on = False
+                llm = _get_tutor_llm(model_override)
             if llm_failures == 1:
                 # Retry once
                 await asyncio.sleep(1)
@@ -282,6 +365,33 @@ async def run_agent(
             return
 
         attempt += 1
+
+        # Visual aid (tool call) — validated, never blocking the text answer.
+        visual, visual_drop_reason = None, None
+        if visuals_on:
+            raw_visual, call_id = _extract_visual(response)
+            if raw_visual is not None:
+                visual = validate_visual(raw_visual)
+                if visual is None:
+                    visual_drop_reason = "invalid_spec"
+                visual, reason = check_visual(visual, child_message)
+                visual_drop_reason = visual_drop_reason or reason
+                if not raw.strip():
+                    # Tool call without text: ask for the text once, without tools.
+                    try:
+                        follow = await _get_tutor_llm(model_override).ainvoke(
+                            [
+                                *chat_messages,
+                                response,
+                                ToolMessage(
+                                    content="Feuille affichée.", tool_call_id=call_id or ""
+                                ),
+                            ]
+                        )
+                        raw = follow.content if isinstance(follow.content, str) else ""
+                    except Exception as e:
+                        logger.error("Follow-up after show_visual failed: %s", e)
+
         reply = parse_tutor_output(raw)
         if reply is None:
             # Unreadable structured output: ask once for a clean answer.
@@ -312,6 +422,7 @@ async def run_agent(
                 niveau=profile.niveau,
                 message_type=reply.kind,
                 hint_level=reply.hint_level,
+                visual_description=visual["alt"] if visual else None,
             )
         except Exception as e:
             logger.error("Output guard failed: %s", e)
@@ -352,6 +463,15 @@ async def run_agent(
             yield event
         return
 
+    # A visual the guard rejects is dropped: the text goes alone.
+    if visual is not None and (
+        output_verdict.get("visual_ok", True) is False
+        or output_verdict.get("visual_reveals_answer") is True
+    ):
+        visual, visual_drop_reason = None, "output_guard"
+    if visual_drop_reason:
+        output_verdict = {**output_verdict, "visual_dropped": visual_drop_reason}
+
     # A type the guard finds inconsistent is dropped: the message is shown plainly.
     kind = reply.kind if output_verdict.get("type_ok", True) is not False else None
     hint_level = reply.hint_level if kind == "hint" else None
@@ -369,6 +489,7 @@ async def run_agent(
             "full_text": reply.text,
             "kind": kind,
             "hint_level": hint_level,
+            "visual": visual,
             "safety_events": safety_events,
             "tokens_in": total_tokens_in,
             "tokens_out": total_tokens_out,

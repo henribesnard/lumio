@@ -106,6 +106,7 @@ class ProfileCreate(BaseModel):
     consignes_admin: str | None = None
     sujets_interdits: list[str] = Field(default_factory=list)
     modele: str | None = None
+    supports_visuels: bool = False
     quota_messages_jour: int = Field(default=50, ge=1, le=500)
     quota_tokens_jour: int = Field(default=50000, ge=1000, le=500000)
     plages_horaires: dict | None = None
@@ -131,6 +132,7 @@ class ProfileUpdate(BaseModel):
     consignes_admin: str | None = None
     sujets_interdits: list[str] | None = None
     modele: str | None = None
+    supports_visuels: bool | None = None
     quota_messages_jour: int | None = Field(default=None, ge=1, le=500)
     quota_tokens_jour: int | None = Field(default=None, ge=1000, le=500000)
     plages_horaires: dict | None = None
@@ -151,6 +153,7 @@ class ProfileResponse(BaseModel):
     consignes_admin: str | None
     sujets_interdits: list[str]
     modele: str | None
+    supports_visuels: bool = False
     quota_messages_jour: int
     quota_tokens_jour: int
     plages_horaires: dict | None
@@ -239,6 +242,7 @@ class MessageResponse(BaseModel):
     contenu: str
     kind: MessageKind | None = None
     hint_level: int | None = None
+    visual: dict | None = None
     tokens_in: int
     tokens_out: int
     modele: str | None
@@ -283,6 +287,7 @@ class MessageResponseKid(BaseModel):
     contenu: str
     kind: MessageKind | None = None
     hint_level: int | None = None
+    visual: dict | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
