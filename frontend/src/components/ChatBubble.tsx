@@ -5,10 +5,15 @@ interface ChatBubbleProps {
   calm?: boolean;
 }
 
+/**
+ * Bulle de chat « Prisme » : l'enfant écrit en violet prisme (à droite, coin
+ * bas-droit pincé) ; Lumio sur surface neutre (à gauche). Les messages typés
+ * de Lumio (question, indice, exemple, réussite) utilisent TutorMessage.
+ */
 export function ChatBubble({ role, children, calm = false }: ChatBubbleProps) {
   if (role === "system_notice") {
     return (
-      <div className="mx-auto my-2 max-w-md rounded-input border border-warning/30 bg-[var(--color-bubble-notice)] px-4 py-2 text-center text-small text-[var(--color-bubble-notice-text)]">
+      <div className="mx-auto my-2 max-w-md rounded-input bg-bubble-notice px-4 py-2 text-center text-small text-bubble-notice-text">
         {children}
       </div>
     );
@@ -16,15 +21,16 @@ export function ChatBubble({ role, children, calm = false }: ChatBubbleProps) {
 
   const isChild = role === "child";
   return (
-    <div className={`flex ${isChild ? "justify-end" : "justify-start"} my-1`}>
+    <div className={`flex ${isChild ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] rounded-card px-4 py-3 text-body whitespace-pre-wrap leading-body ${
+        className={[
+          "max-w-[85%] whitespace-pre-wrap rounded-bubble px-[1.25em] py-[0.65em] text-body leading-body",
           isChild
-            ? "bg-[var(--color-bubble-child)] text-[var(--color-bubble-child-text)] rounded-br-sm"
+            ? "rounded-br-bubble-tail bg-bubble-child text-bubble-child-text"
             : calm
-              ? "border border-border bg-[var(--color-bubble-assistant)] text-[var(--color-bubble-assistant-text)] rounded-bl-sm"
-              : "bg-[var(--color-bubble-assistant)] text-[var(--color-bubble-assistant-text)] shadow-card border border-border/60 rounded-bl-sm"
-        }`}
+              ? "border border-border-subtle bg-bubble-assistant text-bubble-assistant-text"
+              : "rounded-bl-bubble-tail bg-bubble-assistant text-bubble-assistant-text shadow-card",
+        ].join(" ")}
       >
         {children}
       </div>

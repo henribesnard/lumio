@@ -5,10 +5,10 @@ interface NoticeProps {
 }
 
 const styles: Record<NonNullable<NoticeProps["variant"]>, string> = {
-  info: "bg-info/10 text-info border-info/30",
-  warning: "bg-warning/10 text-warning border-warning/30",
-  success: "bg-success/10 text-success border-success/30",
-  error: "bg-danger/10 text-danger border-danger/30",
+  info: "bg-info-bg text-info border-info",
+  warning: "bg-warning-bg text-warning border-warning",
+  success: "bg-success-bg text-success border-success",
+  error: "bg-danger-bg text-danger border-danger",
 };
 
 const icons: Record<NonNullable<NoticeProps["variant"]>, string> = {

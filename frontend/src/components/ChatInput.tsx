@@ -5,13 +5,21 @@ interface ChatInputProps {
   disabled?: boolean;
   maxLength?: number;
   placeholder?: string;
+  /** libellé du bouton (6-8 portrait : « Envoyer » visible) */
+  showSendLabel?: boolean;
 }
 
+/**
+ * Zone de saisie « Prisme » : champ pilule cerclé de prisme (6-8) ou boîte
+ * sombre (9-14), compteur « n / 1000 » dans le champ, bouton d'envoi rond.
+ * Entrée envoie, Maj+Entrée va à la ligne.
+ */
 export function ChatInput({
   onSend,
   disabled = false,
   maxLength = 1000,
-  placeholder = "Écris ton message...",
+  placeholder = "Ta réponse…",
+  showSendLabel = false,
 }: ChatInputProps) {
   const [text, setText] = useState("");
 
@@ -27,11 +35,15 @@ export function ChatInput({
   const nearLimit = text.length > maxLength * 0.9;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex items-end gap-2 border-t border-border bg-surface p-3"
-    >
-      <div className="relative flex-1">
+    <form onSubmit={handleSubmit} className="flex items-center gap-[0.6em]">
+      <div
+        className={[
+          "flex min-h-send flex-1 items-center gap-2 rounded-[var(--radius-chat-input)] bg-surface pl-[1.1em] pr-[1em]",
+          "shadow-[inset_0_0_0_var(--ring-width)_var(--color-chat-input-ring)] transition-shadow duration-fast",
+          "focus-within:shadow-[inset_0_0_0_var(--ring-width)_var(--color-focus)]",
+          disabled ? "opacity-60" : "",
+        ].join(" ")}
+      >
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value.slice(0, maxLength))}
@@ -39,7 +51,7 @@ export function ChatInput({
           placeholder={placeholder}
           rows={1}
           aria-label={placeholder}
-          className="w-full resize-none rounded-input border border-border bg-surface-alt px-3 py-2 pr-16 text-body text-foreground leading-body transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus-visible:shadow-focus focus:border-primary disabled:opacity-50"
+          className="max-h-32 min-w-0 flex-1 resize-none bg-transparent py-3 text-body leading-body text-foreground placeholder:text-foreground-muted focus:outline-none focus-visible:shadow-none disabled:cursor-not-allowed [field-sizing:content]"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -48,27 +60,37 @@ export function ChatInput({
           }}
         />
         <span
-          className={`absolute bottom-1 right-2 text-tiny ${nearLimit ? "text-warning font-semibold" : "text-foreground-muted"}`}
+          className={`shrink-0 text-tiny ${nearLimit ? "font-semibold text-warning" : "text-foreground-muted"}`}
           aria-hidden="true"
         >
-          {text.length}/{maxLength}
+          {text.length} / {maxLength}
         </span>
       </div>
       <button
         type="submit"
         disabled={disabled || !text.trim()}
-        aria-label="Envoyer le message"
-        className="flex h-touch w-touch shrink-0 items-center justify-center rounded-button bg-primary text-on-dark transition-all duration-fast ease-out hover:bg-primary-hover active:scale-95 focus:outline-none focus-visible:shadow-focus disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label={showSendLabel ? undefined : "Envoyer"}
+        className={[
+          "flex h-send shrink-0 items-center justify-center gap-2 rounded-[var(--radius-chat-input)] bg-primary font-bold text-on-primary",
+          "transition-all duration-fast ease-out hover:bg-primary-hover active:scale-95 focus:outline-none focus-visible:shadow-focus",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          showSendLabel ? "px-[1.2em] text-body" : "w-send",
+        ].join(" ")}
       >
         <svg
-          xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          fill="currentColor"
           className="h-[var(--size-icon)] w-[var(--size-icon)]"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           aria-hidden="true"
         >
-          <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+          <path d="M5 12h14" />
+          <path d="M13 6l6 6-6 6" />
         </svg>
+        {showSendLabel && "Envoyer"}
       </button>
     </form>
   );

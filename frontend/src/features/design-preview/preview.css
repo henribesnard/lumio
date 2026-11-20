@@ -9,7 +9,7 @@
   min-height: 100vh;
   background: #eceff3;
   color: #1c2333;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Lexend", system-ui, sans-serif;
   padding: 2rem 1rem 4rem;
 }
 .dp-wrap {
@@ -40,7 +40,9 @@
 }
 
 .dp-piste {
-  background: #fff;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -52,7 +54,7 @@
 }
 .dp-piste > .dp-pitch {
   margin: 0 0 1.25rem;
-  color: #55607a;
+  color: var(--color-foreground-muted);
   max-width: 60ch;
 }
 .dp-section {
@@ -126,7 +128,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #55607a;
-  font-family: "Inter", sans-serif;
+  font-family: "Lexend", sans-serif;
 }
 .dp-type-card .t-display {
   font-size: 2rem;
@@ -161,7 +163,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #55607a;
-  font-family: "Inter", sans-serif;
+  font-family: "Lexend", sans-serif;
 }
 .dp-row {
   display: flex;
@@ -192,7 +194,7 @@
 .dp-mascot span {
   font-size: 0.72rem;
   color: #55607a;
-  font-family: "Inter", sans-serif;
+  font-family: "Lexend", sans-serif;
 }
 
 /* ============ PISTE A — Braise ============ */

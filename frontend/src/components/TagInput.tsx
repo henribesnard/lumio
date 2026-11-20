@@ -42,7 +42,7 @@ export function TagInput({
             type="button"
             onClick={() => removeTag(i)}
             aria-label={`Retirer ${tag}`}
-            className="rounded-full p-0.5 transition-colors hover:bg-danger/10 hover:text-danger focus:outline-none focus-visible:shadow-focus"
+            className="rounded-full p-0.5 transition-colors hover:bg-danger-bg hover:text-danger focus:outline-none focus-visible:shadow-focus"
           >
             <svg
               viewBox="0 0 24 24"
