@@ -14,6 +14,7 @@ import { Notice } from "@/components/Notice";
 import { Avatar } from "@/components/Avatar";
 import { Mascot } from "@/components/Mascot";
 import { TutorMessage } from "@/components/TutorMessage";
+import { LumioSheet, type SheetPage } from "@/components/LumioSheet";
 import {
   BackIcon,
   ExitIcon,
@@ -39,6 +40,9 @@ export function KidChatPage() {
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
+  const [activePage, setActivePage] = useState(0);
+  const [sheetCollapsed, setSheetCollapsed] = useState(false);
+  const wide = useMediaQuery("(min-width: 1024px)");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const ageBracket = me ? (me.age <= 8 ? "6-8" : "9-14") : "9-14";
@@ -68,6 +72,18 @@ export function KidChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamText]);
+
+  // Une page de feuille par message illustré (jamais sur la sécurité).
+  const sheetPages: SheetPage[] = messages
+    .filter((m) => m.role === "assistant" && m.visual && !m.calm)
+    .map((m) => ({ id: m.id, visual: m.visual! }));
+  const pageCount = sheetPages.length;
+  useEffect(() => {
+    if (pageCount > 0) {
+      setActivePage(pageCount - 1);
+      setSheetCollapsed(false);
+    }
+  }, [pageCount]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -156,6 +172,7 @@ export function KidChatPage() {
                     created_at: new Date().toISOString(),
                     kind: isSafety ? "safety" : (data.kind ?? null),
                     hint_level: data.hint_level ?? null,
+                    visual: isSafety ? null : (data.visual ?? null),
                     calm: isSafety,
                     fresh: true,
                   };
@@ -213,6 +230,7 @@ export function KidChatPage() {
   const quotaEmpty = !!me && me.quota_messages_restant <= 0;
   const inputDisabled = streaming || outOfHours || quotaEmpty;
   const isYoung = ageBracket === "6-8";
+  const pageOf = (id: string) => sheetPages.findIndex((p) => p.id === id);
   const thread = (
     <div className="flex flex-col gap-[0.9rem]">
       {messages.length === 0 && !streaming && (
@@ -227,7 +245,14 @@ export function KidChatPage() {
       {messages.map((msg) => (
         <div key={msg.id} className="msg-in">
           {msg.role === "assistant" ? (
-            <AssistantRow msg={msg} />
+            <AssistantRow
+              msg={msg}
+              page={pageOf(msg.id)}
+              onOpenPage={(i) => {
+                setActivePage(i);
+                setSheetCollapsed(false);
+              }}
+            />
           ) : (
             <ChatBubble role={msg.role}>{msg.contenu}</ChatBubble>
           )}
@@ -289,6 +314,28 @@ export function KidChatPage() {
     />
   );
 
+  /* Feuille de Lumio : à droite en paysage (≥ 1024 px), au-dessus en portrait. */
+  const withSheet = (chatColumn: React.ReactNode) =>
+    sheetPages.length === 0 ? (
+      chatColumn
+    ) : (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-6 lg:pb-5 lg:pr-6">
+        <LumioSheet
+          pages={sheetPages}
+          active={activePage}
+          onSelect={setActivePage}
+          variant={isYoung ? "young" : "older"}
+          collapsible={!wide}
+          collapsed={!wide && sheetCollapsed}
+          onToggleCollapsed={() => setSheetCollapsed((c) => !c)}
+          className={`mx-4 shrink-0 lg:order-2 lg:mx-0 ${wide ? "" : sheetCollapsed ? "" : "max-h-[46vh]"}`}
+        />
+        <div className="flex min-h-0 flex-1 flex-col lg:order-1">
+          {chatColumn}
+        </div>
+      </div>
+    );
+
   /* ---------- 6-8 : clair, gros boutons, chat pleine largeur ---------- */
   if (isYoung) {
     return (
@@ -323,21 +370,27 @@ export function KidChatPage() {
           </div>
         </header>
 
-        <main
-          tabIndex={0}
-          aria-label="Fil de la conversation"
-          className="flex-1 overflow-y-auto px-4 pb-2 focus-visible:shadow-[inset_0_0_0_3px_var(--color-focus)] sm:px-8"
-        >
-          <div className="mx-auto flex max-w-3xl flex-col gap-3">{thread}</div>
-        </main>
+        {withSheet(
+          <>
+            <main
+              tabIndex={0}
+              aria-label="Fil de la conversation"
+              className="flex-1 overflow-y-auto px-4 pb-2 focus-visible:shadow-[inset_0_0_0_3px_var(--color-focus)] sm:px-8"
+            >
+              <div className="mx-auto flex max-w-3xl flex-col gap-3">
+                {thread}
+              </div>
+            </main>
 
-        <footer className="px-4 pb-2 pt-2 sm:px-8">
-          <div className="mx-auto flex max-w-3xl flex-col gap-2">
-            {notices}
-            {input}
-          </div>
-          <ParentsNotice className="!justify-start sm:!justify-center" />
-        </footer>
+            <footer className="px-4 pb-2 pt-2 sm:px-8">
+              <div className="mx-auto flex max-w-3xl flex-col gap-2">
+                {notices}
+                {input}
+              </div>
+              <ParentsNotice className="!justify-start sm:!justify-center" />
+            </footer>
+          </>,
+        )}
       </div>
     );
   }
@@ -417,35 +470,91 @@ export function KidChatPage() {
           </span>
         </header>
 
-        <main
-          tabIndex={0}
-          aria-label="Fil de la conversation"
-          className="flex-1 overflow-y-auto px-4 py-4 focus-visible:shadow-[inset_0_0_0_3px_var(--color-focus)] sm:px-7"
-        >
-          <div className="mx-auto flex max-w-3xl flex-col gap-3">{thread}</div>
-        </main>
+        {withSheet(
+          <>
+            <main
+              tabIndex={0}
+              aria-label="Fil de la conversation"
+              className="flex-1 overflow-y-auto px-4 py-4 focus-visible:shadow-[inset_0_0_0_3px_var(--color-focus)] sm:px-7"
+            >
+              <div className="mx-auto flex max-w-3xl flex-col gap-3">
+                {thread}
+              </div>
+            </main>
 
-        <footer className="px-4 pb-4 sm:px-7">
-          <div className="mx-auto flex max-w-3xl flex-col gap-2">
-            {notices}
-            {input}
-          </div>
-          <ParentsNotice className="sm:hidden" />
-        </footer>
+            <footer className="px-4 pb-4 sm:px-7">
+              <div className="mx-auto flex max-w-3xl flex-col gap-2">
+                {notices}
+                {input}
+              </div>
+              <ParentsNotice className="sm:hidden" />
+            </footer>
+          </>,
+        )}
       </div>
     </div>
   );
 }
 
 /** Message de Lumio : carte typée (question, indice, exemple…) ou bulle. */
-function AssistantRow({ msg }: { msg: StreamedMessage }) {
+function AssistantRow({
+  msg,
+  page,
+  onOpenPage,
+}: {
+  msg: StreamedMessage;
+  /** index de la page de feuille de ce message (-1 = pas de dessin) */
+  page: number;
+  onOpenPage: (index: number) => void;
+}) {
   return (
     <TutorMessage
       kind={msg.calm ? "safety" : msg.kind}
       hintLevel={msg.hint_level}
       animated={!!msg.fresh}
+      footer={
+        page >= 0 ? (
+          <button
+            type="button"
+            onClick={() => onOpenPage(page)}
+            className="flex min-h-[var(--size-touch-target)] items-center gap-2 self-start rounded-button text-small font-bold text-link underline-offset-4 hover:underline focus:outline-none focus-visible:shadow-focus"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-[1.2em] w-[1.2em]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14" />
+              <path d="M13 6l6 6-6 6" />
+            </svg>
+            Regarde la feuille {page + 1}
+          </button>
+        ) : undefined
+      }
     >
       {msg.contenu}
     </TutorMessage>
   );
+}
+
+/** Vrai si la media query correspond (mise à jour au redimensionnement). */
+function useMediaQuery(query: string) {
+  const get = () =>
+    typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia(query).matches
+      : false;
+  const [matches, setMatches] = useState(get);
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mql = window.matchMedia(query);
+    const on = () => setMatches(mql.matches);
+    mql.addEventListener("change", on);
+    return () => mql.removeEventListener("change", on);
+  }, [query]);
+  return matches;
 }

@@ -370,6 +370,21 @@ export function AdminProfileDetail() {
                   Appuyez sur Entrée ou « , » pour ajouter une étiquette.
                 </p>
               </div>
+              <div className="mt-6 border-t border-border-subtle pt-4">
+                <Toggle
+                  checked={form.supports_visuels ?? false}
+                  onChange={(checked) =>
+                    setForm((f) => ({ ...f, supports_visuels: checked }))
+                  }
+                  label="Supports visuels (feuille de Lumio)"
+                />
+                <p className="mt-1 text-tiny text-foreground-muted">
+                  Lumio peut joindre un dessin simple (droite graduée,
+                  fractions, graphique, figure, frise) qui ne contient jamais la
+                  réponse. Nécessite aussi l'activation globale
+                  (VISUAL_AIDS_ENABLED) sur le serveur.
+                </p>
+              </div>
               <Button onClick={handleSave} loading={saving} className="mt-6">
                 Enregistrer les modifications
               </Button>

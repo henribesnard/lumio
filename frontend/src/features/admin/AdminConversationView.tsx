@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import type { MessageResponse } from "@/api/types";
 
 import { AdminLayout } from "./AdminLayout";
+import { VisualAid } from "@/components/visual/VisualAid";
 
 function roleMeta(role: MessageResponse["role"]): {
   label: string;
@@ -98,6 +99,23 @@ export function AdminConversationView() {
                   <p className="whitespace-pre-wrap text-small text-foreground leading-body">
                     {msg.contenu}
                   </p>
+
+                  {msg.visual && (
+                    <div className="mt-3 rounded-input bg-sheet p-4 shadow-[inset_0_0_0_1px_var(--color-border-subtle)]">
+                      <p className="mb-2 text-tiny font-semibold text-sheet-muted">
+                        Feuille de Lumio jointe
+                      </p>
+                      <VisualAid spec={msg.visual} animated={false} />
+                      <details className="mt-2">
+                        <summary className="cursor-pointer rounded-button text-tiny font-medium text-sheet-muted focus:outline-none focus-visible:shadow-focus">
+                          Spécification du visuel
+                        </summary>
+                        <pre className="mt-1 overflow-x-auto rounded-input bg-surface-alt p-2 font-mono text-tiny text-foreground">
+                          {JSON.stringify(msg.visual, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
+                  )}
 
                   {/* Détails modération & garde-fou */}
                   {hasGuard && (

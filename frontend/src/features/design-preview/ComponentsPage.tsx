@@ -37,6 +37,9 @@ import { ScheduleEditor } from "@/components/ScheduleEditor";
 import { defaultSchedule, type Schedule } from "@/components/schedule";
 import { AlertCard } from "@/components/AlertCard";
 import { Illustration, ILLUSTRATIONS } from "@/components/Illustration";
+import { VisualAid } from "@/components/visual/VisualAid";
+import { VISUAL_SAMPLES } from "@/components/visual/samples";
+import { LumioSheet } from "@/components/LumioSheet";
 
 type Theme = { attr: string; label: string; desc: string };
 const THEMES: Theme[] = [
@@ -520,6 +523,50 @@ function PedagogyDemo() {
   );
 }
 
+function VisualsDemo() {
+  const [page, setPage] = useState(1);
+  const [collapsed, setCollapsed] = useState(false);
+  const pages = VISUAL_SAMPLES.map((v, i) => ({ id: `s${i}`, visual: v }));
+  return (
+    <>
+      <Demo title="Feuille de Lumio — panneau, onglets, agrandir, repli">
+        <LumioSheet
+          pages={pages.slice(0, 3)}
+          active={page}
+          onSelect={setPage}
+          collapsible
+          collapsed={collapsed}
+          onToggleCollapsed={() => setCollapsed((c) => !c)}
+        />
+      </Demo>
+      {VISUAL_SAMPLES.map((v, i) => (
+        <Demo
+          key={i}
+          title={`VisualAid — ${v.kind}${v.kind === "chart" ? ` (${v.chart_type})` : v.kind === "shape" ? ` (${v.figure})` : ""}`}
+        >
+          <div className="rounded-sheet bg-sheet p-4 shadow-sheet">
+            <VisualAid spec={v} animated={false} />
+          </div>
+        </Demo>
+      ))}
+      <Demo title="VisualAid — erreur de rendu (repli : texte alternatif)">
+        <div className="rounded-sheet bg-sheet p-4 shadow-sheet">
+          <VisualAid
+            spec={
+              {
+                kind: "inconnu",
+                title: "Dessin cassé",
+                alt: "Texte alternatif affiché en clair.",
+              } as never
+            }
+            animated={false}
+          />
+        </div>
+      </Demo>
+    </>
+  );
+}
+
 function QuotaDemo() {
   return (
     <Demo title="QuotaIndicator — plein / bas / épuisé (jamais rouge)">
@@ -649,6 +696,7 @@ function ThemeSection({ theme }: { theme: Theme }) {
         <LogoDemo />
         <MascotDemo />
         <PedagogyDemo />
+        <VisualsDemo />
         <QuotaDemo />
         <ButtonsDemo />
         <InputsDemo />
