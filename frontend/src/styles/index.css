@@ -1,5 +1,36 @@
 @import "./tokens.css";
 
+/* Polices auto-hébergées (OFL 1.1) — aucun appel externe au chargement.
+   Voir public/fonts/README.md pour les attributions. */
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("/fonts/atkinson-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("/fonts/atkinson-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lexend";
+  src: url("/fonts/lexend-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,9 +39,79 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-size: var(--text-body);
+    line-height: var(--leading-body);
   }
 
   * {
     @apply border-border;
+  }
+
+  /* Focus toujours visible (WCAG 2.4.7) — anneau contrasté, jamais supprimé. */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--radius-input);
+  }
+
+  ::selection {
+    background: var(--color-primary-light);
+    color: var(--color-foreground);
+  }
+
+  /* Arrivée d'un message de chat (désactivée si prefers-reduced-motion). */
+  @keyframes msg-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .msg-in {
+    animation: msg-in var(--duration-med) var(--ease-out);
+  }
+
+  /* Entrée des toasts (désactivée si prefers-reduced-motion, règle globale ci-dessous). */
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateX(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Halo animé de la mascotte Lumi (désactivé si prefers-reduced-motion, règle globale ci-dessous). */
+  .mascot-halo {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: mascot-halo 2.4s ease-in-out infinite;
+  }
+  @keyframes mascot-halo {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(1.06);
+    }
+  }
+
+  /* Micro-interactions désactivées si l'utilisateur préfère réduire les animations. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

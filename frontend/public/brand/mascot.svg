@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 120" width="640" height="120">
+  <!-- Lumi la luciole — 5 états. Couleurs de marque fixes (asset autonome).
+       Dans l'app, le composant src/components/Mascot.tsx utilise les tokens CSS. -->
+  <defs>
+    <g id="lumi-body">
+      <ellipse cx="60" cy="68" rx="19" ry="24" fill="#4F46E5"/>
+      <circle cx="60" cy="38" r="13" fill="#4338CA"/>
+      <line x1="54" y1="27" x2="48" y2="16" stroke="#4338CA" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="66" y1="27" x2="72" y2="16" stroke="#4338CA" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="48" cy="15" r="2.6" fill="#4338CA"/>
+      <circle cx="72" cy="15" r="2.6" fill="#4338CA"/>
+      <circle cx="55" cy="36" r="3.4" fill="#FFFFFF"/>
+      <circle cx="65" cy="36" r="3.4" fill="#FFFFFF"/>
+      <circle cx="55.8" cy="36.8" r="1.7" fill="#1C2333"/>
+      <circle cx="65.8" cy="36.8" r="1.7" fill="#1C2333"/>
+    </g>
+    <path id="lumi-smile" d="M54 44 Q60 49 66 44" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"/>
+    <path id="lumi-smile-big" d="M53 43 Q60 50 67 43" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+    <path id="sparkle" d="M0 -10 L2.8 -2.8 L10 0 L2.8 2.8 L0 10 L-2.8 2.8 L-10 0 L-2.8 -2.8 Z" fill="#FBBF24"/>
+  </defs>
+
+  <!-- écoute -->
+  <g transform="translate(0,0)">
+    <title>Écoute</title>
+    <circle cx="60" cy="95" r="16" fill="#FBBF24" opacity="0.35"/>
+    <circle cx="60" cy="95" r="8" fill="#FBBF24"/>
+    <ellipse cx="41" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(-28 41 58)"/>
+    <ellipse cx="79" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(28 79 58)"/>
+    <use href="#lumi-body"/>
+    <use href="#lumi-smile"/>
+    <path d="M28 32 q-6 8 0 16" fill="none" stroke="#4F46E5" stroke-width="3.2" stroke-linecap="round" opacity="0.8"/>
+    <path d="M92 32 q6 8 0 16" fill="none" stroke="#4F46E5" stroke-width="3.2" stroke-linecap="round" opacity="0.8"/>
+  </g>
+
+  <!-- réfléchit -->
+  <g transform="translate(120,0)">
+    <title>Réfléchit</title>
+    <circle cx="60" cy="95" r="16" fill="#FBBF24" opacity="0.35"/>
+    <circle cx="60" cy="95" r="8" fill="#FBBF24"/>
+    <ellipse cx="41" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(-28 41 58)"/>
+    <ellipse cx="79" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(28 79 58)"/>
+    <use href="#lumi-body"/>
+    <use href="#lumi-smile"/>
+    <circle cx="60" cy="6" r="2.6" fill="#4F46E5"/>
+    <circle cx="51" cy="12" r="3" fill="#4F46E5"/>
+    <circle cx="69" cy="12" r="3" fill="#4F46E5"/>
+  </g>
+
+  <!-- indice -->
+  <g transform="translate(240,0)">
+    <title>Indice</title>
+    <circle cx="60" cy="95" r="16" fill="#FBBF24" opacity="0.35"/>
+    <circle cx="60" cy="95" r="8" fill="#FBBF24"/>
+    <ellipse cx="41" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(-28 41 58)"/>
+    <ellipse cx="79" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(28 79 58)"/>
+    <use href="#lumi-body"/>
+    <use href="#lumi-smile"/>
+    <use href="#sparkle" transform="translate(95,20)"/>
+  </g>
+
+  <!-- bravo -->
+  <g transform="translate(360,0)">
+    <title>Bravo</title>
+    <circle cx="60" cy="95" r="16" fill="#FBBF24" opacity="0.45"/>
+    <circle cx="60" cy="95" r="8" fill="#FBBF24"/>
+    <ellipse cx="41" cy="48" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(-48 41 48)"/>
+    <ellipse cx="79" cy="48" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" transform="rotate(48 79 48)"/>
+    <use href="#lumi-body"/>
+    <use href="#lumi-smile-big"/>
+    <use href="#sparkle" transform="translate(96,16) scale(0.9)"/>
+    <use href="#sparkle" transform="translate(24,24) scale(0.65)"/>
+  </g>
+
+  <!-- pause -->
+  <g transform="translate(480,0)">
+    <title>Pause</title>
+    <circle cx="60" cy="95" r="8" fill="#98A5C0"/>
+    <ellipse cx="41" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" opacity="0.4" transform="rotate(-28 41 58)"/>
+    <ellipse cx="79" cy="58" rx="14" ry="8" fill="#C7D2FE" stroke="#3730A3" stroke-width="2" opacity="0.4" transform="rotate(28 79 58)"/>
+    <ellipse cx="60" cy="68" rx="19" ry="24" fill="#6E7A94" opacity="0.55"/>
+    <circle cx="60" cy="38" r="13" fill="#6E7A94"/>
+    <line x1="54" y1="27" x2="48" y2="16" stroke="#6E7A94" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="66" y1="27" x2="72" y2="16" stroke="#6E7A94" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="48" cy="15" r="2.6" fill="#6E7A94"/>
+    <circle cx="72" cy="15" r="2.6" fill="#6E7A94"/>
+    <rect x="50" y="52" width="6.5" height="24" rx="3.25" fill="#1C2333"/>
+    <rect x="63.5" y="52" width="6.5" height="24" rx="3.25" fill="#1C2333"/>
+  </g>
+</svg>

@@ -19,6 +19,12 @@ interface ToastCtx {
 const ToastContext = createContext<ToastCtx | null>(null);
 let _id = 0;
 
+const icons: Record<ToastItem["type"], string> = {
+  success: "M5 13l4 4L19 7",
+  error: "M6 18L18 6M6 6l12 12",
+  info: "M12 8h.01M12 12v4",
+};
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -32,20 +38,36 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const styles = {
-    success: "bg-success text-white",
-    error: "bg-danger text-white",
-    info: "bg-info text-white",
+    success: "bg-success text-on-dark",
+    error: "bg-danger text-on-dark",
+    info: "bg-info text-on-dark",
   };
 
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+      <div
+        className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"
+        aria-live="polite"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`animate-in slide-in-from-right rounded-button px-4 py-3 text-small font-medium shadow-modal ${styles[t.type]}`}
+            role={t.type === "error" ? "alert" : "status"}
+            className={`flex items-center gap-2 rounded-button px-4 py-3 text-small font-medium shadow-modal animate-[toast-in_var(--duration-med)_var(--ease-out)] ${styles[t.type]}`}
           >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d={icons[t.type]} />
+            </svg>
             {t.message}
           </div>
         ))}

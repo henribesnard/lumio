@@ -1,0 +1,370 @@
+/*
+ * Design preview (/__design*) — mock mode only.
+ * Scopes de démonstration pour les pistes A et B. Les vraies valeurs vivent
+ * dans src/styles/tokens.css (phase 2) ; ici on shadow les mêmes noms de
+ * variables pour prévisualiser chaque piste côte à côte.
+ */
+
+.dp-page {
+  min-height: 100vh;
+  background: #eceff3;
+  color: #1c2333;
+  font-family: "Inter", system-ui, sans-serif;
+  padding: 2rem 1rem 4rem;
+}
+.dp-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.dp-header {
+  margin-bottom: 2rem;
+}
+.dp-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+.dp-header p {
+  margin: 0;
+  color: #55607a;
+}
+.dp-banner {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: #1e293b;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.dp-piste {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+.dp-piste > h2 {
+  font-size: 1.375rem;
+  margin: 0 0 0.25rem;
+}
+.dp-piste > .dp-pitch {
+  margin: 0 0 1.25rem;
+  color: #55607a;
+  max-width: 60ch;
+}
+.dp-section {
+  margin-top: 1.5rem;
+}
+.dp-section > h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #55607a;
+  margin: 0 0 0.75rem;
+}
+
+/* --- swatches --- */
+.dp-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.dp-swatch {
+  width: 8.5rem;
+}
+.dp-swatch .chip {
+  height: 3.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(0 0 0 / 0.12);
+}
+.dp-swatch .meta {
+  font-size: 0.72rem;
+  margin-top: 0.3rem;
+  line-height: 1.35;
+}
+.dp-swatch .meta code {
+  font-size: 0.7rem;
+}
+.dp-ratio {
+  display: inline-block;
+  padding: 0 0.3rem;
+  border-radius: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+.dp-ratio.ok {
+  background: #e4f2e9;
+  color: #166534;
+}
+.dp-ratio.ui {
+  background: #e3ecfb;
+  color: #1d4ed8;
+}
+.dp-ratio.fail {
+  background: #fbe4e4;
+  color: #b91c1c;
+}
+
+/* --- type samples --- */
+.dp-type {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.dp-type-card {
+  border: 1px solid #d5dbe8;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.dp-type-card h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #55607a;
+  font-family: "Inter", sans-serif;
+}
+.dp-type-card .t-display {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.dp-type-card .t-body {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-top: 0.4rem;
+}
+.dp-type-card .t-small {
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+  opacity: 0.8;
+}
+
+/* --- component samples --- */
+.dp-samples {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.dp-sample {
+  border: 1px dashed #c3ccdb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.dp-sample h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #55607a;
+  font-family: "Inter", sans-serif;
+}
+.dp-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+.dp-chat-sample {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: 26rem;
+}
+
+/* --- mascots --- */
+.dp-mascots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.dp-mascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 7.5rem;
+}
+.dp-mascot span {
+  font-size: 0.72rem;
+  color: #55607a;
+  font-family: "Inter", sans-serif;
+}
+
+/* ============ PISTE A — Braise ============ */
+.piste-a {
+  --color-primary: #9a3412;
+  --color-primary-hover: #7c2d12;
+  --color-primary-light: #fbe3c8;
+  --color-secondary: #0f766e;
+  --color-accent: #f59e0b;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4ead9;
+  --color-background: #fbf5eb;
+  --color-foreground: #2a2118;
+  --color-foreground-muted: #6b5d4f;
+  --color-border: #8f7b60;
+  --color-success: #15803d;
+  --color-warning: #92400e;
+  --color-danger: #b91c1c;
+  --color-info: #1d4ed8;
+  --color-bubble-child: #fbe3c8;
+  --color-bubble-child-text: #2a2118;
+  --color-bubble-assistant: #ffffff;
+  --color-bubble-assistant-text: #2a2118;
+  --color-bubble-notice: #fceed3;
+  --color-bubble-notice-text: #92400e;
+  --font-sans: "Atkinson Hyperlegible", "Lexend", system-ui, sans-serif;
+  --text-display: 2rem;
+  --text-heading: 1.5rem;
+  --text-subheading: 1.25rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-tiny: 0.75rem;
+  --radius-card: 1rem;
+  --radius-button: 0.75rem;
+  --radius-input: 0.5rem;
+  --radius-full: 9999px;
+  --size-touch-target: 48px;
+  --shadow-card: 0 1px 3px rgb(42 33 24 / 0.14);
+  --shadow-modal: 0 20px 25px -5px rgb(42 33 24 / 0.18);
+  --mascot-body: #f59e0b;
+  --mascot-outline: #9a3412;
+  --mascot-face: #2a2118;
+}
+.piste-a.admin-demo {
+  --color-background: #f6f4ef;
+  --color-surface: #ffffff;
+  --color-surface-alt: #efece5;
+  --color-foreground: #292524;
+  --color-foreground-muted: #6d6459;
+  --color-border: #b8ad9c;
+  --color-primary: #292524;
+  --color-primary-hover: #1c1917;
+  --color-primary-light: #efece5;
+  --color-accent: #9a3412;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --text-body: 0.9375rem;
+  --text-small: 0.8125rem;
+}
+.piste-a.age68-demo {
+  --text-display: 2.5rem;
+  --text-heading: 2rem;
+  --text-subheading: 1.5rem;
+  --text-body: 1.25rem;
+  --text-small: 1.1rem;
+  --text-tiny: 0.9rem;
+  --size-touch-target: 56px;
+  --radius-card: 1.5rem;
+  --radius-button: 1rem;
+}
+
+/* ============ PISTE B — Brume ============ */
+.piste-b {
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #e4e9f8;
+  --color-secondary: #0e7490;
+  --color-accent: #f59e0b;
+  --color-surface: #ffffff;
+  --color-surface-alt: #e8ecf5;
+  --color-background: #f3f5fa;
+  --color-foreground: #1c2333;
+  --color-foreground-muted: #55607a;
+  --color-border: #6e7a94;
+  --color-success: #15803d;
+  --color-warning: #92400e;
+  --color-danger: #b91c1c;
+  --color-info: #1d4ed8;
+  --color-bubble-child: #e4e9f8;
+  --color-bubble-child-text: #1c2333;
+  --color-bubble-assistant: #ffffff;
+  --color-bubble-assistant-text: #1c2333;
+  --color-bubble-notice: #fceed3;
+  --color-bubble-notice-text: #92400e;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --text-display: 2rem;
+  --text-heading: 1.5rem;
+  --text-subheading: 1.25rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-tiny: 0.75rem;
+  --radius-card: 1rem;
+  --radius-button: 0.75rem;
+  --radius-input: 0.5rem;
+  --radius-full: 9999px;
+  --size-touch-target: 48px;
+  --shadow-card: 0 1px 3px rgb(28 35 51 / 0.12);
+  --shadow-modal: 0 20px 25px -5px rgb(28 35 51 / 0.2);
+  --mascot-body: #4f46e5;
+  --mascot-outline: #3730a3;
+  --mascot-face: #1c2333;
+}
+.piste-b.kid68-font {
+  --font-sans: "Lexend", "Inter", system-ui, sans-serif;
+}
+.piste-b.admin-demo {
+  --color-background: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eceff5;
+  --color-foreground: #1c2333;
+  --color-foreground-muted: #55607a;
+  --color-border: #9aa5bb;
+  --color-primary: #1e293b;
+  --color-primary-hover: #0f172a;
+  --color-primary-light: #eceff5;
+  --color-accent: #4338ca;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --text-body: 0.9375rem;
+  --text-small: 0.8125rem;
+}
+.piste-b.age68-demo {
+  --font-sans: "Lexend", "Inter", system-ui, sans-serif;
+  --text-display: 2.5rem;
+  --text-heading: 2rem;
+  --text-subheading: 1.5rem;
+  --text-body: 1.25rem;
+  --text-small: 1.1rem;
+  --text-tiny: 0.9rem;
+  --size-touch-target: 56px;
+  --radius-card: 1.5rem;
+  --radius-button: 1rem;
+}
+
+/* zone d'affichage des échantillons */
+.dp-stage {
+  border-radius: var(--radius-card);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  padding: 1.25rem;
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+}
+
+/* halo animé de la mascotte (prévisualisation uniquement) */
+@keyframes dp-halo {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.06);
+  }
+}
+.dp-halo {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: dp-halo 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dp-halo {
+    animation: none;
+  }
+}

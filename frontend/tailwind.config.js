@@ -19,6 +19,7 @@ export default {
         warning: "var(--color-warning)",
         danger: "var(--color-danger)",
         info: "var(--color-info)",
+        "on-dark": "var(--color-on-dark)",
       },
       fontFamily: {
         sans: "var(--font-sans)",
@@ -44,6 +45,18 @@ export default {
       boxShadow: {
         card: "var(--shadow-card)",
         modal: "var(--shadow-modal)",
+        focus: "var(--shadow-focus)",
+      },
+      lineHeight: {
+        body: "var(--leading-body)",
+      },
+      transitionDuration: {
+        fast: "var(--duration-fast)",
+        med: "var(--duration-med)",
+        slow: "var(--duration-slow)",
+      },
+      transitionTimingFunction: {
+        out: "var(--ease-out)",
       },
     },
   },

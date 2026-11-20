@@ -23,7 +23,11 @@ export function Avatar({
     <img
       src={`/avatars/${avatarKey}.svg`}
       alt={alt}
-      className={["rounded-full object-cover", sizeClasses[size], className]
+      className={[
+        "rounded-full object-cover shrink-0 ring-2 ring-border/40",
+        sizeClasses[size],
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     />

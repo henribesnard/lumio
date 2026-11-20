@@ -1,13 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Amber crown shape -->
-  <polygon points="4,52 4,24 16,36 32,12 48,36 60,24 60,52" fill="#F59E0B"/>
-  <rect x="4" y="48" width="56" height="8" rx="2" fill="#D97706"/>
-  <circle cx="16" cy="20" r="3" fill="#FDE68A"/>
-  <circle cx="32" cy="8" r="3" fill="#FDE68A"/>
-  <circle cx="48" cy="20" r="3" fill="#FDE68A"/>
-  <circle cx="24" cy="36" r="3" fill="white"/>
-  <circle cx="40" cy="36" r="3" fill="white"/>
-  <circle cx="25" cy="37" r="1.5" fill="#78350F"/>
-  <circle cx="41" cy="37" r="1.5" fill="#78350F"/>
-  <path d="M28 44 Q32 48 36 44" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="30" fill="#ECDAFB"/>
+  <g fill="#9333EA"><rect x="16" y="18" width="32" height="32" rx="8"/><line x1="26" y1="18" x2="22" y2="9" stroke="#9333EA" stroke-width="3" stroke-linecap="round"/><line x1="38" y1="18" x2="42" y2="9" stroke="#9333EA" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="8" r="2.6" fill="#9333EA"/><circle cx="42" cy="8" r="2.6" fill="#9333EA"/></g>
+  <circle cx="25.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="38.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="26.6" cy="31" r="2.1" fill="#1C2333"/><circle cx="39.6" cy="31" r="2.1" fill="#1C2333"/><path d="M25 39 Q32 46 39 39" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
 </svg>

@@ -6,6 +6,7 @@ interface PinPadProps {
   maxLength?: number;
   disabled?: boolean;
   error?: string;
+  loading?: boolean;
 }
 
 const KEYS = [
@@ -21,18 +22,21 @@ export function PinPad({
   maxLength = 4,
   disabled = false,
   error,
+  loading = false,
 }: PinPadProps) {
   const handlePress = useCallback(
     (key: string) => {
-      if (disabled) return;
+      if (disabled || loading) return;
       if (key === "back") {
         onChange(value.slice(0, -1));
       } else if (value.length < maxLength) {
         onChange(value + key);
       }
     },
-    [disabled, value, maxLength, onChange],
+    [disabled, loading, value, maxLength, onChange],
   );
+
+  const isDisabled = disabled || loading;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -45,20 +49,40 @@ export function PinPad({
         {Array.from({ length: maxLength }).map((_, i) => (
           <div
             key={i}
+            aria-hidden="true"
             className={[
-              "w-4 h-4 rounded-full transition-colors duration-150",
-              i < value.length ? "bg-primary" : "bg-border",
-              error ? "bg-danger" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
+              "rounded-full transition-colors duration-fast ease-out",
+              "w-[var(--size-pin-dot)] h-[var(--size-pin-dot)] border-2",
+              i < value.length
+                ? error
+                  ? "bg-danger border-danger"
+                  : "bg-primary border-primary"
+                : "bg-transparent border-border",
+            ].join(" ")}
           />
         ))}
       </div>
 
       {/* Error */}
       {error && (
-        <p className="text-small text-danger" role="alert">
+        <p
+          className="text-small text-danger flex items-center gap-1"
+          role="alert"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+          </svg>
           {error}
         </p>
       )}
@@ -75,15 +99,15 @@ export function PinPad({
               <button
                 key={i}
                 type="button"
-                disabled={disabled || value.length === 0}
+                disabled={isDisabled || value.length === 0}
                 onClick={() => handlePress("back")}
-                aria-label="Effacer"
+                aria-label="Effacer le dernier chiffre"
                 className={[
                   "flex items-center justify-center min-w-touch min-h-touch",
-                  "rounded-button bg-surface-alt text-foreground",
-                  "text-body font-medium transition-colors duration-150",
-                  "hover:bg-border focus:outline-none focus:ring-2 focus:ring-primary/50",
-                  disabled || value.length === 0
+                  "rounded-button bg-surface-alt text-foreground border border-border",
+                  "text-body font-medium transition-colors duration-fast ease-out",
+                  "hover:bg-surface active:bg-primary-light focus:outline-none focus-visible:shadow-focus",
+                  isDisabled || value.length === 0
                     ? "opacity-50 cursor-not-allowed"
                     : "cursor-pointer",
                 ].join(" ")}
@@ -112,18 +136,44 @@ export function PinPad({
             <button
               key={i}
               type="button"
-              disabled={disabled}
+              disabled={isDisabled || value.length >= maxLength}
               onClick={() => handlePress(key)}
               aria-label={key}
               className={[
                 "flex items-center justify-center min-w-touch min-h-touch",
-                "rounded-button bg-surface text-foreground border border-border",
-                "text-subheading font-medium transition-colors duration-150",
-                "hover:bg-surface-alt focus:outline-none focus:ring-2 focus:ring-primary/50",
-                disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+                "rounded-button bg-surface text-foreground border border-border shadow-card",
+                "text-subheading font-semibold transition-all duration-fast ease-out",
+                "hover:bg-surface-alt hover:-translate-y-0.5 active:bg-primary-light active:translate-y-0",
+                "focus:outline-none focus-visible:shadow-focus",
+                isDisabled || value.length >= maxLength
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer",
               ].join(" ")}
             >
-              {key}
+              {loading && value.length >= maxLength ? (
+                <svg
+                  className="animate-spin h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+              ) : (
+                key
+              )}
             </button>
           );
         })}

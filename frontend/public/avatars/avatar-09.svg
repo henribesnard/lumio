@@ -1,10 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Coral pentagon -->
-  <polygon points="32,4 60,24 50,56 14,56 4,24" fill="#F87171"/>
-  <circle cx="24" cy="28" r="4" fill="white"/>
-  <circle cx="40" cy="28" r="4" fill="white"/>
-  <circle cx="25" cy="29" r="2" fill="#7F1D1D"/>
-  <circle cx="41" cy="29" r="2" fill="#7F1D1D"/>
-  <ellipse cx="32" cy="42" rx="8" ry="4" fill="#FCA5A5"/>
-  <path d="M26 42 Q32 48 38 42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="30" fill="#FBE1D3"/>
+  <g fill="#EA580C"><rect x="14" y="20" width="36" height="30" rx="15"/></g>
+  <circle cx="25.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="38.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="26.6" cy="31" r="2.1" fill="#1C2333"/><circle cx="39.6" cy="31" r="2.1" fill="#1C2333"/><path d="M25 39 Q32 46 39 39" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
 </svg>

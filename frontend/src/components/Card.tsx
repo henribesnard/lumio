@@ -9,7 +9,11 @@ export function Card({ children, className = "", onClick }: CardProps) {
   return (
     <Tag
       onClick={onClick}
-      className={`rounded-card bg-surface p-6 shadow-card ${onClick ? "cursor-pointer transition-shadow hover:shadow-modal" : ""} ${className}`}
+      className={`rounded-card bg-surface p-6 shadow-card ${
+        onClick
+          ? "cursor-pointer text-left transition-all duration-fast ease-out hover:shadow-modal hover:-translate-y-0.5 focus:outline-none focus-visible:shadow-focus active:translate-y-0"
+          : ""
+      } ${className}`}
     >
       {children}
     </Tag>

@@ -1,6 +1,13 @@
 import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "./AuthContext";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import { Logo } from "@/components/Logo";
+import { Notice } from "@/components/Notice";
+
 import type { ApiError } from "@/api/client";
 
 export function AdminLoginPage() {
@@ -45,81 +52,53 @@ export function AdminLoginPage() {
       className="flex min-h-screen items-center justify-center bg-background p-4"
     >
       <div className="w-full max-w-md rounded-card bg-surface p-8 shadow-card">
+        <div className="mb-6 flex justify-center">
+          <Logo height={44} />
+        </div>
         <h1 className="mb-6 text-center text-heading font-bold text-foreground">
           Administration Lumio
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1 block text-small font-medium text-foreground"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-            />
-          </div>
+          <Input
+            id="email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
 
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1 block text-small font-medium text-foreground"
-            >
-              Mot de passe
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-            />
-          </div>
+          <Input
+            id="password"
+            label="Mot de passe"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
 
           {needsTotp && (
-            <div>
-              <label
-                htmlFor="totp"
-                className="mb-1 block text-small font-medium text-foreground"
-              >
-                Code TOTP
-              </label>
-              <input
-                id="totp"
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                value={totp}
-                onChange={(e) => setTotp(e.target.value)}
-                autoFocus
-                className="w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-              />
-            </div>
+            <Input
+              id="totp"
+              label="Code TOTP"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={totp}
+              onChange={(e) => setTotp(e.target.value)}
+              autoFocus
+              placeholder="123456"
+            />
           )}
 
-          {error && (
-            <div className="rounded-input bg-danger/10 px-3 py-2 text-small text-danger">
-              {error}
-            </div>
-          )}
+          {error && <Notice variant="error">{error}</Notice>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-button bg-primary px-4 py-3 text-body font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
-          >
+          <Button type="submit" loading={loading} className="w-full" size="lg">
             {loading ? "Connexion..." : "Se connecter"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

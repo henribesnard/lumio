@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
+
 import { apiGet, apiPost, apiDelete } from "@/api/client";
+import { Badge } from "@/components/Badge";
+import { Button } from "@/components/Button";
+import { Card } from "@/components/Card";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Input } from "@/components/Input";
+import { Notice } from "@/components/Notice";
+
 import { AdminLayout } from "./AdminLayout";
 
 export function AdminSecurity() {
@@ -12,6 +20,8 @@ export function AdminSecurity() {
   const [confirmCode, setConfirmCode] = useState("");
   const [setupError, setSetupError] = useState("");
   const [showSetup, setShowSetup] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [disableOpen, setDisableOpen] = useState(false);
 
   useEffect(() => {
     apiGet<{ enabled: boolean }>("/api/admin/totp/status")
@@ -36,6 +46,7 @@ export function AdminSecurity() {
 
   async function handleConfirm() {
     setSetupError("");
+    setConfirming(true);
     try {
       await apiPost("/api/admin/totp/confirm", {
         secret: setupSecret,
@@ -48,6 +59,8 @@ export function AdminSecurity() {
       setSetupUri("");
     } catch {
       setSetupError("Code invalide. Réessayez.");
+    } finally {
+      setConfirming(false);
     }
   }
 
@@ -63,106 +76,119 @@ export function AdminSecurity() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="animate-pulse text-foreground-muted">Chargement...</div>
+        <p className="animate-pulse text-body text-foreground-muted">
+          Chargement...
+        </p>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <h2 className="mb-6 text-heading font-bold text-foreground">
-        Sécurité du compte
-      </h2>
+      <div className="mx-auto max-w-3xl">
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Sécurité du compte
+        </h2>
 
-      <div className="max-w-lg rounded-card bg-surface p-6 shadow-card">
-        <h3 className="mb-2 text-subheading font-semibold text-foreground">
-          Authentification à deux facteurs (TOTP)
-        </h3>
-
-        {totpEnabled ? (
-          <div>
-            <p className="mb-4 text-body text-success">
-              TOTP activé. Un code sera demandé à chaque connexion.
-            </p>
-            <button
-              onClick={handleDisable}
-              className="rounded-button border border-danger px-4 py-2 text-small text-danger hover:bg-danger/10"
-            >
-              Désactiver le TOTP
-            </button>
+        <Card className="max-w-xl">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <h3 className="text-subheading font-semibold text-foreground">
+              Authentification à deux facteurs (TOTP)
+            </h3>
+            {totpEnabled ? (
+              <Badge variant="success">Activée</Badge>
+            ) : (
+              <Badge variant="info">Désactivée</Badge>
+            )}
           </div>
-        ) : showSetup ? (
-          <div className="space-y-4">
-            <p className="text-body text-foreground-muted">
-              Scannez ce code dans votre application d'authentification (Google
-              Authenticator, Authy, etc.) :
-            </p>
 
-            <div className="rounded-input bg-surface-alt p-3">
-              <p className="break-all font-mono text-small text-foreground">
-                {setupSecret}
-              </p>
-            </div>
-
-            <p className="text-tiny text-foreground-muted">URI : {setupUri}</p>
-
+          {totpEnabled ? (
             <div>
-              <label
-                htmlFor="totp-code"
-                className="mb-1 block text-small font-medium text-foreground"
-              >
-                Code de vérification
-              </label>
-              <input
+              <div className="mb-4">
+                <Notice variant="success">
+                  TOTP activé. Un code sera demandé à chaque connexion.
+                </Notice>
+              </div>
+              <Button variant="danger" onClick={() => setDisableOpen(true)}>
+                Désactiver le TOTP
+              </Button>
+            </div>
+          ) : showSetup ? (
+            <div className="space-y-4">
+              <p className="text-body leading-body text-foreground-muted">
+                Scannez ce code dans votre application d'authentification
+                (Google Authenticator, Authy, etc.) :
+              </p>
+
+              <div className="rounded-input border border-border bg-surface-alt p-3">
+                <p className="break-all font-mono text-small text-foreground">
+                  {setupSecret}
+                </p>
+              </div>
+
+              <details>
+                <summary className="cursor-pointer text-tiny text-foreground-muted hover:text-foreground focus:outline-none focus-visible:shadow-focus">
+                  Afficher l'URI otpauth
+                </summary>
+                <p className="mt-1 break-all rounded-input bg-surface-alt p-2 font-mono text-tiny text-foreground-muted">
+                  {setupUri}
+                </p>
+              </details>
+
+              <Input
                 id="totp-code"
+                label="Code de vérification"
                 type="text"
                 inputMode="numeric"
                 maxLength={6}
                 value={confirmCode}
-                onChange={(e) => setConfirmCode(e.target.value)}
-                className="w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                onChange={(e) =>
+                  setConfirmCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 placeholder="123456"
               />
-            </div>
 
-            {setupError && (
-              <p className="text-small text-danger">{setupError}</p>
-            )}
+              {setupError && <Notice variant="error">{setupError}</Notice>}
 
-            <div className="flex gap-2">
-              <button
-                onClick={handleConfirm}
-                disabled={confirmCode.length !== 6}
-                className="rounded-button bg-primary px-4 py-2 text-small font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-              >
-                Confirmer
-              </button>
-              <button
-                onClick={() => setShowSetup(false)}
-                className="rounded-button border border-border px-4 py-2 text-small text-foreground-muted hover:bg-surface-alt"
-              >
-                Annuler
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={handleConfirm}
+                  loading={confirming}
+                  disabled={confirmCode.length !== 6}
+                >
+                  Confirmer l'activation
+                </Button>
+                <Button variant="secondary" onClick={() => setShowSetup(false)}>
+                  Annuler
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div>
-            <p className="mb-4 text-body text-foreground-muted">
-              Ajoutez une couche de sécurité supplémentaire avec un code
-              temporaire.
-            </p>
-            <button
-              onClick={handleStartSetup}
-              className="rounded-button bg-primary px-4 py-2 text-small font-medium text-white hover:bg-primary-hover"
-            >
-              Activer le TOTP
-            </button>
-            {setupError && (
-              <p className="mt-2 text-small text-danger">{setupError}</p>
-            )}
-          </div>
-        )}
+          ) : (
+            <div>
+              <p className="mb-4 text-body leading-body text-foreground-muted">
+                Ajoutez une couche de sécurité supplémentaire avec un code
+                temporaire généré par votre application d'authentification.
+              </p>
+              <Button onClick={handleStartSetup}>Activer le TOTP</Button>
+              {setupError && (
+                <div className="mt-3">
+                  <Notice variant="error">{setupError}</Notice>
+                </div>
+              )}
+            </div>
+          )}
+        </Card>
       </div>
+
+      <ConfirmDialog
+        open={disableOpen}
+        onClose={() => setDisableOpen(false)}
+        onConfirm={handleDisable}
+        title="Désactiver le TOTP ?"
+        message="La double authentification sera désactivée : un code ne sera plus demandé à la connexion."
+        confirmLabel="Désactiver"
+        danger
+      />
     </AdminLayout>
   );
 }

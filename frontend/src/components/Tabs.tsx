@@ -11,20 +11,25 @@ interface TabsProps {
 
 export function Tabs({ tabs, activeKey, onChange }: TabsProps) {
   return (
-    <div className="flex gap-1 border-b border-border">
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          onClick={() => onChange(tab.key)}
-          className={`px-4 py-2 text-small font-medium transition-colors ${
-            activeKey === tab.key
-              ? "border-b-2 border-primary text-primary"
-              : "text-foreground-muted hover:text-foreground"
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div role="tablist" className="flex gap-1 border-b border-border">
+      {tabs.map((tab) => {
+        const active = activeKey === tab.key;
+        return (
+          <button
+            key={tab.key}
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(tab.key)}
+            className={`px-4 py-2 text-small font-medium transition-colors duration-fast focus:outline-none focus-visible:shadow-focus ${
+              active
+                ? "border-b-2 border-primary text-primary"
+                : "border-b-2 border-transparent text-foreground-muted hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

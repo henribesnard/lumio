@@ -1,14 +1,72 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
+
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/api/client";
+import { Avatar } from "@/components/Avatar";
+import { Badge } from "@/components/Badge";
+import { Button } from "@/components/Button";
+import { Card } from "@/components/Card";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EmptyState } from "@/components/EmptyState";
+import { Input } from "@/components/Input";
+import { Notice } from "@/components/Notice";
+import { Tabs } from "@/components/Tabs";
+import { TagInput } from "@/components/TagInput";
+import { Toggle } from "@/components/Toggle";
+
 import type {
   ConversationResponse,
   LearnerNotesResponse,
   ProfileResponse,
 } from "@/api/types";
+
 import { AdminLayout } from "./AdminLayout";
 
 const NIVEAUX = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
+const AVATARS = Array.from(
+  { length: 12 },
+  (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`,
+);
+
+const TABS = [
+  { key: "identite", label: "Identité" },
+  { key: "comportement", label: "Comportement de l'agent" },
+  { key: "limites", label: "Limites" },
+  { key: "notes", label: "Notes d'apprentissage" },
+  { key: "prompt", label: "Aperçu du prompt" },
+  { key: "conversations", label: "Conversations" },
+  { key: "danger", label: "Zone dangereuse" },
+];
+
+const fieldClass =
+  "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus-visible:shadow-focus focus:border-primary hover:border-foreground-muted";
+
+const textareaClass = `${fieldClass} resize-y leading-body`;
+
+const JOURS: Record<string, string> = {
+  lundi: "Lundi",
+  mardi: "Mardi",
+  mercredi: "Mercredi",
+  jeudi: "Jeudi",
+  vendredi: "Vendredi",
+  samedi: "Samedi",
+  dimanche: "Dimanche",
+  lun: "Lundi",
+  mar: "Mardi",
+  mer: "Mercredi",
+  jeu: "Jeudi",
+  ven: "Vendredi",
+  sam: "Samedi",
+  dim: "Dimanche",
+  mon: "Lundi",
+  tue: "Mardi",
+  wed: "Mercredi",
+  thu: "Jeudi",
+  fri: "Vendredi",
+  sat: "Samedi",
+  sun: "Dimanche",
+};
 
 export function AdminProfileDetail() {
   const { profileId } = useParams<{ profileId: string }>();
@@ -19,11 +77,18 @@ export function AdminProfileDetail() {
   );
   const [notes, setNotes] = useState<LearnerNotesResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState("identite");
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Partial<ProfileResponse>>({});
   const [sujetsInput, setSujetsInput] = useState("");
   const [pinForm, setPinForm] = useState("");
   const [message, setMessage] = useState("");
+  const [messageKind, setMessageKind] = useState<"success" | "error">(
+    "success",
+  );
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [promptPreview, setPromptPreview] = useState<string | null>(null);
+  const [promptLoading, setPromptLoading] = useState(false);
 
   useEffect(() => {
     if (!profileId) return;
@@ -47,8 +112,27 @@ export function AdminProfileDetail() {
       .finally(() => setLoading(false));
   }, [profileId, navigate]);
 
+  // Aperçu du prompt : chargé à la demande (endpoint existant, lecture seule)
+  useEffect(() => {
+    if (
+      activeTab !== "prompt" ||
+      !profileId ||
+      promptPreview !== null ||
+      promptLoading
+    )
+      return;
+    setPromptLoading(true);
+    apiGet<{ prompt: string }>(
+      `/api/admin/profiles/${profileId}/prompt-preview`,
+    )
+      .then((d) => setPromptPreview(d.prompt))
+      .catch(() => setPromptPreview(""))
+      .finally(() => setPromptLoading(false));
+  }, [activeTab, profileId, promptPreview, promptLoading]);
+
   async function handleSave() {
     if (!profileId) return;
+    setSaving(true);
     try {
       const update: Record<string, unknown> = { ...form };
       update.sujets_interdits = sujetsInput
@@ -67,11 +151,14 @@ export function AdminProfileDetail() {
         update,
       );
       setProfile(updated);
-      setEditing(false);
       setMessage("Profil mis à jour.");
+      setMessageKind("success");
     } catch (err: unknown) {
       const apiErr = err as { error?: { message?: string } };
       setMessage(apiErr?.error?.message || "Erreur.");
+      setMessageKind("error");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -81,9 +168,11 @@ export function AdminProfileDetail() {
       await apiPut(`/api/admin/profiles/${profileId}/pin`, { pin: pinForm });
       setPinForm("");
       setMessage("PIN mis à jour.");
+      setMessageKind("success");
     } catch (err: unknown) {
       const apiErr = err as { error?: { message?: string } };
       setMessage(apiErr?.error?.message || "Erreur.");
+      setMessageKind("error");
     }
   }
 
@@ -94,11 +183,11 @@ export function AdminProfileDetail() {
       p ? { ...p, failed_pin_count: 0, locked_until: null } : p,
     );
     setMessage("Profil déverrouillé.");
+    setMessageKind("success");
   }
 
   async function handleDelete() {
-    if (!profileId || !confirm("Supprimer ce profil et toutes ses données ?"))
-      return;
+    if (!profileId) return;
     await apiDelete(`/api/admin/profiles/${profileId}`);
     navigate("/admin/profiles", { replace: true });
   }
@@ -106,29 +195,56 @@ export function AdminProfileDetail() {
   if (loading || !profile) {
     return (
       <AdminLayout>
-        <div className="animate-pulse text-foreground-muted">Chargement...</div>
+        <p className="animate-pulse text-body text-foreground-muted">
+          Chargement...
+        </p>
       </AdminLayout>
     );
   }
 
-  const isLocked =
-    profile.locked_until && new Date(profile.locked_until) > new Date();
+  const isLocked = !!(
+    profile.locked_until && new Date(profile.locked_until) > new Date()
+  );
+  const sujetsTags = sujetsInput
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const plages = profile.plages_horaires
+    ? Object.entries(profile.plages_horaires).filter(
+        ([, slots]) => slots.length > 0,
+      )
+    : [];
 
   return (
     <AdminLayout>
-      <div className="mx-auto max-w-3xl">
-        <button
+      <div className="mx-auto max-w-4xl">
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => navigate("/admin/profiles")}
-          className="mb-4 text-small text-foreground-muted hover:text-foreground"
+          className="mb-4"
         >
-          ← Retour aux profils
-        </button>
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[var(--size-icon)] w-[var(--size-icon)]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5m7-7l-7 7 7 7" />
+          </svg>
+          Retour aux profils
+        </Button>
 
         <div className="mb-6 flex items-center gap-4">
-          <img
-            src={`/avatars/${profile.avatar}.svg`}
-            alt={profile.prenom}
-            className="h-16 w-16"
+          <Avatar
+            avatarKey={profile.avatar}
+            size="lg"
+            alt={`Avatar de ${profile.prenom}`}
+            className="!h-16 !w-16"
           />
           <div>
             <h2 className="text-heading font-bold text-foreground">
@@ -137,64 +253,40 @@ export function AdminProfileDetail() {
             <p className="text-small text-foreground-muted">
               {profile.age} ans — {profile.niveau}
             </p>
-            {!profile.actif && (
-              <span className="text-tiny text-foreground-muted">Désactivé</span>
-            )}
-            {isLocked && (
-              <span className="ml-2 text-tiny text-warning">Verrouillé</span>
-            )}
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {!profile.actif && <Badge variant="info">Désactivé</Badge>}
+              {isLocked && <Badge variant="warning">Verrouillé</Badge>}
+            </div>
           </div>
         </div>
 
         {message && (
-          <div className="mb-4 rounded-input bg-success/10 px-3 py-2 text-small text-success">
-            {message}
+          <div className="mb-4">
+            <Notice
+              variant={messageKind === "success" ? "success" : "error"}
+              onDismiss={() => setMessage("")}
+            >
+              {message}
+            </Notice>
           </div>
         )}
 
-        {/* Actions */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          <button
-            onClick={() => setEditing(!editing)}
-            className="rounded-button border border-border px-3 py-1.5 text-small hover:bg-surface-alt"
-          >
-            {editing ? "Annuler" : "Modifier"}
-          </button>
-          {isLocked && (
-            <button
-              onClick={handleUnlock}
-              className="rounded-button bg-warning/10 px-3 py-1.5 text-small text-warning hover:bg-warning/20"
-            >
-              Déverrouiller
-            </button>
-          )}
-          <button
-            onClick={handleDelete}
-            className="rounded-button bg-danger/10 px-3 py-1.5 text-small text-danger hover:bg-danger/20"
-          >
-            Supprimer
-          </button>
-        </div>
+        <Tabs tabs={TABS} activeKey={activeTab} onChange={setActiveTab} />
 
-        {/* Edit form */}
-        {editing && (
-          <div className="mb-6 rounded-card bg-surface p-6 shadow-card">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="mb-1 block text-small font-medium">
-                  Prénom
-                </label>
-                <input
+        <div className="mt-6">
+          {/* Identité */}
+          {activeTab === "identite" && (
+            <Card>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Prénom"
                   value={form.prenom || ""}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, prenom: e.target.value }))
                   }
-                  className="w-full rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
                 />
-              </div>
-              <div>
-                <label className="mb-1 block text-small font-medium">Âge</label>
-                <input
+                <Input
+                  label="Âge"
                   type="number"
                   min={6}
                   max={14}
@@ -202,171 +294,356 @@ export function AdminProfileDetail() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, age: Number(e.target.value) }))
                   }
-                  className="w-full rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
+                />
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="niveau"
+                    className="text-small font-medium text-foreground"
+                  >
+                    Niveau
+                  </label>
+                  <select
+                    id="niveau"
+                    value={form.niveau || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, niveau: e.target.value }))
+                    }
+                    className={fieldClass}
+                  >
+                    {NIVEAUX.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <fieldset className="mt-4">
+                <legend className="mb-2 text-small font-medium text-foreground">
+                  Avatar
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {AVATARS.map((a) => {
+                    const selected = form.avatar === a;
+                    return (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, avatar: a }))}
+                        aria-pressed={selected}
+                        aria-label={`Avatar ${a}${selected ? " (sélectionné)" : ""}`}
+                        className={`rounded-full transition-all duration-fast ease-out focus:outline-none focus-visible:shadow-focus ${
+                          selected
+                            ? "ring-2 ring-primary ring-offset-2 ring-offset-surface"
+                            : "ring-2 ring-transparent hover:ring-border"
+                        }`}
+                      >
+                        <Avatar
+                          avatarKey={a}
+                          size="sm"
+                          alt=""
+                          className="!ring-0"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+              <Button onClick={handleSave} loading={saving} className="mt-6">
+                Enregistrer les modifications
+              </Button>
+            </Card>
+          )}
+
+          {/* Comportement de l'agent */}
+          {activeTab === "comportement" && (
+            <Card>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="consignes"
+                  className="text-small font-medium text-foreground"
+                >
+                  Consignes personnalisées pour l'agent
+                </label>
+                <textarea
+                  id="consignes"
+                  value={form.consignes_admin || ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, consignes_admin: e.target.value }))
+                  }
+                  rows={5}
+                  className={textareaClass}
+                  placeholder="Ex : toujours féliciter l'enfant quand il trouve seul..."
                 />
               </div>
-              <div>
-                <label className="mb-1 block text-small font-medium">
-                  Niveau
-                </label>
-                <select
-                  value={form.niveau || ""}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, niveau: e.target.value }))
-                  }
-                  className="w-full rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
+              <div className="mt-4">
+                <p
+                  id="sujets-label"
+                  className="mb-2 text-small font-medium text-foreground"
                 >
-                  {NIVEAUX.map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
+                  Sujets interdits
+                </p>
+                <div role="group" aria-labelledby="sujets-label">
+                  <TagInput
+                    tags={sujetsTags}
+                    onChange={(tags) => setSujetsInput(tags.join(", "))}
+                    placeholder="Ajouter un sujet..."
+                  />
+                </div>
+                <p className="mt-1 text-tiny text-foreground-muted">
+                  Appuyez sur Entrée ou « , » pour ajouter une étiquette.
+                </p>
               </div>
-              <div>
-                <label className="mb-1 block text-small font-medium">
-                  Quota messages/jour
-                </label>
-                <input
+              <Button onClick={handleSave} loading={saving} className="mt-6">
+                Enregistrer les modifications
+              </Button>
+            </Card>
+          )}
+
+          {/* Limites */}
+          {activeTab === "limites" && (
+            <Card>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Quota de messages par jour"
                   type="number"
-                  value={form.quota_messages_jour || 50}
+                  min={0}
+                  value={form.quota_messages_jour || 0}
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
                       quota_messages_jour: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
                 />
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="mb-1 block text-small font-medium">
-                Consignes personnalisées
-              </label>
-              <textarea
-                value={form.consignes_admin || ""}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, consignes_admin: e.target.value }))
-                }
-                rows={3}
-                className="w-full rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="mb-1 block text-small font-medium">
-                Sujets interdits (séparés par des virgules)
-              </label>
-              <input
-                value={sujetsInput}
-                onChange={(e) => setSujetsInput(e.target.value)}
-                className="w-full rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
-              />
-            </div>
-            <div className="mt-4 flex items-center gap-4">
-              <label className="flex items-center gap-2 text-small">
-                <input
-                  type="checkbox"
-                  checked={form.actif ?? true}
+                <Input
+                  label="Quota de tokens par jour"
+                  type="number"
+                  min={0}
+                  value={form.quota_tokens_jour || 0}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, actif: e.target.checked }))
+                    setForm((f) => ({
+                      ...f,
+                      quota_tokens_jour: Number(e.target.value),
+                    }))
                   }
                 />
-                Profil actif
-              </label>
-            </div>
-            <button
-              onClick={handleSave}
-              className="mt-4 rounded-button bg-primary px-6 py-2 text-small font-medium text-white hover:bg-primary-hover"
-            >
-              Enregistrer
-            </button>
-          </div>
-        )}
+              </div>
 
-        {/* PIN change */}
-        <div className="mb-6 rounded-card bg-surface p-6 shadow-card">
-          <h3 className="mb-3 text-subheading font-semibold">
-            Changer le code PIN
-          </h3>
-          <div className="flex items-end gap-3">
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={pinForm}
-              onChange={(e) =>
-                setPinForm(e.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-              placeholder="Nouveau PIN (4 chiffres)"
-              className="rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
-            />
-            <button
-              onClick={handlePinChange}
-              disabled={pinForm.length !== 4}
-              className="rounded-button bg-primary px-4 py-2 text-small font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-            >
-              Mettre à jour
-            </button>
-          </div>
-        </div>
-
-        {/* Learner notes */}
-        {notes.length > 0 && (
-          <div className="mb-6 rounded-card bg-surface p-6 shadow-card">
-            <h3 className="mb-3 text-subheading font-semibold">
-              Notes d'apprentissage
-            </h3>
-            <div className="space-y-3">
-              {notes.map((n) => (
-                <div
-                  key={n.id}
-                  className="rounded-input border border-border p-3"
-                >
-                  <p className="text-small font-semibold text-primary">
-                    {n.matiere}
+              <div className="mt-6">
+                <h4 className="mb-2 text-small font-medium text-foreground">
+                  Horaires autorisés
+                </h4>
+                {plages.length === 0 ? (
+                  <p className="text-small text-foreground-muted">
+                    Aucune restriction horaire : connexion autorisée à tout
+                    moment.
                   </p>
-                  <p className="mt-1 text-small text-foreground">{n.notes}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                ) : (
+                  <ul className="flex flex-wrap gap-2">
+                    {plages.map(([jour, slots]) =>
+                      slots.map((slot, i) => (
+                        <li
+                          key={`${jour}-${i}`}
+                          className="rounded-full border border-border bg-surface-alt px-3 py-1 text-tiny text-foreground"
+                        >
+                          {JOURS[jour] ?? jour} · {slot.debut}–{slot.fin}
+                        </li>
+                      )),
+                    )}
+                  </ul>
+                )}
+              </div>
 
-        {/* Conversations */}
-        <div className="rounded-card bg-surface p-6 shadow-card">
-          <h3 className="mb-3 text-subheading font-semibold">Conversations</h3>
-          {conversations.length === 0 ? (
-            <p className="text-small text-foreground-muted">
-              Aucune conversation.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {conversations.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => navigate(`/admin/conversations/${c.id}`)}
-                  className="flex w-full items-center justify-between rounded-input border border-border p-3 text-left hover:bg-surface-alt"
-                >
-                  <div>
-                    <p className="text-small font-medium text-foreground">
-                      {c.titre}
+              <div className="mt-6 border-t border-border pt-4">
+                <Toggle
+                  checked={form.actif ?? true}
+                  onChange={(checked) =>
+                    setForm((f) => ({ ...f, actif: checked }))
+                  }
+                  label="Profil actif (autorise la connexion)"
+                />
+              </div>
+
+              <Button onClick={handleSave} loading={saving} className="mt-6">
+                Enregistrer les modifications
+              </Button>
+            </Card>
+          )}
+
+          {/* Notes d'apprentissage */}
+          {activeTab === "notes" &&
+            (notes.length === 0 ? (
+              <EmptyState
+                title="Aucune note d'apprentissage"
+                description="Les notes prises par l'agent sur les progrès de l'enfant apparaîtront ici."
+              />
+            ) : (
+              <div className="space-y-3">
+                {notes.map((n) => (
+                  <Card key={n.id} className="!p-4">
+                    <p className="text-small font-semibold text-primary">
+                      {n.matiere}
                     </p>
-                    <p className="text-tiny text-foreground-muted">
-                      {new Date(c.updated_at).toLocaleDateString("fr-FR", {
+                    <p className="mt-1 text-small text-foreground leading-body">
+                      {n.notes}
+                    </p>
+                    <p className="mt-2 text-tiny text-foreground-muted">
+                      Mise à jour le{" "}
+                      {new Date(n.updated_at).toLocaleDateString("fr-FR", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
                       })}
                     </p>
+                  </Card>
+                ))}
+              </div>
+            ))}
+
+          {/* Aperçu du prompt */}
+          {activeTab === "prompt" && (
+            <Card>
+              <h3 className="mb-2 text-subheading font-semibold text-foreground">
+                Prompt système envoyé à l'agent pour ce profil
+              </h3>
+              <p className="mb-4 text-small text-foreground-muted leading-body">
+                Lecture seule — le prompt est composé côté serveur à partir de
+                l'âge, du niveau, des consignes et des sujets interdits.
+              </p>
+              {promptLoading ? (
+                <p className="animate-pulse text-small text-foreground-muted">
+                  Chargement...
+                </p>
+              ) : (
+                <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-input border border-border bg-surface-alt p-4 font-mono text-tiny text-foreground leading-body">
+                  {promptPreview ?? "Aperçu indisponible."}
+                </pre>
+              )}
+            </Card>
+          )}
+
+          {/* Conversations */}
+          {activeTab === "conversations" &&
+            (conversations.length === 0 ? (
+              <EmptyState
+                title="Aucune conversation"
+                description="Les conversations de cet enfant apparaîtront ici."
+              />
+            ) : (
+              <div className="space-y-2">
+                {conversations.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => navigate(`/admin/conversations/${c.id}`)}
+                    className="flex w-full items-center justify-between gap-4 rounded-input border border-border bg-surface p-4 text-left shadow-card transition-all duration-fast ease-out hover:-translate-y-0.5 hover:shadow-modal focus:outline-none focus-visible:shadow-focus"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-small font-medium text-foreground">
+                        {c.titre}
+                      </p>
+                      <p className="text-tiny text-foreground-muted">
+                        {new Date(c.updated_at).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0 text-foreground-muted"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            ))}
+
+          {/* Zone dangereuse */}
+          {activeTab === "danger" && (
+            <div className="space-y-4">
+              <Card className="border-danger/40">
+                <h3 className="mb-1 text-subheading font-semibold text-danger">
+                  Zone dangereuse
+                </h3>
+                <p className="mb-4 text-small text-foreground-muted leading-body">
+                  Ces actions sont sensibles. Le déverrouillage efface le
+                  compteur d'échecs PIN ; la suppression efface définitivement
+                  le profil et toutes ses données.
+                </p>
+
+                <div className="space-y-4">
+                  {isLocked && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-input border border-warning/30 bg-warning/10 p-4">
+                      <p className="text-small text-warning">
+                        Ce profil est actuellement verrouillé après des
+                        tentatives de PIN erronées.
+                      </p>
+                      <Button variant="secondary" onClick={handleUnlock}>
+                        Déverrouiller le profil
+                      </Button>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="mb-2 text-small font-medium text-foreground">
+                      Changer le code PIN
+                    </h4>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <Input
+                        label="Nouveau PIN (4 chiffres)"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={4}
+                        value={pinForm}
+                        onChange={(e) =>
+                          setPinForm(
+                            e.target.value.replace(/\D/g, "").slice(0, 4),
+                          )
+                        }
+                        className="sm:max-w-56"
+                      />
+                      <Button
+                        onClick={handlePinChange}
+                        disabled={pinForm.length !== 4}
+                      >
+                        Mettre à jour le PIN
+                      </Button>
+                    </div>
                   </div>
-                  <span className="text-foreground-muted">→</span>
-                </button>
-              ))}
+
+                  <div className="border-t border-border pt-4">
+                    <Button
+                      variant="danger"
+                      onClick={() => setConfirmDeleteOpen(true)}
+                    >
+                      Supprimer le profil
+                    </Button>
+                  </div>
+                </div>
+              </Card>
             </div>
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        onConfirm={handleDelete}
+        title="Supprimer ce profil ?"
+        message="Cette action supprimera définitivement le profil et toutes ses conversations. Elle est irréversible."
+        confirmLabel="Supprimer définitivement"
+        danger
+      />
     </AdminLayout>
   );
 }

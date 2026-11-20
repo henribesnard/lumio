@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
+
 import { apiDelete, apiGet, apiPost } from "@/api/client";
+import { Button } from "@/components/Button";
+import { Card } from "@/components/Card";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EmptyState } from "@/components/EmptyState";
+import { Input } from "@/components/Input";
+import { Notice } from "@/components/Notice";
+
 import type { DeviceResponse } from "@/api/types";
+
 import { AdminLayout } from "./AdminLayout";
 
 export function AdminDevices() {
@@ -8,6 +17,10 @@ export function AdminDevices() {
   const [loading, setLoading] = useState(true);
   const [label, setLabel] = useState("");
   const [message, setMessage] = useState("");
+  const [messageKind, setMessageKind] = useState<"success" | "error">(
+    "success",
+  );
+  const [revokeTarget, setRevokeTarget] = useState<string | null>(null);
 
   useEffect(() => {
     apiGet<DeviceResponse[]>("/api/admin/devices")
@@ -26,20 +39,24 @@ export function AdminDevices() {
       setDevices((prev) => [device, ...prev]);
       setLabel("");
       setMessage("Appareil ajouté. Le cookie a été posé sur cet appareil.");
+      setMessageKind("success");
     } catch (err: unknown) {
       const apiErr = err as { error?: { message?: string } };
       setMessage(apiErr?.error?.message || "Erreur.");
+      setMessageKind("error");
     }
   }
 
-  async function handleRevoke(deviceId: string) {
-    if (!confirm("Révoquer cet appareil de confiance ?")) return;
+  async function handleRevoke() {
+    if (!revokeTarget) return;
     try {
-      await apiDelete(`/api/admin/devices/${deviceId}`);
-      setDevices((prev) => prev.filter((d) => d.id !== deviceId));
+      await apiDelete(`/api/admin/devices/${revokeTarget}`);
+      setDevices((prev) => prev.filter((d) => d.id !== revokeTarget));
       setMessage("Appareil révoqué.");
+      setMessageKind("success");
     } catch {
       setMessage("Erreur lors de la révocation.");
+      setMessageKind("error");
     }
   }
 
@@ -50,84 +67,112 @@ export function AdminDevices() {
           Appareils de confiance
         </h2>
 
-        <p className="mb-4 text-small text-foreground-muted">
+        <p className="mb-4 text-small leading-body text-foreground-muted">
           Seuls les appareils de confiance peuvent afficher la liste des profils
           enfants. Activez cet appareil comme « appareil familial » pour
           permettre aux enfants de se connecter.
         </p>
 
         {message && (
-          <div className="mb-4 rounded-input bg-success/10 px-3 py-2 text-small text-success">
-            {message}
+          <div className="mb-4">
+            <Notice
+              variant={messageKind === "success" ? "success" : "error"}
+              onDismiss={() => setMessage("")}
+            >
+              {message}
+            </Notice>
           </div>
         )}
 
-        {/* Add device form */}
-        <form onSubmit={handleCreate} className="mb-6 flex gap-3">
-          <input
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder="Nom de l'appareil (ex: Tablette salon)"
-            maxLength={100}
-            className="flex-1 rounded-input border border-border px-3 py-2 text-body outline-none focus:border-accent"
-          />
-          <button
-            type="submit"
-            disabled={!label.trim()}
-            className="rounded-button bg-primary px-4 py-2 text-small font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-          >
-            Activer cet appareil
-          </button>
-        </form>
+        {/* Formulaire d'ajout */}
+        <Card className="mb-6 !p-4">
+          <form onSubmit={handleCreate} className="flex flex-wrap gap-3">
+            <div className="min-w-0 flex-1 sm:min-w-64">
+              <Input
+                label="Nom de l'appareil"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                placeholder="ex : Tablette du salon"
+                maxLength={100}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button type="submit" disabled={!label.trim()}>
+                Activer cet appareil
+              </Button>
+            </div>
+          </form>
+        </Card>
 
-        {/* Devices list */}
+        {/* Liste des appareils */}
         {loading ? (
-          <div className="animate-pulse text-foreground-muted">
+          <p className="animate-pulse text-body text-foreground-muted">
             Chargement...
-          </div>
+          </p>
         ) : devices.length === 0 ? (
-          <div className="py-8 text-center text-body text-foreground-muted">
-            Aucun appareil de confiance.
-          </div>
+          <EmptyState
+            title="Aucun appareil de confiance"
+            description="Activez cet appareil pour que les enfants puissent s'y connecter."
+          />
         ) : (
-          <div className="space-y-3">
+          <ul className="space-y-3">
             {devices.map((device) => (
-              <div
-                key={device.id}
-                className="flex items-center justify-between rounded-card bg-surface p-4 shadow-card"
-              >
-                <div>
-                  <p className="text-body font-medium text-foreground">
-                    {device.label}
-                  </p>
-                  <p className="text-tiny text-foreground-muted">
-                    Créé le{" "}
-                    {new Date(device.created_at).toLocaleDateString("fr-FR")}
-                    {device.last_seen_at && (
-                      <>
-                        {" — Vu le "}
-                        {new Date(device.last_seen_at).toLocaleDateString(
+              <li key={device.id}>
+                <Card className="flex flex-wrap items-center justify-between gap-4 !p-4">
+                  <div className="flex items-center gap-3">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm-1 3v2m18-2v2M7 19h10" />
+                    </svg>
+                    <div>
+                      <p className="text-body font-medium text-foreground">
+                        {device.label}
+                      </p>
+                      <p className="text-tiny text-foreground-muted">
+                        Créé le{" "}
+                        {new Date(device.created_at).toLocaleDateString(
                           "fr-FR",
                         )}
-                      </>
-                    )}
-                  </p>
-                  <p className="text-tiny text-foreground-muted">
-                    Expire le{" "}
-                    {new Date(device.expires_at).toLocaleDateString("fr-FR")}
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleRevoke(device.id)}
-                  className="rounded-button border border-danger/30 px-3 py-1.5 text-tiny text-danger hover:bg-danger/5"
-                >
-                  Révoquer
-                </button>
-              </div>
+                        {device.last_seen_at &&
+                          ` — vu le ${new Date(device.last_seen_at).toLocaleDateString("fr-FR")}`}
+                        {" — expire le "}
+                        {new Date(device.expires_at).toLocaleDateString(
+                          "fr-FR",
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setRevokeTarget(device.id)}
+                  >
+                    Révoquer
+                  </Button>
+                </Card>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
+
+      <ConfirmDialog
+        open={revokeTarget !== null}
+        onClose={() => setRevokeTarget(null)}
+        onConfirm={handleRevoke}
+        title="Révoquer cet appareil ?"
+        message="Cet appareil ne pourra plus afficher la liste des profils enfants. Les sessions en cours sur cet appareil seront progressivement invalidées."
+        confirmLabel="Révoquer l'appareil"
+        danger
+      />
     </AdminLayout>
   );
 }

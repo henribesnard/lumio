@@ -1,9 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Pink heart shape -->
-  <path d="M32 56 C32 56 4 38 4 20 C4 10 14 4 24 10 C28 12 30 16 32 18 C34 16 36 12 40 10 C50 4 60 10 60 20 C60 38 32 56 32 56Z" fill="#EC4899"/>
-  <circle cx="24" cy="26" r="3" fill="white"/>
-  <circle cx="40" cy="26" r="3" fill="white"/>
-  <circle cx="24" cy="27" r="1.5" fill="#831843"/>
-  <circle cx="40" cy="27" r="1.5" fill="#831843"/>
-  <path d="M28 36 Q32 40 36 36" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="30" fill="#F2E0D3"/>
+  <g fill="#B45309"><path d="M32 12 C44 12 52 22 52 33 C52 45 43 54 32 54 C21 54 12 45 12 33 C12 22 20 12 32 12 Z"/></g>
+  <circle cx="25.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="38.5" cy="30" r="4.2" fill="#FFFFFF"/><circle cx="26.6" cy="31" r="2.1" fill="#1C2333"/><circle cx="39.6" cy="31" r="2.1" fill="#1C2333"/><path d="M25 39 Q32 46 39 39" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>
 </svg>

@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import type { ApiError } from "@/api/client";
+import { PinPad } from "@/components/PinPad";
+import { Logo } from "@/components/Logo";
+import { Mascot } from "@/components/Mascot";
 
 export function KidPinPage() {
   const { profileId } = useParams<{ profileId: string }>();
@@ -9,28 +12,14 @@ export function KidPinPage() {
   const navigate = useNavigate();
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const [errorCode, setErrorCode] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleDigit(digit: string) {
-    if (pin.length < 4) {
-      const newPin = pin + digit;
-      setPin(newPin);
-      setError("");
-
-      if (newPin.length === 4) {
-        submitPin(newPin);
-      }
-    }
-  }
-
-  function handleBackspace() {
-    setPin((p) => p.slice(0, -1));
-    setError("");
-  }
-
   async function submitPin(code: string) {
-    if (!profileId) return;
+    if (!profileId || loading) return;
     setLoading(true);
+    setError("");
+    setErrorCode("");
     try {
       await kidLogin(profileId, code);
       navigate("/chat", { replace: true });
@@ -38,83 +27,82 @@ export function KidPinPage() {
       const apiErr = err as ApiError;
       setPin("");
       setError(apiErr?.error?.message || "Code incorrect.");
+      setErrorCode(apiErr?.error?.code || "");
     } finally {
       setLoading(false);
     }
   }
 
-  const dots = Array.from({ length: 4 }, (_, i) => i < pin.length);
-  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "←"];
+  // Soumission automatique au 4e chiffre (comportement existant, inchangé)
+  useEffect(() => {
+    if (pin.length === 4 && !loading) {
+      void submitPin(pin);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin]);
+
+  const locked = errorCode === "profile_locked";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <button
         onClick={() => navigate("/select")}
-        className="mb-8 text-small text-foreground-muted hover:text-foreground"
+        className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-button px-3 py-2 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)]"
       >
-        ← Retour
+        <svg
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          aria-hidden="true"
+        >
+          <path
+            d="M19 12H5m7-7-7 7 7 7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Retour
       </button>
 
-      <h1 className="mb-6 text-heading font-bold text-foreground">
+      <Logo height={48} className="mb-6" />
+
+      <Mascot
+        state={loading ? "reflechit" : locked ? "pause" : "ecoute"}
+        size={88}
+        className="mb-4"
+      />
+
+      <h1 className="mb-1 text-center text-heading font-bold text-foreground">
         Entre ton code secret
       </h1>
+      <p className="mb-8 text-center text-small text-foreground-muted">
+        4 chiffres, personne ne les voit.
+      </p>
 
-      {/* PIN dots */}
-      <div className="mb-8 flex gap-4">
-        {dots.map((filled, i) => (
-          <div
-            key={i}
-            className={`h-5 w-5 rounded-full border-2 transition-colors ${
-              filled
-                ? "border-primary bg-primary"
-                : "border-border bg-transparent"
-            }`}
-          />
-        ))}
-      </div>
+      <PinPad
+        value={pin}
+        onChange={(v) => {
+          setPin(v);
+          setError("");
+          setErrorCode("");
+        }}
+        loading={loading}
+        error={error}
+      />
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 rounded-input bg-danger/10 px-4 py-2 text-small text-danger">
-          {error}
-        </div>
+      {locked && (
+        <p className="mt-6 max-w-xs text-center text-small text-foreground-muted">
+          Demande à un parent de déverrouiller ton profil depuis l'espace
+          administration.
+        </p>
       )}
 
-      {/* Number pad */}
-      <div className="grid w-full max-w-xs grid-cols-3 gap-3">
-        {digits.map((digit, i) => {
-          if (digit === "") return <div key={i} />;
-          if (digit === "←") {
-            return (
-              <button
-                key={i}
-                onClick={handleBackspace}
-                disabled={loading || pin.length === 0}
-                className="flex items-center justify-center rounded-button bg-surface-alt text-heading font-medium text-foreground shadow-card transition-colors hover:bg-border active:bg-primary-light disabled:opacity-30"
-                style={{ minHeight: "var(--size-touch-target)" }}
-              >
-                ←
-              </button>
-            );
-          }
-          return (
-            <button
-              key={i}
-              onClick={() => handleDigit(digit)}
-              disabled={loading || pin.length >= 4}
-              className="flex items-center justify-center rounded-button bg-surface text-heading font-medium text-foreground shadow-card transition-colors hover:bg-surface-alt active:bg-primary-light disabled:opacity-30"
-              style={{ minHeight: "var(--size-touch-target)" }}
-            >
-              {digit}
-            </button>
-          );
-        })}
-      </div>
-
       {loading && (
-        <div className="mt-6 text-body text-foreground-muted">
-          Vérification...
-        </div>
+        <p className="mt-6 text-body text-foreground-muted" role="status">
+          Vérification…
+        </p>
       )}
     </div>
   );

@@ -1,16 +1,20 @@
 /*
- * Lumio Design Tokens
- * ===================
+ * Lumio Design Tokens — piste retenue : « Brume » (voir docs/design/DIRECTION.md)
+ * ==========================================================================
  * Toutes les valeurs visuelles passent par ces variables CSS.
  * Le designer modifie CE fichier et les composants suivent.
  *
  * Thèmes : [data-age="6-8"], [data-age="9-14"], [data-theme="admin"]
+ * Règle : aucun renommage ni suppression de variable existante ; les thèmes
+ * héritent de :root, donc une variable définie dans :root est disponible partout.
+ * Contrastes vérifiés WCAG 2.1 (texte ≥ 4.5:1, composants UI ≥ 3:1) — voir
+ * docs/design/DIRECTION.md et scripts/check-tokens.ts.
  */
 
 :root {
   /* --- Typography --- */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --text-display: 2rem;
   --text-heading: 1.5rem;
@@ -18,28 +22,60 @@
   --text-body: 1rem;
   --text-small: 0.875rem;
   --text-tiny: 0.75rem;
+  --leading-body: 1.6;
 
-  /* --- Colors (default: kid 9-14) --- */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #e0e7ff;
-  --color-secondary: #8b5cf6;
-  --color-accent: #f59e0b;
+  /* --- Colors (default: kid 9-14, piste « Brume ») --- */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #e4e9f8;
+  --color-secondary: #0e7490;
+  --color-accent: #f59e0b; /* décoratif uniquement — jamais de texte dessus */
 
   --color-surface: #ffffff;
-  --color-surface-alt: #f8fafc;
-  --color-background: #f1f5f9;
-  --color-foreground: #1e293b;
-  --color-foreground-muted: #64748b;
-  --color-border: #e2e8f0;
+  --color-surface-alt: #e8ecf5;
+  --color-background: #f3f5fa;
+  --color-foreground: #1c2333;
+  --color-foreground-muted: #55607a;
+  --color-border: #6e7a94;
 
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #3b82f6;
+  --color-success: #15803d;
+  --color-warning: #92400e;
+  --color-danger: #b91c1c;
+  --color-info: #1d4ed8;
+
+  /* --- Chat bubble --- */
+  --color-bubble-child: #e4e9f8;
+  --color-bubble-child-text: #1c2333;
+  --color-bubble-assistant: #ffffff;
+  --color-bubble-assistant-text: #1c2333;
+  --color-bubble-notice: #fceed3;
+  --color-bubble-notice-text: #92400e;
+
+  /* --- Mascotte « Lumi la luciole » --- */
+  --color-mascot-body: #4f46e5;
+  --color-mascot-head: #4338ca;
+  --color-mascot-outline: #3730a3;
+  --color-mascot-glow: #fbbf24;
+  --color-mascot-face: #1c2333;
+  --color-mascot-wing: #c7d2fe;
+  --color-mascot-dim: #6e7a94;
+  --color-mascot-dim-soft: #98a5c0;
+  --color-on-dark: #ffffff;
 
   /* --- Spacing & Sizing --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
   --size-touch-target: 48px;
+  --size-avatar-sm: 2rem;
+  --size-avatar-md: 3rem;
+  --size-avatar-lg: 5rem;
+  --size-pin-dot: 1rem;
+  --size-icon: 1.25rem;
 
   /* --- Border Radius --- */
   --radius-card: 1rem;
@@ -48,76 +84,91 @@
   --radius-full: 9999px;
 
   /* --- Shadows --- */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 1px 2px rgb(28 35 51 / 0.08), 0 2px 8px rgb(28 35 51 / 0.06);
   --shadow-modal:
-    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    0 20px 25px -5px rgb(28 35 51 / 0.18), 0 8px 10px -6px rgb(28 35 51 / 0.12);
+  --shadow-focus:
+    0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
 
-  /* --- Chat bubble --- */
-  --color-bubble-child: #e0e7ff;
-  --color-bubble-child-text: #1e293b;
-  --color-bubble-assistant: #ffffff;
-  --color-bubble-assistant-text: #1e293b;
-  --color-bubble-notice: #fef3c7;
-  --color-bubble-notice-text: #92400e;
-
-  /* --- Avatar --- */
-  --size-avatar-sm: 2rem;
-  --size-avatar-md: 3rem;
-  --size-avatar-lg: 5rem;
+  /* --- Animation --- */
+  --duration-fast: 150ms;
+  --duration-med: 300ms;
+  --duration-slow: 600ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --- Theme: Young kids (6-8) --- */
+/* --- Theme: Young kids (6-8) — Lexend, textes ≥ 20 px, cibles ≥ 56 px --- */
 [data-age="6-8"] {
+  --font-sans: "Lexend", "Inter", system-ui, sans-serif;
+
   --text-display: 2.5rem;
   --text-heading: 2rem;
   --text-subheading: 1.5rem;
-  --text-body: 1.25rem;
+  --text-body: 1.25rem; /* ≥ 20 px */
   --text-small: 1.1rem;
   --text-tiny: 0.9rem;
-
-  --color-primary: #8b5cf6;
-  --color-primary-hover: #7c3aed;
-  --color-primary-light: #ede9fe;
-  --color-secondary: #ec4899;
-  --color-accent: #fbbf24;
+  --leading-body: 1.55;
 
   --radius-card: 1.5rem;
   --radius-button: 1rem;
+  --radius-input: 0.75rem;
 
   --size-touch-target: 56px;
   --size-avatar-sm: 2.5rem;
   --size-avatar-md: 4rem;
   --size-avatar-lg: 6rem;
+  --size-pin-dot: 1.25rem;
 
-  --color-bubble-child: #ede9fe;
-  --color-bubble-assistant: #fce7f3;
-  --color-bubble-assistant-text: #1e293b;
+  --shadow-card: 0 2px 4px rgb(28 35 51 / 0.1), 0 4px 14px rgb(28 35 51 / 0.08);
 }
 
-/* --- Theme: Older kids (9-14) — default above --- */
+/* --- Theme: Older kids (9-14) — valeurs :root ci-dessus --- */
 [data-age="9-14"] {
-  /* Uses root defaults */
+  /* Hérite de :root */
 }
 
-/* --- Theme: Admin dashboard --- */
+/* --- Theme: Admin dashboard — sobre, desktop --- */
 [data-theme="admin"] {
-  --color-primary: #0f172a;
-  --color-primary-hover: #1e293b;
-  --color-primary-light: #f1f5f9;
-  --color-secondary: #475569;
-  --color-accent: #6366f1;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --color-background: #f8fafc;
+  --color-primary: #1e293b;
+  --color-primary-hover: #0f172a;
+  --color-primary-light: #eceff5;
+  --color-secondary: #475569;
+  --color-accent: #4338ca;
+
+  --color-background: #f6f7f9;
   --color-surface: #ffffff;
-  --color-surface-alt: #f1f5f9;
+  --color-surface-alt: #eceff5;
+  --color-foreground: #1c2333;
+  --color-foreground-muted: #55607a;
+  --color-border: #6e7a94;
+
+  --color-success: #15803d;
+  --color-warning: #92400e;
+  --color-danger: #b91c1c;
+  --color-info: #1d4ed8;
+
+  --color-bubble-child: #e4e9f8;
+  --color-bubble-child-text: #1c2333;
+  --color-bubble-assistant: #ffffff;
+  --color-bubble-assistant-text: #1c2333;
+  --color-bubble-notice: #fceed3;
+  --color-bubble-notice-text: #92400e;
 
   --text-display: 1.75rem;
   --text-heading: 1.375rem;
   --text-subheading: 1.125rem;
   --text-body: 0.9375rem;
   --text-small: 0.8125rem;
+  --text-tiny: 0.75rem;
+  --leading-body: 1.5;
 
   --size-touch-target: 40px;
   --radius-card: 0.75rem;
   --radius-button: 0.5rem;
+  --radius-input: 0.5rem;
+
+  --shadow-card: 0 1px 2px rgb(28 35 51 / 0.06);
+  --shadow-focus: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent);
 }
