@@ -31,10 +31,7 @@ def _make_profile(**kwargs) -> Profile:
         "locked_until": None,
     }
     defaults.update(kwargs)
-    p = Profile.__new__(Profile)
-    for k, v in defaults.items():
-        object.__setattr__(p, k, v)
-    return p
+    return Profile(**defaults)
 
 
 class TestPersonalInfoDetection:
