@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T17:56:55.965Z",
+  "generatedAt": "2026-11-20T18:17:19.000Z",
   "base": "http://localhost:3100",
   "results": {
     "00-design-components": {
@@ -112,6 +112,41 @@
       "violations": [],
       "seriousOrCritical": []
     },
+    "05-sheet-6-8-landscape": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-6-8-portrait": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-9-14-landscape": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-9-14-portrait": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-9-14-page1": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-zoom": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-mobile": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
     "04-chat-9-14-mobile": {
       "url": "http://localhost:3100/chat/conv-noah-1",
       "violations": [],
@@ -214,6 +249,11 @@
     },
     "11-admin-conversation": {
       "url": "http://localhost:3100/admin/conversations/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "11-admin-conversation-visual": {
+      "url": "http://localhost:3100/admin/conversations/conv-noah-2",
       "violations": [],
       "seriousOrCritical": []
     },

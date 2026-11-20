@@ -142,6 +142,8 @@ Nouveaux :
 | `ScheduleEditor` | plages horaires du profil | sans restriction / valide / erreurs |
 | `Illustration` | états vides | 6 illustrations |
 | `KidChrome` | icônes et mention parents partagées | — |
+| `LumioSheet` | « Feuille de Lumio » : panneau blanc, onglets (pastilles 6-8 / « n · titre » 9-14), agrandir, repli portrait | 1 à n pages, repliée, agrandie |
+| `visual/VisualAid` | support visuel rendu en liste blanche + alt généré + repli d'erreur | `number_line`, `fraction_bars`, `chart` (barres/courbe), `shape` (rectangle/triangle/cercle), `timeline` |
 
 Showroom : `/__design/components` (mode maquette + dev uniquement, **absent du
 build** ; `mockServiceWorker.js` est aussi retiré de `dist/` par un plugin Vite).
@@ -158,6 +160,15 @@ build** ; `mockServiceWorker.js` est aussi retiré de `dist/` par un plugin Vite
   gauche → droite). Tout est coupé si `prefers-reduced-motion`.
 - Historique rechargé : pas d'animation de réussite (seulement les messages
   reçus pendant la session).
+
+## 7 bis. Feuille de Lumio (supports visuels)
+
+Voir `docs/VISUAL_AIDS.md`. Calques fixes (tokens `--color-sheet-*`, identiques
+dans tous les thèmes) : encre/prisme = ce qu'on sait ; menthe pointillé =
+ajouté par l'indice ; soleil pointillé + « ? » = case de l'enfant. La feuille
+est à droite du fil en paysage (≥ 1024 px), au-dessus en portrait (repliable).
+Chaque carte illustrée porte « Regarde la feuille n ». Jamais de feuille sur un
+message de sécurité.
 
 ## 8. Accessibilité — vérifications
 

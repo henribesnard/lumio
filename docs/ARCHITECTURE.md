@@ -66,6 +66,10 @@ START → input_guard → router ─┬─ critical → safe_response
   success / explanation, `hint_level` 1–3 pour les indices. Lecture tolérante :
   texte brut accepté sans type, JSON illisible relancé une fois puis fallback ;
   le JSON brut n'est jamais montré à l'enfant.
+- **supports visuels** (prototype, `VISUAL_AIDS_ENABLED` + `profile.supports_visuels`) :
+  outil `show_visual` lié au tuteur seulement si actif ; spécification validée
+  (`app/agent/visuals.py`), garde déterministe « pas de réponse dans le dessin »,
+  puis revue par `output_guard` ; tout échec ⇒ texte seul. Voir `docs/VISUAL_AIDS.md`.
 - **output_guard** : modération + classificateur de sortie sur le texte, avec le
   type déclaré (`type_ok` faux ⇒ le type est retiré, le message s'affiche
   normalement) ; rewrite 1× max, sinon fallback

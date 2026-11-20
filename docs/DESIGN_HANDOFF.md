@@ -42,7 +42,7 @@ Design source : artefact « Lumio — Design Prisme + Feuille » (5 planches).
 | Identité — palette, typo, mascotte, signatures du chat | toutes | `styles/tokens.css`, `styles/index.css`, `components/Mascot.tsx`, `components/PedagogyCard.tsx` (+ Question/Hint/Example), `public/brand/`, `public/fonts/` |
 | Chat 6-8 — tablette paysage / portrait | `/chat/:id` | `features/kid/KidChatPage.tsx` (branche `6-8`), `components/ChatBubble.tsx`, `ChatInput.tsx`, `TutorMessage.tsx`, `KidChrome.tsx` |
 | Chat 9-14 — tablette paysage | `/chat/:id` | `features/kid/KidChatPage.tsx` (branche `9-14` : rail + en-tête) |
-| Composant Feuille — catalogue et états | `/chat/:id` (panneau) | **PR « supports visuels »** (voir `docs/VISUAL_AIDS.md`) ; sans dessin, la feuille est repliée et le chat prend toute la largeur |
+| Composant Feuille — catalogue et états | `/chat/:id` (panneau), `/admin/conversations/:id` | `components/LumioSheet.tsx`, `components/visual/*` (voir `docs/VISUAL_AIDS.md`) ; sans dessin, pas de feuille et le chat prend toute la largeur |
 | (non dessinés, extrapolés dans le même langage) | `/select`, `/pin/:id`, `/chat`, `/admin/*` | `features/auth/*`, `features/kid/KidConversationsPage.tsx`, `features/admin/*`, `components/AlertCard.tsx`, `ScheduleEditor.tsx`, `QuotaIndicator.tsx`, `Illustration.tsx` |
 
 Les écrans restent des pages (`*Page.tsx`, `Admin*.tsx`) : le dépôt n'a pas de
@@ -281,6 +281,7 @@ celles qu'il implique.
 | Distinguer la réponse de sécurité après rechargement | **Fait** : `kind = "safety"` sur les réponses prédéfinies critiques |
 | Exposer `locked` / `hors_plage_horaire` au choix du profil | Déjà dans l'API ; ajouté au type front et aux mocks |
 | Plages horaires éditables | **Fait** : validation `plages_horaires` (jours, HH:MM, début < fin, pas de chevauchement, 4 max) |
-| Feuille de Lumio (dessins structurés) | **PR séparée** « supports visuels » (`docs/VISUAL_AIDS.md`) |
+| Feuille de Lumio (dessins structurés) | **Fait (prototype, drapeau)** : outil `show_visual`, `message.visual`, `profile.supports_visuels` — `docs/VISUAL_AIDS.md` |
 | Étiquette de matière dans l'en-tête 9-14 (« Maths ») | **Reporté** : demande une classification de la conversation (appel LLM ou heuristique) et une colonne ; à décider avec les notes d'apprentissage |
-| Liens « Feuille 1 / Regarde la feuille 2 » dans les cartes | **Reporté** à la PR supports visuels (dépend des feuilles) |
+| Liens « Regarde la feuille n » dans les cartes | **Fait** |
+| Types `table` et `diagram` (schéma légendé) du catalogue | **Reportés** (cf. `docs/VISUAL_AIDS.md` §8) |
