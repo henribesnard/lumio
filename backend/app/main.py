@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -10,8 +13,17 @@ from app.api import admin, auth, kid
 from app.api.schemas import HealthResponse
 from app.auth.sessions import verify_csrf_token, verify_origin
 from app.config import get_settings
+from app.services.retention import retention_loop
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(retention_loop())
+    yield
+    task.cancel()
+
 
 app = FastAPI(
     title="Lumio API",
@@ -20,6 +32,7 @@ app = FastAPI(
     docs_url="/api/docs" if not settings.public_url else None,
     redoc_url=None,
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 
 # ---------------------------------------------------------------------------
