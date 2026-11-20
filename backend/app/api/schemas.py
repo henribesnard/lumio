@@ -107,6 +107,8 @@ class ProfilePublic(BaseModel):
     prenom: str
     avatar: str
     actif: bool
+    locked: bool = False
+    hors_plage_horaire: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -174,9 +176,34 @@ class MessageResponse(BaseModel):
     modele: str | None
     moderation: dict | None = None
     guard_verdict: dict | None = None
+    moderation_summary: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @staticmethod
+    def _summarize_verdict(verdict: dict | None, label: str) -> str | None:
+        if not verdict:
+            return None
+        action = verdict.get("action", "unknown")
+        if action == "allow":
+            return None
+        categories = verdict.get("categories", [])
+        if categories:
+            return f"{label}: {action} ({', '.join(categories)})"
+        return f"{label}: {action}"
+
+    def model_post_init(self, __context: object) -> None:
+        if self.moderation_summary is None:
+            parts = []
+            s = self._summarize_verdict(self.moderation, "Entrée")
+            if s:
+                parts.append(s)
+            s = self._summarize_verdict(self.guard_verdict, "Sortie")
+            if s:
+                parts.append(s)
+            if parts:
+                self.moderation_summary = " | ".join(parts)
 
 
 class MessageResponseKid(BaseModel):

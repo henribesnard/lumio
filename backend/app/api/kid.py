@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -38,12 +39,23 @@ settings = get_settings()
 async def list_kid_profiles(
     device: TrustedDevice = Depends(require_trusted_device),
     db: AsyncSession = Depends(get_db),
-) -> list[Profile]:
+) -> list[ProfilePublic]:
     """List active profiles for the kid selection screen. Requires trusted device."""
     result = await db.execute(
         select(Profile).where(Profile.actif.is_(True)).order_by(Profile.prenom)
     )
-    return list(result.scalars().all())
+    now = datetime.utcnow()
+    return [
+        ProfilePublic(
+            id=p.id,
+            prenom=p.prenom,
+            avatar=p.avatar,
+            actif=p.actif,
+            locked=bool(p.locked_until and p.locked_until > now),
+            hors_plage_horaire=not is_within_time_window(p),
+        )
+        for p in result.scalars().all()
+    ]
 
 
 @router.get("/me", response_model=KidMeResponse)
@@ -146,11 +158,13 @@ async def send_message(
         )
 
     # Check quota and schedule
-    error_msg = await check_quota_and_schedule(db, profile)
-    if error_msg:
+    quota_check = await check_quota_and_schedule(db, profile)
+    if quota_check:
+        notice_type, error_msg = quota_check
 
         async def quota_stream():
-            yield f"event: notice\ndata: {json.dumps({'message': error_msg})}\n\n"
+            payload = {"notice_type": notice_type, "message": error_msg}
+            yield f"event: notice\ndata: {json.dumps(payload)}\n\n"
             yield f"event: done\ndata: {json.dumps({'message_id': None})}\n\n"
 
         return StreamingResponse(

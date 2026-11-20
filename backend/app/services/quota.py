@@ -83,17 +83,25 @@ def is_within_time_window(profile: Profile) -> bool:
     return False
 
 
-async def check_quota_and_schedule(db: AsyncSession, profile: Profile) -> str | None:
-    """Return a friendly error message if quota exceeded or outside schedule, else None."""
+async def check_quota_and_schedule(db: AsyncSession, profile: Profile) -> tuple[str, str] | None:
+    """Return (notice_type, message) if blocked, else None."""
     if not is_within_time_window(profile):
         return (
-            "Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les heures autorisées !"
+            "hors_plage",
+            "Ce n'est pas le moment de discuter avec Lumio. "
+            "Reviens pendant les heures autorisées !",
         )
 
     msg_remaining, tok_remaining = await get_remaining_quota(db, profile)
     if msg_remaining <= 0:
-        return "Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve demain !"
+        return (
+            "quota",
+            "Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve demain !",
+        )
     if tok_remaining <= 0:
-        return "Tu as beaucoup discuté aujourd'hui ! On se retrouve demain pour continuer."
+        return (
+            "quota",
+            "Tu as beaucoup discuté aujourd'hui ! On se retrouve demain pour continuer.",
+        )
 
     return None
