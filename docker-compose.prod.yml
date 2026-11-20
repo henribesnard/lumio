@@ -1,0 +1,19 @@
+# Production overrides — usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  db:
+    deploy:
+      resources:
+        limits:
+          memory: 384m
+
+  backend:
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  frontend:
+    deploy:
+      resources:
+        limits:
+          memory: 64m
