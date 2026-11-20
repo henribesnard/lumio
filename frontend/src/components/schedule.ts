@@ -61,6 +61,46 @@ export function validateSchedule(schedule: Schedule): Record<string, string> {
   return errors;
 }
 
+const ALIASES: Record<string, string> = {
+  lun: "lundi",
+  mar: "mardi",
+  mer: "mercredi",
+  jeu: "jeudi",
+  ven: "vendredi",
+  sam: "samedi",
+  dim: "dimanche",
+  mon: "lundi",
+  tue: "mardi",
+  wed: "mercredi",
+  thu: "jeudi",
+  fri: "vendredi",
+  sat: "samedi",
+  sun: "dimanche",
+  monday: "lundi",
+  tuesday: "mardi",
+  wednesday: "mercredi",
+  thursday: "jeudi",
+  friday: "vendredi",
+  saturday: "samedi",
+  sunday: "dimanche",
+};
+
+/**
+ * Ramène les clés héritées de l'ancienne page admin (« lun », « mon »,
+ * « monday »…) au nom français canonique, en fusionnant les plages.
+ * Même règle que le backend (validate_plages_horaires).
+ */
+export function canonicalizeDays(schedule: Schedule): Schedule {
+  const out: Schedule = {};
+  for (const [key, slots] of Object.entries(schedule)) {
+    const k = key.trim().toLowerCase();
+    const day = DAYS.some((d) => d.key === k) ? k : ALIASES[k];
+    if (!day) continue;
+    out[day] = [...(out[day] ?? []), ...(slots ?? [])];
+  }
+  return out;
+}
+
 /** Trie les plages et retire les jours inconnus ; garde les jours vides (= fermés). */
 export function normalizeSchedule(schedule: Schedule): Schedule {
   const out: Schedule = {};
