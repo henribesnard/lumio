@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import type { ApiError } from "@/api/client";
 import { PinPad } from "@/components/PinPad";
-import { Logo } from "@/components/Logo";
 import { Mascot } from "@/components/Mascot";
 
 export function KidPinPage() {
@@ -44,21 +43,24 @@ export function KidPinPage() {
   const locked = errorCode === "profile_locked";
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+    <div
+      data-age="6-8"
+      className="relative flex min-h-screen flex-col items-center justify-center bg-background p-6"
+    >
       <button
         onClick={() => navigate("/select")}
-        className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-button px-3 py-2 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)]"
+        className="absolute left-6 top-5 inline-flex min-h-[var(--size-touch-target)] items-center gap-2 rounded-full bg-surface py-2 pl-3 pr-5 text-body font-medium text-foreground shadow-card transition-colors duration-fast hover:bg-surface-alt focus:outline-none focus-visible:shadow-focus"
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-4 w-4"
+          className="h-[var(--size-icon)] w-[var(--size-icon)]"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2.5"
+          strokeWidth="2.6"
           aria-hidden="true"
         >
           <path
-            d="M19 12H5m7-7-7 7 7 7"
+            d="M15 18l-6-6 6-6"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -66,18 +68,16 @@ export function KidPinPage() {
         Retour
       </button>
 
-      <Logo height={48} className="mb-6" />
-
       <Mascot
         state={loading ? "reflechit" : locked ? "pause" : "ecoute"}
-        size={88}
+        size={104}
         className="mb-4"
       />
 
       <h1 className="mb-1 text-center text-heading font-bold text-foreground">
         Entre ton code secret
       </h1>
-      <p className="mb-8 text-center text-small text-foreground-muted">
+      <p className="mb-8 text-center text-body text-foreground-muted">
         4 chiffres, personne ne les voit.
       </p>
 
