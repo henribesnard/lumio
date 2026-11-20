@@ -5,20 +5,20 @@
 
 ## Demandes au backend
 
-| # | Demande | Pourquoi |
+| # | Demande | Statut |
 |---|---|---|
-| B1 | `GET /api/kid/profiles` (`ProfilePublic`) : exposer l'état `verrouillé` (et idéalement `hors_plage_horaire`) par profil | L'écran de choix du profil doit pouvoir afficher « Verrouillé » / « Hors horaires » (écran 2 de la liste). Aujourd'hui seul le PIN affiche le verrouillage (429 `profile_locked`). |
-| B2 | Événement SSE dédié pour les réussites (ex. `event: success`) | « Réussites célébrées sobrement » côté chat : sans marqueur, l'UI ne peut pas distinguer un bravo d'un indice. Les mocks contiennent des « Bravo » textuels, ce n'est pas fiable. |
-| B3 | Conserver le type de notice SSE (`quota`, `sujet_interdit`, `pause`, `erreur`) dans le payload `notice` | Pour styliser différemment chaque avis système bienveillant (aujourd'hui un simple `message`). |
-| B4 | `GET /api/admin/conversations/:id/messages` : exposer un résumé lisible des verdicts (`moderation`, `guard_verdict`) en plus du JSON brut | L'admin doit lire les badges de modération sans ouvrir le JSON. |
+| B1 | `GET /api/kid/profiles` (`ProfilePublic`) : exposer `locked` et `hors_plage_horaire` par profil | ✅ Livré (PR #3) |
+| B2 | Événement SSE dédié pour les réussites (ex. `event: success`) | ⏳ Reporté — nécessite une classification IA de la réponse (détection bravo vs. indice), scope risqué pré-deploy |
+| B3 | Conserver le type de notice SSE (`quota`, `hors_plage`) dans le payload `notice` | ✅ Livré (PR #3) |
+| B4 | `MessageResponse` : `moderation_summary` lisible en plus du JSON brut (admin uniquement) | ✅ Livré (PR #3) |
 
 ## À implémenter côté logique (frontend)
 
-| # | Élément | Écran |
+| # | Élément | Statut |
 |---|---|---|
-| F1 | Filtrer les conversations archivées (`archived: true`) dans la liste enfant | Historique (`/chat`) |
-| F2 | Éditeur complet des plages horaires (l'admin voit les créneaux en lecture seule) | Profil → onglet « Limites » |
-| F3 | Le mock de message contient encore des emoji (🌟🎉) dans certains contenus de démo | Chat — données de démo uniquement, l'UI n'en ajoute pas |
+| F1 | Filtrer les conversations archivées (`archived: true`) dans la liste enfant | ✅ Déjà fait — le backend filtre `archived=False` |
+| F2 | Éditeur complet des plages horaires (l'admin voit les créneaux en lecture seule) | ⏳ Reporté — composant UI conséquent, ne bloque pas le déploiement |
+| F3 | Supprimer les emoji des contenus de démo mock | ✅ Livré (PR #3) |
 
 ## Déjà livré (ne plus lister)
 
@@ -33,4 +33,4 @@
 - `npm run lint` (`eslint src/`) en échec : aucune config ESLint flat trouvée (corrigé sur la branche `design` par ajout de `eslint.config.js`).
 - `npm test` (vitest) en échec : aucun fichier de test (corrigé par `scripts/check-tokens.test.ts`).
 - `npx prettier --check src/` non conforme sur main (31 fichiers, aucune config prettier) — laissé tel quel pour ne pas toucher aux fichiers hors périmètre ; à discuter.
-- `public/mockServiceWorker.js` est copié dans `dist/` (inert en production : jamais enregistré) — Vite ne sert pas le worker MSW sinon en dev.
+- `public/mockServiceWorker.js` copié dans `dist/` — corrigé dans le Dockerfile de production (supprimé après build).

@@ -51,9 +51,11 @@ class TestQuota:
         db_session.add(usage)
         await db_session.flush()
 
-        error = await check_quota_and_schedule(db_session, child_profile)
-        assert error is not None
-        assert "demain" in error.lower()
+        result = await check_quota_and_schedule(db_session, child_profile)
+        assert result is not None
+        notice_type, msg = result
+        assert notice_type == "quota"
+        assert "demain" in msg.lower()
 
 
 class TestTimeWindows:

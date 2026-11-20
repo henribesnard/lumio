@@ -130,7 +130,7 @@ export const mockMessages = [
     conversation_id: "conv-lea-1",
     role: "assistant" as const,
     contenu:
-      "Bonne question ! 🌟 Est-ce que tu sais compter sur tes doigts ? Essaie de lever 3 doigts, puis 5 de plus !",
+      "Bonne question ! Est-ce que tu sais compter sur tes doigts ? Essaie de lever 3 doigts, puis 5 de plus !",
     created_at: "2025-01-20T14:00:30Z",
   },
   {
@@ -145,7 +145,7 @@ export const mockMessages = [
     conversation_id: "conv-lea-1",
     role: "assistant" as const,
     contenu:
-      "Bravo Léa ! 🎉 C'est exactement ça ! Tu peux me dire comment tu as trouvé ?",
+      "Bravo Léa ! C'est exactement ça ! Tu peux me dire comment tu as trouvé ?",
     created_at: "2025-01-20T14:01:30Z",
   },
   // Noah - fractions (Socratic method with older child)
