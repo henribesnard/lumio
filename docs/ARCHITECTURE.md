@@ -41,7 +41,8 @@
 ### Conversation enfant
 1. `POST /api/kid/conversations/{id}/messages` → vérif quotas/horaires
 2. Message injecté dans le graphe LangGraph
-3. Réponse streamée en SSE (événements `token`, `done`, `notice`, `error`)
+3. Réponse streamée en SSE (événements `token`, `done`, `notice`, `error`) ;
+   `done` porte `kind` et `hint_level` (`safety` pour les réponses de sécurité prédéfinies)
 
 ## Graphe LangGraph
 
@@ -59,8 +60,15 @@ START → input_guard → router ─┬─ critical → safe_response
 - **input_guard** : modération Mistral + classificateur LLM + regex (données perso, sujets interdits)
 - **router** : aiguillage selon les flags de l'input_guard
 - **context** : assemblage du prompt système (4 couches) + learner_notes + résumé si > 20 messages
-- **tutor** : appel Mistral, température 0.4, brouillon non visible
-- **output_guard** : modération + classificateur de sortie ; rewrite 1× max, sinon fallback
+- **tutor** : appel Mistral (mode JSON), température 0.4, brouillon non visible.
+  Sortie structurée `{type, hint_level, text}` (`app/agent/tutor_output.py`,
+  consignes `prompts/05_format.md`) : `type` ∈ question / hint / example /
+  success / explanation, `hint_level` 1–3 pour les indices. Lecture tolérante :
+  texte brut accepté sans type, JSON illisible relancé une fois puis fallback ;
+  le JSON brut n'est jamais montré à l'enfant.
+- **output_guard** : modération + classificateur de sortie sur le texte, avec le
+  type déclaré (`type_ok` faux ⇒ le type est retiré, le message s'affiche
+  normalement) ; rewrite 1× max, sinon fallback
 - **safe_response** / **redirect_response** : réponses prédéfinies par tranche d'âge
 - **learner_notes** : mise à jour asynchrone des notes d'apprentissage
 
@@ -72,7 +80,7 @@ START → input_guard → router ─┬─ critical → safe_response
 - `profile` : profils enfants (prénom, âge, niveau, PIN, quotas, plages horaires)
 - `learner_notes` : notes d'apprentissage par matière et profil
 - `conversation` : conversations par profil
-- `message` : messages avec rôle, tokens, verdicts modération/garde
+- `message` : messages avec rôle, type pédagogique (`kind`, `hint_level`), tokens, verdicts modération/garde
 - `safety_event` : alertes de sécurité avec type et gravité
 - `usage_daily` : compteurs quotidiens par profil
 - `audit_log` : actions admin

@@ -1,168 +1,179 @@
-# Lumio — Design System « Brume »
+# Lumio — Design System « Prisme »
 
-Piste retenue en phase 1 (voir `docs/design/DIRECTION.md` pour les deux pistes
-et leurs contrastes vérifiés). Ce document est la référence d'usage :
-**toute valeur visuelle passe par `src/styles/tokens.css`**, vérifié par
-`npm run check-tokens` (dans le code : aucune couleur en dur hors tokens,
-contrastes WCAG 2.1 calculés par script).
+Identité issue du design Claude « Lumio — Prisme + Feuille » (nov. 2026), qui
+remplace la piste « Brume ». Idée : *une question entre, plusieurs couleurs en
+sortent* — Lumio décompose les problèmes pour que l'enfant voie chaque étape.
+Ambiance « studio d'étude » : géométrique, nette, lumineuse.
+
+Ce document est la référence d'usage. **Toute valeur visuelle passe par
+`src/styles/tokens.css`**, vérifié par `npm run check-tokens` (variables
+définies, aucune couleur en dur dans `src/` hors `tokens.css` et
+`design-preview/`, contrastes WCAG 2.1 calculés par thème).
 
 ## 1. Principes
 
-1. **Lumio guide, ne répond pas.** L'interface met en valeur les *indices et
-   questions* de l'agent (bulles assistant distinctes, mascotte contextuelle),
-   jamais la réponse toute faite.
-2. **La réussite comme seule motivation.** Aucun badge à collectionner, aucune
-   série, aucun compte à rebours, aucune récompense addictive. Le quota est
-   présenté positivement (« Encore N messages aujourd'hui »), jamais en rouge.
-3. **Trois registres, une marque.** `[data-age="6-8"]`, `[data-age="9-14"]`
-   (valeurs `:root`), `[data-theme="admin"]`.
-4. **Français uniquement, mode clair prioritaire, tablette d'abord côté enfant.**
-5. **Accessibilité AA systématique** : contrastes ≥ 4.5:1 (texte) / ≥ 3:1 (UI),
-   focus toujours visible, aucune information portée par la seule couleur
-   (icône + texte sur tous les états), cibles tactiles selon le registre,
-   `prefers-reduced-motion` respecté (animations désactivées).
+1. **Lumio guide, ne répond pas.** Le chat met en valeur les *questions, indices
+   et exemples* de l'agent par des cartes distinctes (spectre ci-dessous). Une
+   réponse toute faite n'a pas de carte dédiée.
+2. **Le spectre code les étapes** : soleil = question, menthe = indice, ciel =
+   exemple analogue. La couleur n'est jamais seule : chaque carte porte un
+   libellé texte (« Question pour toi », « Indice 2 sur 3 », « Un exemple que
+   tu connais »).
+3. **Le prisme ne s'irise qu'au moment du déclic** (réussite). Pas de badge, pas
+   de série, pas de score, rien à collectionner. Le quota est dit positivement
+   (« Encore N messages aujourd'hui »), jamais en rouge.
+4. **Deux registres enfant, une marque** : `6-8` clair et très lisible ;
+   `9-14` sombre « concentration ». Admin clair et sobre.
+5. **Français uniquement, tablette d'abord côté enfant, desktop côté admin.**
+6. **Accessibilité AA** : contrastes ≥ 4.5:1 (texte) / ≥ 3:1 (UI), focus
+   toujours visible (`--color-focus`), cibles tactiles selon le registre,
+   `prefers-reduced-motion` respecté (règle globale dans `index.css`).
+7. **Sécurité sobre** : la réponse de sécurité n'a ni couleur d'alerte, ni
+   animation, ni rayon ; la mascotte y est en « réconfort ».
 
-## 2. Palette (piste « Brume »)
+## 2. Palette
 
-| Rôle | 9-14 (`:root`) | 6-8 | admin |
+| Nom | Hex | Usage |
+|---|---|---|
+| Encre | `#18132B` | texte (clair), fond du mode étude |
+| Prisme | `#5B3FD9` | marque, bulles de l'enfant, boutons (6,6:1 avec blanc) |
+| Soleil | `#FFC53D` | questions (halo, décoratif) — texte `#7A5300` |
+| Menthe | `#12A37A` | indices (halo) — texte `#0B7A5A` |
+| Ciel | `#4C9BFF` | exemples (halo) — texte `#1F5FD1` |
+| Corail | `#FF7A59` | rayon décoratif (réussite) |
+| Lait | `#F6F5FB` | fond clair |
+
+Tokens principaux par thème (extraits) :
+
+| Token | `:root` / 6-8 | 9-14 (étude) | admin |
 |---|---|---|---|
-| `--color-background` | `#F3F5FA` | idem | `#F6F7F9` |
-| `--color-surface` / `-alt` | `#FFFFFF` / `#E8ECF5` | idem | `#FFFFFF` / `#ECEFF5` |
-| `--color-foreground` / `-muted` | `#1C2333` / `#55607A` | idem | idem |
-| `--color-border` | `#6E7A94` | idem | idem |
-| `--color-primary` / `-hover` | `#4F46E5` / `#4338CA` | idem | `#1E293B` / `#0F172A` |
-| `--color-primary-light` | `#E4E9F8` | idem | `#ECEFF5` |
-| `--color-secondary` | `#0E7490` | idem | `#475569` |
-| `--color-accent` | `#F59E0B` | idem | `#4338CA` |
-| success / warning / danger / info | `#15803D` / `#92400E` / `#B91C1C` / `#1D4ED8` | idem | idem |
-| bulles child / assistant / notice | `#E4E9F8` / `#FFFFFF` / `#FCEED3` | idem | idem |
-| `--color-on-dark` | `#FFFFFF` | idem | idem |
+| `--color-background` | `#F6F5FB` | `#18132B` | `#F6F5FB` |
+| `--color-surface` / `-alt` | `#FFFFFF` / `#ECEAF6` | `#241D3D` / `#2F2750` | `#FFFFFF` / `#F1EFF8` |
+| `--color-foreground` / `-muted` | `#18132B` / `#5C5575` | `#F1EEFA` / `#B4ADCF` | idem clair |
+| `--color-border` / `-subtle` | `#857DA3` / `#DAD5EA` | `#8A80AD` / `#4A4166` | `#857DA3` / `#E4E0F0` |
+| `--color-primary` / `-hover` | `#5B3FD9` / `#42289F` | `#6A50E8` / `#5B3FD9` | `#5B3FD9` / `#42289F` |
+| `--color-focus` | `#5B3FD9` | `#C3B6FF` | `#5B3FD9` |
+| `--color-nav` | `#FFFFFF` | `#120E22` (rail) | `#FFFFFF` |
+| question bg / anneau / texte | `#FFF4D6` / `#FFC53D` / `#7A5300` | `#241D3D` / `#FFC53D` / `#FFC53D` | — |
+| indice bg / anneau / texte / piste | `#E3F6EF` / `#12A37A` / `#0B7A5A` / `#BFE6D7` | `#241D3D` / `#4FD1A5` / `#4FD1A5` / `#3B5F55` | — |
+| exemple bg / anneau / texte | `#E6F0FF` / `#4C9BFF` / `#1F5FD1` | `#241D3D` / `#8DBEFF` / `#8DBEFF` | — |
+| bulle enfant | `#5B3FD9` / blanc | `#5B3FD9` / blanc | `#EEEAFD` / encre |
+| feuille (`--color-sheet*`) | blanc, encre, quadrillage `#E4E0F0` | **reste blanche** | — |
 
-**Règle absolue** : `--color-accent` ambre `#F59E0B` est **décoratif
-uniquement** (queue de la luciole, halo) — jamais de texte ni d'information
-essentielle dessus (contraste 2.0:1). Côté admin, l'accent est l'indigo
-foncé `#4338CA`.
+Nouveaux tokens (ajouts, aucun renommage) : `--font-display`, `--text-label`,
+`--tracking-label`, `--label-case`, `--color-border-subtle`, `--color-nav`,
+`--color-{success,warning,danger,info}-bg`, `--color-on-{primary,secondary,danger}`,
+`--color-focus`, `--color-link`, `--color-chat-input-ring`, `--color-overlay`,
+`--color-{question,hint,example}-*`, `--color-success-moment-bg`,
+`--color-safety-{bg,ring}`, `--color-ray-{sun,mint,sky,coral}`,
+`--color-sheet*`, `--color-mascot-calm*`, `--color-avatar-bg`,
+`--size-send`, `--size-pin-key`, `--radius-bubble`, `--radius-bubble-tail`,
+`--radius-sheet`, `--radius-chat-input`, `--shadow-sheet`, `--ring-width`.
 
-## 3. Typographie (polices auto-hébergées, OFL, dans `public/fonts/`)
+Règles : le Soleil (`--color-accent`, `--color-ray-sun`) est **décoratif** —
+jamais de texte posé dessus. Le texte sur aplat coloré utilise le token
+`--color-on-*` du thème (vérifié par `check-tokens`).
 
-| Registre | Police | Corps | Cibles tactiles |
+## 3. Typographie (OFL, auto-hébergées dans `public/fonts/`)
+
+| Rôle | Police | Remarques |
+|---|---|---|
+| Titres, chiffres, logo | **Unbounded** (variable 200–900) | `--font-display`, `h1`/`h2` par défaut |
+| Texte courant | **Lexend** (variable) | `--font-sans`, tous registres |
+
+| Registre | Corps | Rayon carte | Cible tactile |
 |---|---|---|---|
-| `6-8` | **Lexend** variable | `--text-body: 1.25rem` (≥ 20 px) | `--size-touch-target: 56px` |
-| `9-14` | **Inter** variable | 1rem | 48px |
-| `admin` | **Inter** variable | 0.9375rem | 40px |
+| `6-8` | `--text-body: 1.375rem` (22 px) | 28 px | 56 px (envoi 72 px, touches PIN 84 px) |
+| `9-14` | 1rem (≈ 17 px rendu Lexend) | 16 px | 48 px |
+| `admin` | 0.9375rem | 16 px | 40 px |
 
-- Jamais d'appel à Google Fonts : `@font-face` local dans `src/styles/index.css`.
-- Tailles : `--text-display`, `--text-heading`, `--text-subheading`,
-  `--text-body`, `--text-small`, `--text-tiny` ; interligne `--leading-body`.
-- 6-8 : rayons agrandis (`--radius-card: 1.5rem`), icônes **avec** les mots,
-  peu d'éléments par écran.
+Aucun appel externe (Google Fonts) : `@font-face` local dans `index.css`.
+Inter et Atkinson Hyperlegible ont été retirées.
 
-## 4. Tokens par thème
+## 4. Mascotte — « Lumio, le prisme »
 
-Toutes les variables sont définies dans `tokens.css` ; les thèmes héritent de
-`:root` et ne surchargent que ce qui diffère. Catégories :
-
-- **Couleurs sémantiques** : voir tableau ci-dessus + `--color-mascot-*`
-  (corps `#4F46E5`, tête `#4338CA`, contour `#3730A3`, lueur `#FBBF24`,
-  visage `#1C2333`, ailes `#C7D2FE`, atténué `#6E7A94`/`#98A5C0`).
-- **Typographie** : `--font-sans`, `--font-mono`, `--text-*`, `--leading-body`.
-- **Espacement / tailles** : `--space-1` → `--space-6`, `--size-touch-target`,
-  `--size-avatar-sm/md/lg`, `--size-pin-dot`, `--size-icon`.
-- **Rayons** : `--radius-card`, `--radius-button`, `--radius-input`,
-  `--radius-full`.
-- **Ombres** : `--shadow-card`, `--shadow-modal`, `--shadow-focus`
-  (anneau de focus : `0 0 0 2px surface, 0 0 0 4px primary|accent`).
-- **Motion** : `--duration-fast: 150ms`, `--duration-med: 300ms`,
-  `--duration-slow: 600ms`, `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`.
-  Tout mouvement est désactivé si `prefers-reduced-motion` (règle globale dans
-  `index.css`).
-
-**Règle de compatibilité** : aucun renommage ni suppression de variable
-existante ; les ajouts vont dans `tokens.css` uniquement. Vérification :
-`npm run check-tokens` (également test vitest `scripts/check-tokens.test.ts`).
-
-## 5. Mascotte — « Lumi la luciole »
-
-SVG original, géométrique, dans `public/brand/mascot.svg` + composant
-`src/components/Mascot.tsx`. 5 états, passés par la prop `state` :
+Composant `src/components/Mascot.tsx` (SVG inline, tokens `--color-mascot-*`,
+`--color-ray-*`), asset statique `public/brand/mascot.svg`. Six états :
 
 | État | Usage | Visuel |
 |---|---|---|
-| `ecoute` | message de l'enfant en cours / écran d'attente | ondes de part et d'autre de la tête |
-| `reflect` | l'agent réfléchit (indicateur de saisie) | 3 points au-dessus |
-| `indice` | l'agent envoie un indice/une question | étincelle 4 branches |
-| `bravo` | réussite de l'enfant | ailes relevées + étincelles |
-| `pause` | verrouillage, pause, réponse de sécurité | corps estompé + 2 barres — **jamais festif** |
+| `ecoute` | accueil, attente | yeux ronds, sourire |
+| `reflechit` | « Lumio réfléchit » (TypingIndicator) | prisme incliné, bulles de pensée |
+| `indice` | indice en cours | un rayon menthe |
+| `bravo` | réussite (SuccessMoment) | **seul état irisé** : 4 rayons du spectre (animés) |
+| `pause` | hors horaires, verrouillage | désaturé, yeux fermés, « z » |
+| `reconfort` | réponse de sécurité | désaturé, **aucun rayon, aucune animation** |
 
-Règles : la mascotte accompagne les bulles assistant dans le chat ; dans la
-**réponse de sécurité**, aucun état festif et aucune animation (état `pause`
-ou statique, bulle sobre, 119 / 3018 bien lisibles).
+## 5. Marque & assets
 
-## 6. Marque & assets graphiques
-
-- `public/brand/lumio-logo.svg` (horizontal), `lumio-icon.svg` (carré),
-  `lumio-wordmark.svg`, `mascot.svg` — composant `Logo`.
+- `public/brand/lumio-logo.svg` (horizontal), `lumio-logo-dark.svg` (fonds
+  sombres), `lumio-icon.svg` (tuile Lait), `lumio-wordmark.svg` — wordmark
+  « lumio » en Unbounded 800 vectorisé (`scripts/generate-brand.py`).
 - `public/favicon.svg`, `public/icons/icon-192.png`, `icon-512.png`,
-  `icon-maskable-512.png`, `apple-touch-icon.png` (générés depuis le SVG :
-  `scripts/generate-icons.ts`), `public/manifest.webmanifest`.
-- 12 avatars originaux `public/avatars/avatar-01.svg` … `avatar-12.svg`
-  (`scripts/generate-avatars.py`). Aucun personnage ni logo emprunté.
+  `icon-maskable-512.png`, `apple-touch-icon.png` (`scripts/generate-icons.ts`,
+  `PW_CHROMIUM_PATH` pour pointer un Chromium local).
+- 12 avatars `public/avatars/avatar-01.svg` … `avatar-12.svg` : disque du
+  spectre + forme géométrique à l'encre (`scripts/generate-avatars.py`).
+- Illustrations d'états vides : `src/components/Illustration.tsx`
+  (`conversations`, `alerts-clear`, `profiles`, `devices`, `notes`, `error`).
 
-## 7. Composants (`src/components/`)
+## 6. Composants (`src/components/`)
 
-19 composants, chacun avec ses états **hover / focus / active / disabled /
-loading / error**, stylés dans les 3 registres, couleurs 100 % tokens :
-Button, Input, PinPad, Avatar, ProfileCard, ChatBubble, ChatInput,
-TypingIndicator, Notice, Card, Table, Badge, Modal, ConfirmDialog, Toggle,
-Tabs, TagInput, EmptyState, Toast — plus **Logo** et **Mascot**.
+Existants, passés en « Prisme » : Button (pilule en 6-8), Input, PinPad
+(touches rondes Unbounded), Avatar, ProfileCard, ChatBubble (bulle prisme à
+coin pincé), ChatInput (champ pilule cerclé, compteur « n / 1000 », envoi rond),
+TypingIndicator (mascotte qui réfléchit), Notice, Card, Table, Badge, Modal,
+ConfirmDialog, Toggle, Tabs, TagInput, EmptyState (illustrations), Toast, Logo,
+Mascot.
 
-Showroom : `/__design/components` en mode maquette + dev uniquement
-(**absent du build de production** — vérifié dans `dist/`).
+Nouveaux :
 
-Règles communes :
-- icônes SVG inline + texte pour tout état (jamais la couleur seule, jamais
-  d'emoji dans l'UI) ;
-- focus visible via `:focus-visible` + `shadow-focus` (anneau) ;
-- `role="status"` / `role="alert"` sur les avis (Notice), `aria-pressed` sur
-  les sélections, `aria-checked` sur les switch (Toggle), labels explicites.
+| Composant | Rôle | États |
+|---|---|---|
+| `PedagogyCard` | carte à halo du spectre (base) | question / hint / example |
+| `QuestionCard` | question guide | — |
+| `HintCard` | indice progressif, segments + « Indice n sur 3 » | niveau 1, 2, 3, sans niveau |
+| `ExampleCard` | exemple analogue | — |
+| `SuccessMoment` | réussite, prisme irisé | animé / statique |
+| `SafetyMessage` | réponse de sécurité calme + 119 / 3018 | avec / sans numéros |
+| `TutorMessage` | aiguille `message.kind` → carte ; **repli** bulle normale | 6 types + absent/inconnu |
+| `QuotaIndicator` | quota positif | plein / bas / épuisé |
+| `AlertCard` | alerte de sécurité (admin) | critique / avertissement / info / traitée / compacte |
+| `ScheduleEditor` | plages horaires du profil | sans restriction / valide / erreurs |
+| `Illustration` | états vides | 6 illustrations |
+| `KidChrome` | icônes et mention parents partagées | — |
 
-## 8. Écrans & états
+Showroom : `/__design/components` (mode maquette + dev uniquement, **absent du
+build** ; `mockServiceWorker.js` est aussi retiré de `dist/` par un plugin Vite).
 
-Tous les écrans du handoff sont stylés, captures dans
-`docs/design/screenshots/` (tablette portrait 768×1024 et paysage 1024×768
-côté enfant, desktop 1440×900 côté admin, mobile 390×844 pour accueil/chat) :
-sélection de profil (verrouillé, hors horaires, appareil non reconnu, erreur,
-vide), PIN (saisie, erreur douce, verrouillage), accueil enfant (suggestions
-par âge, quota positif, vide), chat (bulles, « réfléchit », streaming, avis
-système, **réponse de sécurité calme**), historique, login admin (+ TOTP),
-dashboard (alertes critiques en tête), alertes, profils, détail profil
-(onglets identité / comportement / limites / notes / aperçu du prompt /
-conversations / zone dangereuse), conversation (badges modération), appareils,
-sécurité TOTP (désactivé / activation / erreur / activé).
+## 7. Chat : registres et micro-interactions
 
-## 9. Accessibilité — règles et vérifications
+- **6-8** : en-tête « Retour » / pastille avatar + prénom / « Quitter » ; fil
+  pleine largeur (max 48 rem) ; champ 72 px ; mention parents sous la saisie.
+- **9-14** : rail de navigation sombre (prisme, nouvelle conversation, mes
+  conversations, avatar, quitter), en-tête avec le titre de la conversation et
+  la mention parents.
+- Arrivée des messages : `msg-in` (300 ms). Rayons de réussite : `prism-rays`
+  (600 ms, échelonnés). Tracé des dessins de la feuille : `sheet-draw` (600 ms,
+  gauche → droite). Tout est coupé si `prefers-reduced-motion`.
+- Historique rechargé : pas d'animation de réussite (seulement les messages
+  reçus pendant la session).
 
-- **axe-core** sur chaque écran × état : zéro violation serious/critical
-  (`npm run axe` → `docs/design/axe-report.json`).
-- **Clavier** : navigation complète PIN / chat / édition de profil
-  (`npm run keyboard`), focus visible partout.
-- Contraste vérifié par script (`npm run check-tokens`) + axe.
-- `prefers-reduced-motion` → animations off (règle globale).
-- Les écrans enfant n'exposent jamais d'autres données que prénom + avatar
-  des autres profils (écran de sélection).
+## 8. Accessibilité — vérifications
 
-## 10. Ce qu'il ne faut PAS faire
+- `npm run check-tokens` (aussi test vitest) : variables, hex en dur, contrastes
+  par thème (texte, cartes du spectre, liens, feuille, `on-*`, focus).
+- `npm run axe` sur chaque écran × état → `docs/design/axe-report.json` (zéro
+  violation serious/critical).
+- `npm run keyboard` : PIN, chat, édition de profil au clavier.
+- Captures : `npm run screenshots` → `docs/design/screenshots/`.
 
-- ❌ Pas de couleur en dur dans les composants (sauf `tokens.css` et la page
-  de prévisualisation `design-preview`).
-- ❌ Pas de renommage/suppression de token existant.
-- ❌ Pas d'emoji dans l'UI, pas d'animation festive sur la réponse de
-  sécurité, pas de rouge alarmant sur le quota.
-- ❌ Pas de dark pattern (séries, badges, récompenses, incitation à revenir).
-- ❌ Pas de personnage/logo emprunté, pas de photo d'enfant.
-- ❌ Pas de page `/__design*` dans le build de production.
-- ❌ Ne pas toucher à `src/api/`, hooks, `*Container.tsx`, `AuthContext`,
-  `routes.tsx`, `src/mocks/` (hors ajouts de données de démo signalés) ni au
-  backend — le périmètre design est `src/styles/`, `src/components/`,
-  `src/features/**/*View|Page.tsx` (présentation), `public/`, `docs/design/`,
-  `frontend/scripts/`.
+## 9. Ce qu'il ne faut PAS faire
+
+- Pas de couleur en dur dans les composants (sauf `tokens.css` et `design-preview`).
+- Pas de renommage/suppression de token existant.
+- Pas d'emoji dans l'UI, pas d'animation sur la réponse de sécurité, pas de
+  rouge sur le quota, pas de feuille dans un message de sécurité.
+- Pas de dark pattern (séries, badges, récompenses, incitation à revenir).
+- Pas de personnage/logo emprunté, pas de photo d'enfant.
+- Pas de page `/__design*` ni de `mockServiceWorker.js` dans le build.
