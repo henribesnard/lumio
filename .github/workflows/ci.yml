@@ -67,12 +67,12 @@ jobs:
       - name: Run Alembic migrations
         run: alembic upgrade head
         env:
-          DATABASE_URL_SYNC: "postgresql://lumio:lumio_ci@localhost:5432/lumio"
+          DATABASE_URL_SYNC: "postgresql+psycopg://lumio:lumio_ci@localhost:5432/lumio"
       - name: Run tests on PostgreSQL
         run: python -m pytest -x -q --tb=short
         env:
           DATABASE_URL: "postgresql+asyncpg://lumio:lumio_ci@localhost:5432/lumio"
-          DATABASE_URL_SYNC: "postgresql://lumio:lumio_ci@localhost:5432/lumio"
+          DATABASE_URL_SYNC: "postgresql+psycopg://lumio:lumio_ci@localhost:5432/lumio"
           SESSION_SECRET: "ci-test-secret-at-least-32-characters"
           PUBLIC_URL: "http://testserver"
 
