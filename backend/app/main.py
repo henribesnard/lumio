@@ -45,10 +45,7 @@ CSRF_TOKEN_EXEMPT_PATHS = {"/api/health", "/api/auth/admin/login", "/api/auth/ki
 
 @app.middleware("http")
 async def csrf_middleware(request: Request, call_next):
-    if (
-        request.method not in CSRF_SAFE_METHODS
-        and request.url.path.startswith("/api/")
-    ):
+    if request.method not in CSRF_SAFE_METHODS and request.url.path.startswith("/api/"):
         # Origin check applies to ALL state-changing API requests
         if not verify_origin(request):
             return JSONResponse(
@@ -61,10 +58,7 @@ async def csrf_middleware(request: Request, call_next):
                 },
             )
         # Double-submit token only for non-exempt paths
-        if (
-            request.url.path not in CSRF_TOKEN_EXEMPT_PATHS
-            and not verify_csrf_token(request)
-        ):
+        if request.url.path not in CSRF_TOKEN_EXEMPT_PATHS and not verify_csrf_token(request):
             return JSONResponse(
                 status_code=403,
                 content={
