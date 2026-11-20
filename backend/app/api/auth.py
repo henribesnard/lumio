@@ -93,6 +93,7 @@ async def admin_login(
             admin.locked_until = datetime.utcnow() + timedelta(
                 seconds=settings.admin_lockout_seconds
             )
+        await db.commit()
         raise HTTPException(
             status_code=401,
             detail={
@@ -230,6 +231,7 @@ async def kid_login(
                 profile_id=profile.id,
                 extrait=f"5 tentatives échouées depuis {ip}",
             )
+        await db.commit()
         raise HTTPException(
             status_code=401,
             detail={"error": {"code": "invalid_pin", "message": "Code PIN incorrect."}},
