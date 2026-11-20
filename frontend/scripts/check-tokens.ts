@@ -169,6 +169,10 @@ export function runChecks(): CheckError[] {
     ["lien", "--color-link", "--color-background"],
     ["encre de la feuille", "--color-sheet-ink", "--color-sheet"],
     ["texte secondaire de la feuille", "--color-sheet-muted", "--color-sheet"],
+    ["indice sur la feuille", "--color-sheet-hint-text", "--color-sheet"],
+    ["case ? sur la feuille", "--color-sheet-sun-text", "--color-sheet-sun-bg"],
+    ["prisme sur la feuille", "--color-sheet-prism", "--color-sheet"],
+    ["onglet actif de la feuille", "--color-sheet-tab-active-text", "--color-sheet-tab-active"],
   ];
   const uiPairs: [string, string, string][] = [
     ["bordure", "--color-border", "--color-background"],

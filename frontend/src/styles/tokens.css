@@ -102,6 +102,19 @@
   --color-sheet-grid: #e4e0f0;
   --color-sheet-rule: #eeebf6;
   --color-sheet-tab: #f1eff8;
+  /* calques de la feuille — fixes (la feuille reste blanche dans tous les thèmes) */
+  --color-sheet-prism: #5b3fd9; /* encre de ce qu'on sait */
+  --color-sheet-prism-soft: #e7e1fb;
+  --color-sheet-hint: #12a37a; /* ajouté par l'indice (pointillé) */
+  --color-sheet-hint-text: #0b7a5a;
+  --color-sheet-hint-soft: #dff3ec;
+  --color-sheet-sky: #4c9bff;
+  --color-sheet-sky-text: #1f5fd1;
+  --color-sheet-sun: #ffc53d; /* case « ? » de l'enfant */
+  --color-sheet-sun-bg: #fff4d6;
+  --color-sheet-sun-text: #7a5300;
+  --color-sheet-tab-active: #eeeafd;
+  --color-sheet-tab-active-text: #42289f;
 
   /* --- Mascotte « Lumio, le prisme » --- */
   --color-mascot-body: #5b3fd9; /* face sombre du prisme */
