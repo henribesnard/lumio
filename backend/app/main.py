@@ -38,7 +38,7 @@ app.add_middleware(
 # CSRF middleware for state-changing requests
 # ---------------------------------------------------------------------------
 CSRF_SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
-CSRF_EXEMPT_PATHS = {"/api/health", "/api/auth/admin/login"}
+CSRF_EXEMPT_PATHS = {"/api/health", "/api/auth/admin/login", "/api/auth/kid/login"}
 
 
 @app.middleware("http")
