@@ -15,6 +15,7 @@
     "axe": "node --experimental-strip-types scripts/axe.ts",
     "check-tokens": "node --experimental-strip-types scripts/check-tokens.ts",
     "keyboard": "node --experimental-strip-types scripts/keyboard.ts",
+    "motion": "node --experimental-strip-types scripts/motion.ts",
     "generate-api": "openapi-typescript ../docs/openapi.json -o src/api/schema.d.ts"
   },
   "dependencies": {

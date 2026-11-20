@@ -159,6 +159,18 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-noah-1",
     run: async (p) => void (await kidLoginTo(p, "conv-noah-1", "Noah")),
   });
+  push({
+    name: "04-chat-landscape-6-8",
+    vp: "tabletLandscape",
+    url: "/chat/conv-lea-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-lea-1")),
+  });
+  push({
+    name: "04-chat-9-14-mobile",
+    vp: "mobile",
+    url: "/chat/conv-noah-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-noah-1", "Noah")),
+  });
   push({ name: "04-chat-mobile", vp: "mobile", url: "/chat/conv-lea-1", run: async (p) => void (await kidLoginTo(p, "conv-lea-1")) });
   push({
     name: "04-chat-9-14",
@@ -172,7 +184,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("Et 7 + 6 ?");
+      await p.getByPlaceholder(/réponse|écris/i).fill("Et 7 + 6 ?");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(700);
     },
@@ -183,7 +195,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("Dis-moi un indice");
+      await p.getByPlaceholder(/réponse|écris/i).fill("Dis-moi un indice");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(150);
     },
@@ -194,7 +206,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("je suis triste personne ne m'aime");
+      await p.getByPlaceholder(/réponse|écris/i).fill("je suis triste personne ne m'aime");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(4500);
     },
@@ -214,7 +226,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("combien de messages il me reste ?");
+      await p.getByPlaceholder(/réponse|écris/i).fill("combien de messages il me reste ?");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(1500);
     },

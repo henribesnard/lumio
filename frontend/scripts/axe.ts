@@ -19,7 +19,7 @@ const OUT = path.join(ROOT, "docs", "design", "axe-report.json");
 const FILTER = argValue("--filter");
 
 async function main() {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
   const report: Record<string, unknown> = {};
   let failures = 0;
   const shots = buildShots().filter((s) => !FILTER || s.name.includes(FILTER));
@@ -43,7 +43,11 @@ async function main() {
     if (bad.length > 0) {
       failures++;
       console.log(`  ✗ ${s.name}: ${bad.length} violation(s) serious/critical`);
-      for (const v of bad) console.log(`      - ${v.id} (${v.impact}) ×${v.nodes.length}: ${v.help}`);
+      for (const v of bad) {
+        console.log(`      - ${v.id} (${v.impact}) ×${v.nodes.length}: ${v.help}`);
+        if (process.argv.includes("--verbose"))
+          for (const n of v.nodes.slice(0, 8)) console.log(`          ${n.target.join(" ")} — ${n.failureSummary?.split("\n")[1] ?? ""}`);
+      }
     } else {
       console.log(`  ✓ ${s.name} (${results.violations.length} violation(s) mineures)`);
     }
