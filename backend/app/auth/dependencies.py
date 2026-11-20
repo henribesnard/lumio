@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import uuid
 from datetime import datetime
 
 from fastapi import Depends, HTTPException, Request
@@ -30,6 +31,14 @@ def get_real_ip(request: Request) -> str:
     return client_host
 
 
+def _as_uuid(value: object) -> uuid.UUID | None:
+    """Session ids are stored as strings; compare them as UUIDs (all DB backends)."""
+    try:
+        return value if isinstance(value, uuid.UUID) else uuid.UUID(str(value))
+    except ValueError:
+        return None
+
+
 async def require_admin(request: Request, db: AsyncSession = Depends(get_db)) -> Admin:
     """Require a valid admin session."""
     data = await get_session(
@@ -40,7 +49,7 @@ async def require_admin(request: Request, db: AsyncSession = Depends(get_db)) ->
             status_code=401,
             detail={"error": {"code": "not_authenticated", "message": "Connexion requise."}},
         )
-    result = await db.execute(select(Admin).where(Admin.id == data["admin_id"]))
+    result = await db.execute(select(Admin).where(Admin.id == _as_uuid(data["admin_id"])))
     admin = result.scalar_one_or_none()
     if not admin:
         raise HTTPException(
@@ -60,7 +69,7 @@ async def require_kid(request: Request, db: AsyncSession = Depends(get_db)) -> P
             status_code=401,
             detail={"error": {"code": "not_authenticated", "message": "Tu dois te connecter."}},
         )
-    result = await db.execute(select(Profile).where(Profile.id == data["profile_id"]))
+    result = await db.execute(select(Profile).where(Profile.id == _as_uuid(data["profile_id"])))
     profile = result.scalar_one_or_none()
     if not profile or not profile.actif:
         raise HTTPException(
