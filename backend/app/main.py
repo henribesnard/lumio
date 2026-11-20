@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -59,6 +59,19 @@ async def csrf_middleware(request: Request, call_next):
         )
     response = await call_next(request)
     return response
+
+
+# ---------------------------------------------------------------------------
+# Exception handler — flatten HTTPException detail for consistent error format
+# ---------------------------------------------------------------------------
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    content = (
+        exc.detail
+        if isinstance(exc.detail, dict)
+        else {"error": {"code": "error", "message": str(exc.detail)}}
+    )
+    return JSONResponse(status_code=exc.status_code, content=content)
 
 
 # ---------------------------------------------------------------------------
