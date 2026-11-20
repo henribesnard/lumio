@@ -48,6 +48,19 @@ class AuthMeResponse(BaseModel):
 # ---------------------------------------------------------------------------
 JOURS = ("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
 MAX_SLOTS_PER_DAY = 4
+# Day aliases accepted by the previous admin UI; normalised to French names.
+_DAY_ALIASES = {
+    **{d: d for d in JOURS},
+    **dict(zip(("lun", "mar", "mer", "jeu", "ven", "sam", "dim"), JOURS, strict=True)),
+    **dict(zip(("mon", "tue", "wed", "thu", "fri", "sat", "sun"), JOURS, strict=True)),
+    **dict(
+        zip(
+            ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"),
+            JOURS,
+            strict=True,
+        )
+    ),
+}
 _TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 
 
@@ -63,10 +76,18 @@ def validate_plages_horaires(value: dict | None) -> dict | None:
         return None
     if not isinstance(value, dict):
         raise ValueError("Plages horaires invalides.")
+    # Legacy day keys (« lun », « mon », « monday »…) are merged into the
+    # canonical French name so existing profiles stay editable.
+    merged: dict[str, list] = {}
+    for key, slots in value.items():
+        day = _DAY_ALIASES.get(str(key).strip().lower())
+        if day is None:
+            raise ValueError(f"Jour inconnu : {key}.")
+        if not isinstance(slots, list):
+            raise ValueError(f"{day} : liste de plages attendue.")
+        merged.setdefault(day, []).extend(slots)
     out: dict[str, list[dict[str, str]]] = {}
-    for day, slots in value.items():
-        if day not in JOURS:
-            raise ValueError(f"Jour inconnu : {day}.")
+    for day, slots in merged.items():
         if not isinstance(slots, list):
             raise ValueError(f"{day} : liste de plages attendue.")
         if len(slots) > MAX_SLOTS_PER_DAY:

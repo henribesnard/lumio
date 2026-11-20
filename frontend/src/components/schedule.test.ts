@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  canonicalizeDays,
   defaultSchedule,
   normalizeSchedule,
   validateSchedule,
@@ -49,5 +50,23 @@ describe("normalizeSchedule", () => {
     expect(Object.keys(out)).toHaveLength(7);
     expect(out.lundi[0].debut).toBe("08:00");
     expect(out.dimanche).toEqual([]);
+  });
+});
+
+describe("canonicalizeDays", () => {
+  it("convertit les clés héritées et fusionne les plages", () => {
+    expect(
+      canonicalizeDays({
+        mon: [{ debut: "08:00", fin: "09:00" }],
+        lundi: [{ debut: "17:00", fin: "18:00" }],
+        sam: [],
+      }),
+    ).toEqual({
+      lundi: [
+        { debut: "08:00", fin: "09:00" },
+        { debut: "17:00", fin: "18:00" },
+      ],
+      samedi: [],
+    });
   });
 });

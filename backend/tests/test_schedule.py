@@ -40,7 +40,7 @@ class TestValidatePlagesHoraires:
     @pytest.mark.parametrize(
         "plages",
         [
-            {"monday": [{"debut": "08:00", "fin": "09:00"}]},  # jour inconnu
+            {"funday": [{"debut": "08:00", "fin": "09:00"}]},  # jour inconnu
             {"lundi": [{"debut": "8:00", "fin": "09:00"}]},  # format
             {"lundi": [{"debut": "24:00", "fin": "25:00"}]},  # heure hors bornes
             {"lundi": [{"debut": "10:00", "fin": "09:00"}]},  # fin avant début
@@ -59,6 +59,33 @@ class TestValidatePlagesHoraires:
     def test_invalid_schedules_rejected(self, plages):
         with pytest.raises(ValueError):
             validate_plages_horaires(plages)
+
+    def test_legacy_day_aliases_are_normalised(self):
+        out = validate_plages_horaires(
+            {
+                "mon": [{"debut": "08:00", "fin": "09:00"}],
+                "Lundi": [{"debut": "17:00", "fin": "18:00"}],
+                "sam": [{"debut": "10:00", "fin": "12:00"}],
+                "sunday": [],
+            }
+        )
+        assert out == {
+            "lundi": [
+                {"debut": "08:00", "fin": "09:00"},
+                {"debut": "17:00", "fin": "18:00"},
+            ],
+            "samedi": [{"debut": "10:00", "fin": "12:00"}],
+            "dimanche": [],
+        }
+
+    def test_legacy_alias_overlap_still_rejected(self):
+        with pytest.raises(ValueError):
+            validate_plages_horaires(
+                {
+                    "lun": [{"debut": "08:00", "fin": "10:00"}],
+                    "monday": [{"debut": "09:00", "fin": "11:00"}],
+                }
+            )
 
     def test_profile_update_uses_validator(self):
         with pytest.raises(ValidationError):
@@ -131,6 +158,23 @@ class TestScheduleApi:
         )
         assert r.status_code == 200, r.text
         assert r.json()["plages_horaires"] is None
+
+    @pytest.mark.asyncio
+    async def test_legacy_schedule_does_not_block_profile_save(
+        self, https_client: AsyncClient, admin_user: Admin, child_profile: Profile, db_session
+    ):
+        # Profil existant avec des clés héritées de l'ancienne page admin.
+        child_profile.plages_horaires = {"lun": [{"debut": "16:00", "fin": "18:00"}]}
+        await db_session.commit()
+        client = https_client
+        headers = await _admin_headers(client)
+        r = await client.patch(
+            f"/api/admin/profiles/{child_profile.id}",
+            json={"prenom": "Léa", "plages_horaires": child_profile.plages_horaires},
+            headers=headers,
+        )
+        assert r.status_code == 200, r.text
+        assert r.json()["plages_horaires"] == {"lundi": [{"debut": "16:00", "fin": "18:00"}]}
 
     @pytest.mark.asyncio
     async def test_patch_overlapping_schedule_rejected(
