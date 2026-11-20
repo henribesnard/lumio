@@ -17,6 +17,7 @@ from app.agent.moderation import (
     run_output_guard,
 )
 from app.agent.prompts.builder import build_system_prompt, get_age_bracket
+from app.agent.tutor_output import TutorReply, parse_tutor_output
 from app.config import get_settings
 from app.db.models import LearnerNotes, Message, Profile
 
@@ -44,14 +45,15 @@ class AgentState(TypedDict, total=False):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-def _get_tutor_llm(model_override: str | None = None) -> ChatMistralAI:
+def _get_tutor_llm(model_override: str | None = None) -> Any:
+    """Tutor LLM in JSON mode (structured output: type + text, see 05_format.md)."""
     model = model_override or settings.mistral_tutor_model
     return ChatMistralAI(
         model=model,
         api_key=settings.mistral_api_key,
         temperature=settings.tutor_temperature,
         timeout=settings.mistral_timeout,
-    )
+    ).bind(response_format={"type": "json_object"})
 
 
 def _build_chat_messages(
@@ -149,6 +151,8 @@ async def run_agent(
             "type": "done",
             "data": {
                 "full_text": safe_text,
+                "kind": "safety",
+                "hint_level": None,
                 "safety_events": safety_events,
                 "tokens_in": 0,
                 "tokens_out": 0,
@@ -253,46 +257,61 @@ async def run_agent(
     rewrite_count = 0
     max_rewrites = settings.max_rewrite_count
 
-    for attempt in range(1 + max_rewrites):
+    reply: TutorReply | None = None
+    output_verdict: dict = {}
+    llm_failures = 0
+    attempt = 0
+    while attempt < 1 + max_rewrites:
         try:
             response = await llm.ainvoke(chat_messages)
-            draft = response.content
+            raw = response.content if isinstance(response.content, str) else ""
             token_usage = getattr(response, "usage_metadata", None) or {}
             total_tokens_in += token_usage.get("input_tokens", 0)
             total_tokens_out += token_usage.get("output_tokens", 0)
         except Exception as e:
-            logger.error("Tutor LLM failed (attempt %d): %s", attempt + 1, e)
-            if attempt == 0:
+            llm_failures += 1
+            logger.error("Tutor LLM failed (attempt %d): %s", llm_failures, e)
+            if llm_failures == 1:
                 # Retry once
                 await asyncio.sleep(1)
                 continue
-            # Final fallback
-            safe_text = get_safe_response("technical_error", age_bracket)
-            for word in safe_text.split():
-                yield {"type": "token", "data": {"text": word + " "}}
-                await asyncio.sleep(0.03)
+            async for event in _fallback(
+                age_bracket, safety_events, input_verdict, total_tokens_in, total_tokens_out
+            ):
+                yield event
+            return
 
-            yield {
-                "type": "done",
-                "data": {
-                    "full_text": safe_text,
-                    "safety_events": safety_events,
-                    "tokens_in": total_tokens_in,
-                    "tokens_out": total_tokens_out,
-                    "input_verdict": input_verdict,
-                },
-            }
+        attempt += 1
+        reply = parse_tutor_output(raw)
+        if reply is None:
+            # Unreadable structured output: ask once for a clean answer.
+            if rewrite_count < max_rewrites:
+                rewrite_count += 1
+                chat_messages.append(AIMessage(content=raw))
+                chat_messages.append(
+                    HumanMessage(
+                        content="[CONSIGNE INTERNE : Réponds uniquement avec l'objet JSON "
+                        'demandé : {"type": ..., "hint_level": ..., "text": ...}.]'
+                    )
+                )
+                continue
+            async for event in _fallback(
+                age_bracket, safety_events, input_verdict, total_tokens_in, total_tokens_out
+            ):
+                yield event
             return
 
         # -------------------------------------------------------------------
-        # 5. Output guard
+        # 5. Output guard (text + declared message type)
         # -------------------------------------------------------------------
         try:
             output_verdict = await run_output_guard(
-                draft=draft,
+                draft=reply.text,
                 child_message=child_message,
                 age=profile.age,
                 niveau=profile.niveau,
+                message_type=reply.kind,
+                hint_level=reply.hint_level,
             )
         except Exception as e:
             logger.error("Output guard failed: %s", e)
@@ -305,7 +324,7 @@ async def run_agent(
         elif status == "rewrite" and rewrite_count < max_rewrites:
             rewrite_count += 1
             critique = output_verdict.get("critique", "")
-            chat_messages.append(AIMessage(content=draft))
+            chat_messages.append(AIMessage(content=raw))
             chat_messages.append(
                 HumanMessage(
                     content=f"[CONSIGNE INTERNE : Réécris ta réponse. Problème : {critique}. "
@@ -315,41 +334,46 @@ async def run_agent(
             continue
         else:
             # Block → fallback
-            safe_text = get_safe_response("technical_error", age_bracket)
-            for word in safe_text.split():
-                yield {"type": "token", "data": {"text": word + " "}}
-                await asyncio.sleep(0.03)
-
-            yield {
-                "type": "done",
-                "data": {
-                    "full_text": safe_text,
-                    "safety_events": safety_events,
-                    "tokens_in": total_tokens_in,
-                    "tokens_out": total_tokens_out,
-                    "input_verdict": input_verdict,
-                    "output_verdict": output_verdict,
-                },
-            }
+            async for event in _fallback(
+                age_bracket,
+                safety_events,
+                input_verdict,
+                total_tokens_in,
+                total_tokens_out,
+                output_verdict,
+            ):
+                yield event
             return
+
+    if reply is None:  # defensive: loop exhausted without a reply
+        async for event in _fallback(
+            age_bracket, safety_events, input_verdict, total_tokens_in, total_tokens_out
+        ):
+            yield event
+        return
+
+    # A type the guard finds inconsistent is dropped: the message is shown plainly.
+    kind = reply.kind if output_verdict.get("type_ok", True) is not False else None
+    hint_level = reply.hint_level if kind == "hint" else None
 
     # -----------------------------------------------------------------------
     # 6. Stream the validated response
     # -----------------------------------------------------------------------
-    words = draft.split()
-    for word in words:
+    for word in reply.text.split():
         yield {"type": "token", "data": {"text": word + " "}}
         await asyncio.sleep(0.02)
 
     yield {
         "type": "done",
         "data": {
-            "full_text": draft,
+            "full_text": reply.text,
+            "kind": kind,
+            "hint_level": hint_level,
             "safety_events": safety_events,
             "tokens_in": total_tokens_in,
             "tokens_out": total_tokens_out,
             "input_verdict": input_verdict,
-            "output_verdict": output_verdict if "output_verdict" in dir() else {},
+            "output_verdict": output_verdict,
             "model": model_override or settings.mistral_tutor_model,
         },
     }
@@ -360,6 +384,33 @@ async def run_agent(
     if child_msg_count > 0 and child_msg_count % settings.learner_notes_interval == 0:
         # Fire and forget — don't block the response
         asyncio.create_task(_update_learner_notes(profile, history, learner_notes))
+
+
+async def _fallback(
+    age_bracket: str,
+    safety_events: list[dict],
+    input_verdict: dict,
+    tokens_in: int,
+    tokens_out: int,
+    output_verdict: dict | None = None,
+) -> AsyncGenerator[dict[str, Any], None]:
+    """Predefined technical fallback, streamed like a normal answer (untyped)."""
+    safe_text = get_safe_response("technical_error", age_bracket)
+    for word in safe_text.split():
+        yield {"type": "token", "data": {"text": word + " "}}
+        await asyncio.sleep(0.03)
+    data: dict[str, Any] = {
+        "full_text": safe_text,
+        "kind": None,
+        "hint_level": None,
+        "safety_events": safety_events,
+        "tokens_in": tokens_in,
+        "tokens_out": tokens_out,
+        "input_verdict": input_verdict,
+    }
+    if output_verdict is not None:
+        data["output_verdict"] = output_verdict
+    yield {"type": "done", "data": data}
 
 
 async def _update_learner_notes(

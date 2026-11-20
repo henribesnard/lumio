@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -42,6 +44,57 @@ class AuthMeResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Schedule (plages horaires)
+# ---------------------------------------------------------------------------
+JOURS = ("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
+MAX_SLOTS_PER_DAY = 4
+_TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+def validate_plages_horaires(value: dict | None) -> dict | None:
+    """Validate and normalise ``plages_horaires``.
+
+    Format: ``{"lundi": [{"debut": "16:30", "fin": "18:00"}], ...}``. ``None``
+    means no restriction; once set, a day without slot is closed (see
+    ``services/quota.py``). Rules: known French day names, ``HH:MM`` times,
+    ``debut < fin``, at most 4 non-overlapping slots per day.
+    """
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise ValueError("Plages horaires invalides.")
+    out: dict[str, list[dict[str, str]]] = {}
+    for day, slots in value.items():
+        if day not in JOURS:
+            raise ValueError(f"Jour inconnu : {day}.")
+        if not isinstance(slots, list):
+            raise ValueError(f"{day} : liste de plages attendue.")
+        if len(slots) > MAX_SLOTS_PER_DAY:
+            raise ValueError(f"{day} : {MAX_SLOTS_PER_DAY} plages au maximum.")
+        clean: list[dict[str, str]] = []
+        for slot in slots:
+            if not isinstance(slot, dict):
+                raise ValueError(f"{day} : plage invalide.")
+            debut, fin = slot.get("debut"), slot.get("fin")
+            if not (
+                isinstance(debut, str)
+                and isinstance(fin, str)
+                and _TIME_RE.match(debut)
+                and _TIME_RE.match(fin)
+            ):
+                raise ValueError(f"{day} : heure invalide (format HH:MM).")
+            if debut >= fin:
+                raise ValueError(f"{day} : la fin doit être après le début.")
+            clean.append({"debut": debut, "fin": fin})
+        clean.sort(key=lambda s: s["debut"])
+        for prev, cur in zip(clean, clean[1:], strict=False):
+            if cur["debut"] < prev["fin"]:
+                raise ValueError(f"{day} : deux plages se chevauchent.")
+        out[day] = clean
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Profile
 # ---------------------------------------------------------------------------
 class ProfileCreate(BaseModel):
@@ -64,6 +117,11 @@ class ProfileCreate(BaseModel):
             raise ValueError("Le PIN doit contenir 4 chiffres.")
         return v
 
+    @field_validator("plages_horaires")
+    @classmethod
+    def check_plages(cls, v: dict | None) -> dict | None:
+        return validate_plages_horaires(v)
+
 
 class ProfileUpdate(BaseModel):
     prenom: str | None = Field(default=None, min_length=1, max_length=50)
@@ -77,6 +135,11 @@ class ProfileUpdate(BaseModel):
     quota_tokens_jour: int | None = Field(default=None, ge=1000, le=500000)
     plages_horaires: dict | None = None
     actif: bool | None = None
+
+    @field_validator("plages_horaires")
+    @classmethod
+    def check_plages(cls, v: dict | None) -> dict | None:
+        return validate_plages_horaires(v)
 
 
 class ProfileResponse(BaseModel):
@@ -166,11 +229,16 @@ class MessageCreate(BaseModel):
     contenu: str = Field(min_length=1, max_length=1000)
 
 
+MessageKind = Literal["question", "hint", "example", "success", "explanation", "safety"]
+
+
 class MessageResponse(BaseModel):
     id: uuid.UUID
     conversation_id: uuid.UUID
     role: str
     contenu: str
+    kind: MessageKind | None = None
+    hint_level: int | None = None
     tokens_in: int
     tokens_out: int
     modele: str | None
@@ -213,6 +281,8 @@ class MessageResponseKid(BaseModel):
     conversation_id: uuid.UUID
     role: str
     contenu: str
+    kind: MessageKind | None = None
+    hint_level: int | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -61,6 +61,9 @@ def build_system_prompt(
     )
     layers.append(layer4)
 
+    # Layer 5: structured output format (message type for the UI)
+    layers.append(_read("05_format.md"))
+
     return "\n\n---\n\n".join(layers)
 
 
