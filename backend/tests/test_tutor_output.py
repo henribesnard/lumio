@@ -137,9 +137,7 @@ class TestAgentMessageKind:
     @pytest.mark.asyncio
     async def test_critical_safe_response_is_typed_safety(self):
         verdict = {**INPUT_OK, "distress": "high"}
-        with patch(
-            "app.agent.graph.run_input_guard", new_callable=AsyncMock, return_value=verdict
-        ):
+        with patch("app.agent.graph.run_input_guard", new_callable=AsyncMock, return_value=verdict):
             events = [
                 e
                 async for e in run_agent(
