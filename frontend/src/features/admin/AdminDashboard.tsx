@@ -59,7 +59,9 @@ function ShortcutIcon({ path }: { path: string }) {
 export function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<StatsResponse | null>(null);
-  const [criticalEvents, setCriticalEvents] = useState<SafetyEventResponse[]>([]);
+  const [criticalEvents, setCriticalEvents] = useState<SafetyEventResponse[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -82,7 +84,9 @@ export function AdminDashboard() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-5xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Tableau de bord</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Tableau de bord
+        </h2>
 
         {/* Alertes critiques — visibles en tête, sans être anxiogènes */}
         {criticalEvents.length > 0 && (
@@ -92,8 +96,10 @@ export function AdminDashboard() {
           >
             <div className="mb-3 flex items-center gap-2">
               <Badge variant="critical">
-                {criticalEvents.length} alerte{criticalEvents.length > 1 ? "s" : ""} critique
-                {criticalEvents.length > 1 ? "s" : ""} non traitée{criticalEvents.length > 1 ? "s" : ""}
+                {criticalEvents.length} alerte
+                {criticalEvents.length > 1 ? "s" : ""} critique
+                {criticalEvents.length > 1 ? "s" : ""} non traitée
+                {criticalEvents.length > 1 ? "s" : ""}
               </Badge>
             </div>
             <ul className="space-y-2">
@@ -106,7 +112,11 @@ export function AdminDashboard() {
                     {event.type} — {event.extrait?.slice(0, 60)}
                     {event.extrait && event.extrait.length > 60 ? "…" : ""}
                   </span>
-                  <Button variant="ghost" size="sm" onClick={() => navigate("/admin/safety")}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate("/admin/safety")}
+                  >
                     Voir
                   </Button>
                 </li>
@@ -116,12 +126,17 @@ export function AdminDashboard() {
         )}
 
         {loading ? (
-          <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+          <p className="animate-pulse text-body text-foreground-muted">
+            Chargement...
+          </p>
         ) : stats ? (
           <>
             {/* Statistiques */}
             <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-              <StatCard label="Messages (7 jours)" value={stats.total_messages} />
+              <StatCard
+                label="Messages (7 jours)"
+                value={stats.total_messages}
+              />
               <StatCard label="Profils actifs" value={stats.active_profiles} />
               <StatCard
                 label="Alertes (7 jours)"
@@ -130,13 +145,17 @@ export function AdminDashboard() {
               />
               <StatCard
                 label="Tokens (7 jours)"
-                value={Math.round((stats.total_tokens_in + stats.total_tokens_out) / 1000)}
+                value={Math.round(
+                  (stats.total_tokens_in + stats.total_tokens_out) / 1000,
+                )}
                 suffix="k"
               />
             </div>
 
             {/* Raccourcis */}
-            <h3 className="mb-3 text-subheading font-semibold text-foreground">Raccourcis</h3>
+            <h3 className="mb-3 text-subheading font-semibold text-foreground">
+              Raccourcis
+            </h3>
             <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {RACCOURCIS.map((r) => (
                 <Card
@@ -147,7 +166,9 @@ export function AdminDashboard() {
                   <span className="mb-1">
                     <ShortcutIcon path={r.icon} />
                   </span>
-                  <span className="text-small font-semibold text-foreground">{r.label}</span>
+                  <span className="text-small font-semibold text-foreground">
+                    {r.label}
+                  </span>
                   <span className="text-tiny text-foreground-muted leading-body">
                     {r.description}
                   </span>

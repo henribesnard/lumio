@@ -6,7 +6,11 @@ interface TagInputProps {
   placeholder?: string;
 }
 
-export function TagInput({ tags, onChange, placeholder = "Ajouter..." }: TagInputProps) {
+export function TagInput({
+  tags,
+  onChange,
+  placeholder = "Ajouter...",
+}: TagInputProps) {
   const [input, setInput] = useState("");
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -40,7 +44,14 @@ export function TagInput({ tags, onChange, placeholder = "Ajouter..." }: TagInpu
             aria-label={`Retirer ${tag}`}
             className="rounded-full p-0.5 transition-colors hover:bg-danger/10 hover:text-danger focus:outline-none focus-visible:shadow-focus"
           >
-            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              aria-hidden="true"
+            >
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
             </svg>
           </button>

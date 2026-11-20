@@ -5,7 +5,12 @@ interface ToggleProps {
   disabled?: boolean;
 }
 
-export function Toggle({ checked, onChange, label, disabled = false }: ToggleProps) {
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  disabled = false,
+}: ToggleProps) {
   return (
     <label
       className={`inline-flex items-center gap-2 ${

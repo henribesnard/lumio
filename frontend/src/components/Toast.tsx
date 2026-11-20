@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface ToastItem {
   id: number;
@@ -25,7 +31,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const toast = useCallback((type: ToastItem["type"], message: string) => {
     const id = ++_id;
     setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+    setTimeout(
+      () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+      4000,
+    );
   }, []);
 
   const styles = {
@@ -37,14 +46,26 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2" aria-live="polite">
+      <div
+        className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"
+        aria-live="polite"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
             role={t.type === "error" ? "alert" : "status"}
             className={`flex items-center gap-2 rounded-button px-4 py-3 text-small font-medium shadow-modal animate-[toast-in_var(--duration-med)_var(--ease-out)] ${styles[t.type]}`}
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d={icons[t.type]} />
             </svg>
             {t.message}

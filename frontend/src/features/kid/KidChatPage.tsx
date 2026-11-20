@@ -32,7 +32,9 @@ export function KidChatPage() {
   useEffect(() => {
     if (!conversationId) return;
     Promise.all([
-      apiGet<MessageResponse[]>(`/api/kid/conversations/${conversationId}/messages`),
+      apiGet<MessageResponse[]>(
+        `/api/kid/conversations/${conversationId}/messages`,
+      ),
       apiGet<KidMeResponse>("/api/kid/me"),
     ])
       .then(([msgs, meData]) => {
@@ -67,7 +69,9 @@ export function KidChatPage() {
 
       try {
         // Get CSRF token
-        const csrfMatch = document.cookie.split("; ").find((r) => r.startsWith("lumio_csrf="));
+        const csrfMatch = document.cookie
+          .split("; ")
+          .find((r) => r.startsWith("lumio_csrf="));
         const csrf = csrfMatch ? csrfMatch.split("=")[1] : "";
 
         const response = await fetch(
@@ -118,7 +122,8 @@ export function KidChatPage() {
                 // Add the complete assistant message
                 if (data.full_text) {
                   const isSafety =
-                    Array.isArray(data.safety_events) && data.safety_events.length > 0;
+                    Array.isArray(data.safety_events) &&
+                    data.safety_events.length > 0;
                   const assistantMsg: StreamedMessage = {
                     id: data.message_id || `assistant-${Date.now()}`,
                     conversation_id: conversationId,
@@ -147,17 +152,24 @@ export function KidChatPage() {
 
   if (loading) {
     return (
-      <div data-age={ageBracket} className="flex min-h-screen items-center justify-center bg-background">
+      <div
+        data-age={ageBracket}
+        className="flex min-h-screen items-center justify-center bg-background"
+      >
         <div className="flex flex-col items-center gap-4">
           <Mascot state="ecoute" size={88} />
-          <div className="animate-pulse text-foreground-muted text-heading">Chargement…</div>
+          <div className="animate-pulse text-foreground-muted text-heading">
+            Chargement…
+          </div>
         </div>
       </div>
     );
   }
 
   const inputDisabled =
-    streaming || !!me?.hors_plage_horaire || (me?.quota_messages_restant ?? 0) <= 0;
+    streaming ||
+    !!me?.hors_plage_horaire ||
+    (me?.quota_messages_restant ?? 0) <= 0;
 
   return (
     <div data-age={ageBracket} className="flex h-screen flex-col bg-background">
@@ -167,8 +179,19 @@ export function KidChatPage() {
           onClick={() => navigate("/chat")}
           className="inline-flex items-center gap-1 rounded-button px-2 py-1.5 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)]"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-            <path d="M19 12H5m7-7-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            aria-hidden="true"
+          >
+            <path
+              d="M19 12H5m7-7-7 7 7 7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           Retour
         </button>
@@ -179,7 +202,9 @@ export function KidChatPage() {
             animated={streaming}
           />
           {me && <Avatar avatarKey={me.avatar} size="sm" alt={me.prenom} />}
-          <span className="text-small font-semibold text-foreground">{me?.prenom}</span>
+          <span className="text-small font-semibold text-foreground">
+            {me?.prenom}
+          </span>
         </div>
         <button
           onClick={async () => {
@@ -203,22 +228,25 @@ export function KidChatPage() {
       {safetyNotice && (
         <div className="px-4 pt-3">
           <Notice variant="info">
-            Tes parents ont été prévenus. Tu peux aussi appeler le <strong>119</strong> (urgences)
-            ou le <strong>3018</strong> (harcèlement), gratuitement et à toute heure.
+            Tes parents ont été prévenus. Tu peux aussi appeler le{" "}
+            <strong>119</strong> (urgences) ou le <strong>3018</strong>{" "}
+            (harcèlement), gratuitement et à toute heure.
           </Notice>
         </div>
       )}
       {me?.hors_plage_horaire && (
         <div className="px-4 pt-3">
           <Notice variant="warning">
-            Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les heures autorisées !
+            Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les
+            heures autorisées !
           </Notice>
         </div>
       )}
       {me && me.quota_messages_restant <= 0 && (
         <div className="px-4 pt-3">
           <Notice variant="info">
-            Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve demain !
+            Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve
+            demain !
           </Notice>
         </div>
       )}
@@ -239,7 +267,12 @@ export function KidChatPage() {
             <div key={msg.id} className="msg-in">
               {msg.role === "assistant" && !msg.calm ? (
                 <div className="flex items-end gap-2">
-                  <Mascot state="ecoute" size={32} animated={false} className="mb-1 shrink-0" />
+                  <Mascot
+                    state="ecoute"
+                    size={32}
+                    animated={false}
+                    className="mb-1 shrink-0"
+                  />
                   <div className="max-w-[80%]">
                     <ChatBubble role="assistant">{msg.contenu}</ChatBubble>
                   </div>

@@ -47,7 +47,9 @@ export function Button({
         "rounded-button transition-colors duration-fast ease-out",
         variantClasses[variant],
         sizeClasses[size],
-        isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]",
+        isDisabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer active:scale-[0.98]",
         className,
       ]
         .filter(Boolean)

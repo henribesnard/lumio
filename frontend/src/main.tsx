@@ -25,8 +25,13 @@ async function bootstrap() {
   // Pages de prévisualisation design (/__design*) : mode maquette + dev uniquement.
   // En production, VITE_USE_MOCKS n'est pas défini et import.meta.env.DEV est false :
   // cette branche est éliminée à la compilation et le module n'est jamais embarqué.
-  if (useMocks && import.meta.env.DEV && window.location.pathname.startsWith("/__design")) {
-    const { renderDesignPreview } = await import("./features/design-preview/preview");
+  if (
+    useMocks &&
+    import.meta.env.DEV &&
+    window.location.pathname.startsWith("/__design")
+  ) {
+    const { renderDesignPreview } =
+      await import("./features/design-preview/preview");
     renderDesignPreview();
     return;
   }

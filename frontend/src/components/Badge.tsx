@@ -13,7 +13,8 @@ const styles: Record<NonNullable<BadgeProps["variant"]>, string> = {
 /** Forme par variante : l'information ne repose jamais sur la seule couleur. */
 const icons: Record<NonNullable<BadgeProps["variant"]>, string> = {
   info: "M12 8h.01M12 12v4",
-  warning: "M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
+  warning:
+    "M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
   critical: "M12 9v2m0 4h.01M12 3l10 18H2L12 3z",
   success: "M5 13l4 4L19 7",
 };

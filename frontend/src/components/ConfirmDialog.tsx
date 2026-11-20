@@ -21,7 +21,9 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <p className="mb-6 text-body text-foreground-muted leading-body">{message}</p>
+      <p className="mb-6 text-body text-foreground-muted leading-body">
+        {message}
+      </p>
       <div className="flex justify-end gap-3">
         <button
           onClick={onClose}
@@ -35,7 +37,9 @@ export function ConfirmDialog({
             onClose();
           }}
           className={`rounded-button px-4 py-2 text-small font-medium text-on-dark transition-colors duration-fast focus:outline-none focus-visible:shadow-focus ${
-            danger ? "bg-danger hover:bg-danger/85" : "bg-primary hover:bg-primary-hover"
+            danger
+              ? "bg-danger hover:bg-danger/85"
+              : "bg-primary hover:bg-primary-hover"
           }`}
         >
           {confirmLabel}

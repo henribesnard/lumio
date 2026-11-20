@@ -33,7 +33,7 @@ export function PinPad({
         onChange(value + key);
       }
     },
-    [disabled, loading, value, maxLength, onChange]
+    [disabled, loading, value, maxLength, onChange],
   );
 
   const isDisabled = disabled || loading;
@@ -65,9 +65,23 @@ export function PinPad({
 
       {/* Error */}
       {error && (
-        <p className="text-small text-danger flex items-center gap-1" role="alert">
-          <svg viewBox="0 0 24 24" className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <p
+          className="text-small text-danger flex items-center gap-1"
+          role="alert"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
           </svg>
           {error}
         </p>
@@ -137,9 +151,25 @@ export function PinPad({
               ].join(" ")}
             >
               {loading && value.length >= maxLength ? (
-                <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg
+                  className="animate-spin h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
               ) : (
                 key

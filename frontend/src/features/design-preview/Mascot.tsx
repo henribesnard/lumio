@@ -13,26 +13,71 @@ const STATE_LABEL: Record<MascotState, string> = {
   pause: "Pause",
 };
 
-function Sparkle({ x, y, s, fill }: { x: number; y: number; s: number; fill: string }) {
+function Sparkle({
+  x,
+  y,
+  s,
+  fill,
+}: {
+  x: number;
+  y: number;
+  s: number;
+  fill: string;
+}) {
   const d = `M ${x} ${y - s} L ${x + s * 0.28} ${y - s * 0.28} L ${x + s} ${y} L ${x + s * 0.28} ${y + s * 0.28} L ${x} ${y + s} L ${x - s * 0.28} ${y + s * 0.28} L ${x - s} ${y} L ${x - s * 0.28} ${y - s * 0.28} Z`;
   return <path d={d} fill={fill} />;
 }
 
 /** Piste A — « Lumi la braise » : grosse goutte chaude avec halo. */
-export function MascotA({ state, size = 96 }: { state: MascotState; size?: number }) {
+export function MascotA({
+  state,
+  size = 96,
+}: {
+  state: MascotState;
+  size?: number;
+}) {
   const dim = state === "pause";
   return (
-    <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label={`Lumi, état ${STATE_LABEL[state]}`}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 120 120"
+      role="img"
+      aria-label={`Lumi, état ${STATE_LABEL[state]}`}
+    >
       {/* halo */}
       {state === "ecoute" && (
-        <circle className="dp-halo" cx="60" cy="60" r="53" fill="none" stroke="var(--color-accent)" strokeWidth="3" />
+        <circle
+          className="dp-halo"
+          cx="60"
+          cy="60"
+          r="53"
+          fill="none"
+          stroke="var(--color-accent)"
+          strokeWidth="3"
+        />
       )}
       {state === "bravo" && (
-        <circle className="dp-halo" cx="60" cy="60" r="52" fill="none" stroke="var(--color-accent)" strokeWidth="2.5" opacity="0.7" />
+        <circle
+          className="dp-halo"
+          cx="60"
+          cy="60"
+          r="52"
+          fill="none"
+          stroke="var(--color-accent)"
+          strokeWidth="2.5"
+          opacity="0.7"
+        />
       )}
       {/* ondes d'écoute */}
       {state === "ecoute" && (
-        <g fill="none" stroke="var(--color-primary)" strokeWidth="3.5" strokeLinecap="round" opacity="0.8">
+        <g
+          fill="none"
+          stroke="var(--color-primary)"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          opacity="0.8"
+        >
           <path d="M13 52 q -7 10 0 20" />
           <path d="M107 52 q 7 10 0 20" />
         </g>
@@ -46,14 +91,41 @@ export function MascotA({ state, size = 96 }: { state: MascotState; size?: numbe
           strokeWidth="3.5"
         />
         {/* visage */}
-        <circle cx="47" cy={state === "reflechit" ? 54 : 58} r="5.5" fill="var(--mascot-face)" />
-        <circle cx="73" cy={state === "reflechit" ? 54 : 58} r="5.5" fill="var(--mascot-face)" />
+        <circle
+          cx="47"
+          cy={state === "reflechit" ? 54 : 58}
+          r="5.5"
+          fill="var(--mascot-face)"
+        />
+        <circle
+          cx="73"
+          cy={state === "reflechit" ? 54 : 58}
+          r="5.5"
+          fill="var(--mascot-face)"
+        />
         {state === "bravo" ? (
-          <path d="M45 70 Q 60 86 75 70" fill="none" stroke="var(--mascot-face)" strokeWidth="4.5" strokeLinecap="round" />
+          <path
+            d="M45 70 Q 60 86 75 70"
+            fill="none"
+            stroke="var(--mascot-face)"
+            strokeWidth="4.5"
+            strokeLinecap="round"
+          />
         ) : state === "pause" ? (
-          <path d="M50 78 h 20" stroke="var(--mascot-face)" strokeWidth="4" strokeLinecap="round" />
+          <path
+            d="M50 78 h 20"
+            stroke="var(--mascot-face)"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
         ) : (
-          <path d="M48 73 Q 60 83 72 73" fill="none" stroke="var(--mascot-face)" strokeWidth="4" strokeLinecap="round" />
+          <path
+            d="M48 73 Q 60 83 72 73"
+            fill="none"
+            stroke="var(--mascot-face)"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
         )}
       </g>
       {/* points de réflexion */}
@@ -65,7 +137,9 @@ export function MascotA({ state, size = 96 }: { state: MascotState; size?: numbe
         </g>
       )}
       {/* étincelle indice */}
-      {state === "indice" && <Sparkle x={95} y={17} s={11} fill="var(--color-accent)" />}
+      {state === "indice" && (
+        <Sparkle x={95} y={17} s={11} fill="var(--color-accent)" />
+      )}
       {/* bravo : plusieurs étincelles */}
       {state === "bravo" && (
         <g>
@@ -86,17 +160,39 @@ export function MascotA({ state, size = 96 }: { state: MascotState; size?: numbe
 }
 
 /** Piste B — « Lumi la luciole » : luciole géométrique à queue lumineuse. */
-export function MascotB({ state, size = 96 }: { state: MascotState; size?: number }) {
+export function MascotB({
+  state,
+  size = 96,
+}: {
+  state: MascotState;
+  size?: number;
+}) {
   const dim = state === "pause";
   return (
-    <svg width={size} height={size} viewBox="0 0 120 120" role="img" aria-label={`Lumi, état ${STATE_LABEL[state]}`}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 120 120"
+      role="img"
+      aria-label={`Lumi, état ${STATE_LABEL[state]}`}
+    >
       {/* queue lumineuse */}
-      {state !== "pause" && <circle className="dp-halo" cx="60" cy="95" r="16" fill="var(--color-accent)" opacity="0.35" />}
+      {state !== "pause" && (
+        <circle
+          className="dp-halo"
+          cx="60"
+          cy="95"
+          r="16"
+          fill="var(--color-accent)"
+          opacity="0.35"
+        />
+      )}
       <circle cx="60" cy="95" r="8" fill={dim ? "#98a5c0" : "#fbbf24"} />
       {/* ailes */}
       <g opacity={dim ? 0.4 : 0.9}>
         <ellipse
-          cx="41" cy={state === "bravo" ? 48 : 58}
+          cx="41"
+          cy={state === "bravo" ? 48 : 58}
           rx="14"
           ry="8"
           fill="#c7d2fe"
@@ -105,7 +201,8 @@ export function MascotB({ state, size = 96 }: { state: MascotState; size?: numbe
           transform={`rotate(${state === "bravo" ? -48 : -28} 41 ${state === "bravo" ? 48 : 58})`}
         />
         <ellipse
-          cx="79" cy={state === "bravo" ? 48 : 58}
+          cx="79"
+          cy={state === "bravo" ? 48 : 58}
           rx="14"
           ry="8"
           fill="#c7d2fe"
@@ -115,11 +212,22 @@ export function MascotB({ state, size = 96 }: { state: MascotState; size?: numbe
         />
       </g>
       {/* corps */}
-      <ellipse cx="60" cy="68" rx="19" ry="24" fill="var(--mascot-body)" opacity={dim ? 0.45 : 1} />
+      <ellipse
+        cx="60"
+        cy="68"
+        rx="19"
+        ry="24"
+        fill="var(--mascot-body)"
+        opacity={dim ? 0.45 : 1}
+      />
       {/* tête */}
       <circle cx="60" cy="38" r="13" fill={dim ? "#6e7a94" : "#4338ca"} />
       {/* antennes */}
-      <g stroke={dim ? "#6e7a94" : "#4338ca"} strokeWidth="2.5" strokeLinecap="round">
+      <g
+        stroke={dim ? "#6e7a94" : "#4338ca"}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      >
         <line x1="54" y1="27" x2="48" y2="16" />
         <line x1="66" y1="27" x2="72" y2="16" />
       </g>
@@ -133,15 +241,33 @@ export function MascotB({ state, size = 96 }: { state: MascotState; size?: numbe
           <circle cx="55.8" cy="36.8" r="1.7" fill="var(--mascot-face)" />
           <circle cx="65.8" cy="36.8" r="1.7" fill="var(--mascot-face)" />
           {state === "bravo" ? (
-            <path d="M53 43 Q 60 50 67 43" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+            <path
+              d="M53 43 Q 60 50 67 43"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+            />
           ) : (
-            <path d="M54 44 Q 60 49 66 44" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+            <path
+              d="M54 44 Q 60 49 66 44"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
           )}
         </g>
       )}
       {/* ondes d'écoute */}
       {state === "ecoute" && (
-        <g fill="none" stroke="var(--color-primary)" strokeWidth="3.2" strokeLinecap="round" opacity="0.8">
+        <g
+          fill="none"
+          stroke="var(--color-primary)"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          opacity="0.8"
+        >
           <path d="M28 32 q -6 8 0 16" />
           <path d="M92 32 q 6 8 0 16" />
         </g>
@@ -155,7 +281,9 @@ export function MascotB({ state, size = 96 }: { state: MascotState; size?: numbe
         </g>
       )}
       {/* étincelles */}
-      {state === "indice" && <Sparkle x={93} y={22} s={10} fill="var(--color-accent)" />}
+      {state === "indice" && (
+        <Sparkle x={93} y={22} s={10} fill="var(--color-accent)" />
+      )}
       {state === "bravo" && (
         <g>
           <Sparkle x={94} y={18} s={9} fill="var(--color-accent)" />
@@ -173,4 +301,10 @@ export function MascotB({ state, size = 96 }: { state: MascotState; size?: numbe
   );
 }
 
-export const MASCOT_STATES: MascotState[] = ["ecoute", "reflechit", "indice", "bravo", "pause"];
+export const MASCOT_STATES: MascotState[] = [
+  "ecoute",
+  "reflechit",
+  "indice",
+  "bravo",
+  "pause",
+];

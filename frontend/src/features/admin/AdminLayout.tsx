@@ -70,7 +70,11 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden w-60 flex-col border-r border-border bg-surface lg:flex">
         <div className="border-b border-border px-4 py-4">
-          <NavLink to="/admin" aria-label="Lumio — tableau de bord" className="inline-block focus:outline-none focus-visible:shadow-focus">
+          <NavLink
+            to="/admin"
+            aria-label="Lumio — tableau de bord"
+            className="inline-block focus:outline-none focus-visible:shadow-focus"
+          >
             <Logo height={34} />
           </NavLink>
         </div>
@@ -94,7 +98,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="border-t border-border p-3">
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="w-full justify-start"
+          >
             <svg
               viewBox="0 0 24 24"
               className="h-[var(--size-icon)] w-[var(--size-icon)]"

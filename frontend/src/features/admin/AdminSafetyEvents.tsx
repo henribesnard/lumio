@@ -36,7 +36,9 @@ const FILTERS = [
 
 export function AdminSafetyEvents() {
   const [events, setEvents] = useState<SafetyEventResponse[]>([]);
-  const [filter, setFilter] = useState<"all" | "pending" | "acknowledged">("pending");
+  const [filter, setFilter] = useState<"all" | "pending" | "acknowledged">(
+    "pending",
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,7 +54,9 @@ export function AdminSafetyEvents() {
       await apiPost(`/api/admin/safety-events/${eventId}/ack`);
       setEvents((prev) =>
         prev.map((e) =>
-          e.id === eventId ? { ...e, acknowledged_at: new Date().toISOString() } : e,
+          e.id === eventId
+            ? { ...e, acknowledged_at: new Date().toISOString() }
+            : e,
         ),
       );
     } catch {
@@ -63,10 +67,16 @@ export function AdminSafetyEvents() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-4xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Alertes de sécurité</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Alertes de sécurité
+        </h2>
 
         {/* Filtres */}
-        <div role="group" aria-label="Filtrer les alertes" className="mb-4 flex flex-wrap gap-2">
+        <div
+          role="group"
+          aria-label="Filtrer les alertes"
+          className="mb-4 flex flex-wrap gap-2"
+        >
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -87,7 +97,9 @@ export function AdminSafetyEvents() {
         </div>
 
         {loading ? (
-          <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+          <p className="animate-pulse text-body text-foreground-muted">
+            Chargement...
+          </p>
         ) : events.length === 0 ? (
           <EmptyState
             title="Aucune alerte"
@@ -135,10 +147,16 @@ export function AdminSafetyEvents() {
                       {event.acknowledged_at ? (
                         <Badge variant="success">
                           Traitée le{" "}
-                          {new Date(event.acknowledged_at).toLocaleDateString("fr-FR")}
+                          {new Date(event.acknowledged_at).toLocaleDateString(
+                            "fr-FR",
+                          )}
                         </Badge>
                       ) : (
-                        <Button variant="secondary" size="sm" onClick={() => handleAck(event.id)}>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleAck(event.id)}
+                        >
                           Marquer comme traitée
                         </Button>
                       )}

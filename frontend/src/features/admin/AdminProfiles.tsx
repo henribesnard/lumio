@@ -17,7 +17,10 @@ import { AdminLayout } from "./AdminLayout";
 
 const NIVEAUX = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
 
-const AVATARS = Array.from({ length: 12 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
+const AVATARS = Array.from(
+  { length: 12 },
+  (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`,
+);
 
 const selectClass =
   "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out focus:outline-none focus-visible:shadow-focus focus:border-primary hover:border-foreground-muted";
@@ -49,10 +52,19 @@ export function AdminProfiles() {
     setError("");
     setCreating(true);
     try {
-      const profile = await apiPost<ProfileResponse>("/api/admin/profiles", form);
+      const profile = await apiPost<ProfileResponse>(
+        "/api/admin/profiles",
+        form,
+      );
       setProfiles((prev) => [...prev, profile]);
       setShowCreate(false);
-      setForm({ prenom: "", age: 8, niveau: "CE2", avatar: "avatar-01", pin: "" });
+      setForm({
+        prenom: "",
+        age: 8,
+        niveau: "CE2",
+        avatar: "avatar-01",
+        pin: "",
+      });
     } catch (err: unknown) {
       const apiErr = err as { error?: { message?: string } };
       setError(apiErr?.error?.message || "Erreur lors de la création.");
@@ -65,8 +77,13 @@ export function AdminProfiles() {
     <AdminLayout>
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-heading font-bold text-foreground">Profils enfants</h2>
-          <Button onClick={() => setShowCreate(!showCreate)} variant={showCreate ? "secondary" : "primary"}>
+          <h2 className="text-heading font-bold text-foreground">
+            Profils enfants
+          </h2>
+          <Button
+            onClick={() => setShowCreate(!showCreate)}
+            variant={showCreate ? "secondary" : "primary"}
+          >
             {showCreate ? "Annuler" : "Nouveau profil"}
           </Button>
         </div>
@@ -82,7 +99,9 @@ export function AdminProfiles() {
                 <Input
                   label="Prénom"
                   value={form.prenom}
-                  onChange={(e) => setForm((f) => ({ ...f, prenom: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, prenom: e.target.value }))
+                  }
                   required
                   maxLength={50}
                 />
@@ -92,16 +111,23 @@ export function AdminProfiles() {
                   min={6}
                   max={14}
                   value={form.age}
-                  onChange={(e) => setForm((f) => ({ ...f, age: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, age: Number(e.target.value) }))
+                  }
                 />
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="niveau" className="text-small font-medium text-foreground">
+                  <label
+                    htmlFor="niveau"
+                    className="text-small font-medium text-foreground"
+                  >
                     Niveau
                   </label>
                   <select
                     id="niveau"
                     value={form.niveau}
-                    onChange={(e) => setForm((f) => ({ ...f, niveau: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, niveau: e.target.value }))
+                    }
                     className={selectClass}
                   >
                     {NIVEAUX.map((n) => (
@@ -118,14 +144,19 @@ export function AdminProfiles() {
                   maxLength={4}
                   value={form.pin}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, pin: e.target.value.replace(/\D/g, "").slice(0, 4) }))
+                    setForm((f) => ({
+                      ...f,
+                      pin: e.target.value.replace(/\D/g, "").slice(0, 4),
+                    }))
                   }
                   required
                 />
               </div>
 
               <fieldset>
-                <legend className="mb-2 text-small font-medium text-foreground">Avatar</legend>
+                <legend className="mb-2 text-small font-medium text-foreground">
+                  Avatar
+                </legend>
                 <div className="flex flex-wrap gap-2">
                   {AVATARS.map((a) => {
                     const selected = form.avatar === a;
@@ -142,7 +173,12 @@ export function AdminProfiles() {
                             : "ring-2 ring-transparent hover:ring-border"
                         }`}
                       >
-                        <Avatar avatarKey={a} size="sm" alt="" className="!ring-0" />
+                        <Avatar
+                          avatarKey={a}
+                          size="sm"
+                          alt=""
+                          className="!ring-0"
+                        />
                       </button>
                     );
                   })}
@@ -160,28 +196,39 @@ export function AdminProfiles() {
 
         {/* Liste des profils */}
         {loading ? (
-          <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+          <p className="animate-pulse text-body text-foreground-muted">
+            Chargement...
+          </p>
         ) : profiles.length === 0 ? (
           <EmptyState
             title="Aucun profil"
             description="Créez le premier profil enfant pour permettre la connexion sur un appareil familial."
             action={
-              <Button onClick={() => setShowCreate(true)}>Créer un profil</Button>
+              <Button onClick={() => setShowCreate(true)}>
+                Créer un profil
+              </Button>
             }
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {profiles.map((p) => {
-              const isLocked = p.locked_until && new Date(p.locked_until) > new Date();
+              const isLocked =
+                p.locked_until && new Date(p.locked_until) > new Date();
               return (
                 <Card
                   key={p.id}
                   onClick={() => navigate(`/admin/profiles/${p.id}`)}
                   className="flex items-center gap-4 !p-4"
                 >
-                  <Avatar avatarKey={p.avatar} size="lg" alt={`Avatar de ${p.prenom}`} />
+                  <Avatar
+                    avatarKey={p.avatar}
+                    size="lg"
+                    alt={`Avatar de ${p.prenom}`}
+                  />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-body font-semibold text-foreground">{p.prenom}</p>
+                    <p className="truncate text-body font-semibold text-foreground">
+                      {p.prenom}
+                    </p>
                     <p className="text-tiny text-foreground-muted">
                       {p.age} ans — {p.niveau}
                     </p>

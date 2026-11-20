@@ -12,7 +12,10 @@ import type { MessageResponse } from "@/api/types";
 
 import { AdminLayout } from "./AdminLayout";
 
-function roleMeta(role: MessageResponse["role"]): { label: string; badge: "info" | "success" | "warning" } {
+function roleMeta(role: MessageResponse["role"]): {
+  label: string;
+  badge: "info" | "success" | "warning";
+} {
   if (role === "child") return { label: "Enfant", badge: "info" };
   if (role === "assistant") return { label: "Lumio", badge: "success" };
   return { label: "Avis système", badge: "warning" };
@@ -26,7 +29,9 @@ export function AdminConversationView() {
 
   useEffect(() => {
     if (!conversationId) return;
-    apiGet<MessageResponse[]>(`/api/admin/conversations/${conversationId}/messages`)
+    apiGet<MessageResponse[]>(
+      `/api/admin/conversations/${conversationId}/messages`,
+    )
       .then(setMessages)
       .catch(() => navigate("/admin", { replace: true }))
       .finally(() => setLoading(false));
@@ -35,7 +40,12 @@ export function AdminConversationView() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="mb-4"
+        >
           <svg
             viewBox="0 0 24 24"
             className="h-[var(--size-icon)] w-[var(--size-icon)]"
@@ -50,12 +60,19 @@ export function AdminConversationView() {
           </svg>
           Retour
         </Button>
-        <h2 className="mb-6 text-heading font-bold text-foreground">Conversation</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Conversation
+        </h2>
 
         {loading ? (
-          <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+          <p className="animate-pulse text-body text-foreground-muted">
+            Chargement...
+          </p>
         ) : messages.length === 0 ? (
-          <EmptyState title="Aucun message" description="Cette conversation est vide." />
+          <EmptyState
+            title="Aucun message"
+            description="Cette conversation est vide."
+          />
         ) : (
           <div className="space-y-3">
             {messages.map((msg) => {
@@ -65,7 +82,9 @@ export function AdminConversationView() {
                 <Card key={msg.id} className="!p-4">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <Badge variant={meta.badge}>{meta.label}</Badge>
-                    {hasGuard && <Badge variant="warning">Modération appliquée</Badge>}
+                    {hasGuard && (
+                      <Badge variant="warning">Modération appliquée</Badge>
+                    )}
                     <span className="ml-auto text-tiny text-foreground-muted">
                       {new Date(msg.created_at).toLocaleTimeString("fr-FR", {
                         hour: "2-digit",
@@ -86,7 +105,9 @@ export function AdminConversationView() {
                       <div className="mt-2 space-y-2">
                         {msg.moderation && (
                           <div>
-                            <p className="mb-1 text-tiny font-semibold text-foreground">Modération</p>
+                            <p className="mb-1 text-tiny font-semibold text-foreground">
+                              Modération
+                            </p>
                             <pre className="overflow-x-auto rounded-input bg-surface-alt p-2 font-mono text-tiny text-foreground">
                               {JSON.stringify(msg.moderation, null, 2)}
                             </pre>
@@ -94,7 +115,9 @@ export function AdminConversationView() {
                         )}
                         {msg.guard_verdict && (
                           <div>
-                            <p className="mb-1 text-tiny font-semibold text-foreground">Garde-fou</p>
+                            <p className="mb-1 text-tiny font-semibold text-foreground">
+                              Garde-fou
+                            </p>
                             <pre className="overflow-x-auto rounded-input bg-surface-alt p-2 font-mono text-tiny text-foreground">
                               {JSON.stringify(msg.guard_verdict, null, 2)}
                             </pre>
@@ -106,7 +129,8 @@ export function AdminConversationView() {
 
                   {msg.tokens_in !== undefined && msg.tokens_in > 0 && (
                     <p className="mt-2 text-tiny text-foreground-muted">
-                      Tokens : {msg.tokens_in} en entrée / {msg.tokens_out} en sortie
+                      Tokens : {msg.tokens_in} en entrée / {msg.tokens_out} en
+                      sortie
                       {msg.modele ? ` — ${msg.modele}` : ""}
                     </p>
                   )}

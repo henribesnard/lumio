@@ -28,8 +28,16 @@ import { TypingIndicator } from "@/components/TypingIndicator";
 
 type Theme = { attr: string; label: string; desc: string };
 const THEMES: Theme[] = [
-  { attr: 'data-age="9-14"', label: "9-14 ans", desc: "Registre par défaut (:root)" },
-  { attr: 'data-age="6-8"', label: "6-8 ans", desc: "Lexend, textes ≥ 20 px, cibles ≥ 56 px" },
+  {
+    attr: 'data-age="9-14"',
+    label: "9-14 ans",
+    desc: "Registre par défaut (:root)",
+  },
+  {
+    attr: 'data-age="6-8"',
+    label: "6-8 ans",
+    desc: "Lexend, textes ≥ 20 px, cibles ≥ 56 px",
+  },
   { attr: 'data-theme="admin"', label: "Admin", desc: "Sobre, desktop, Inter" },
 ];
 
@@ -38,7 +46,13 @@ function parseAttr(attr: string): Record<string, string> {
   return m ? { [`data-${m[1]}`]: m[2] } : {};
 }
 
-function Demo({ title, children }: { title: string; children: React.ReactNode }) {
+function Demo({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="dp-sample">
       <h4>{title}</h4>
@@ -57,14 +71,26 @@ function ButtonsDemo() {
         <Button variant="danger">Danger</Button>
       </div>
       <div className="dp-row mt-2">
-        <Button variant="primary" size="sm">Petit</Button>
-        <Button variant="primary" size="md">Moyen</Button>
-        <Button variant="primary" size="lg">Grand</Button>
+        <Button variant="primary" size="sm">
+          Petit
+        </Button>
+        <Button variant="primary" size="md">
+          Moyen
+        </Button>
+        <Button variant="primary" size="lg">
+          Grand
+        </Button>
       </div>
       <div className="dp-row mt-2">
-        <Button variant="primary" disabled>Désactivé</Button>
-        <Button variant="primary" loading>Chargement…</Button>
-        <Button variant="secondary" autoFocus>Focus (autoFocus)</Button>
+        <Button variant="primary" disabled>
+          Désactivé
+        </Button>
+        <Button variant="primary" loading>
+          Chargement…
+        </Button>
+        <Button variant="secondary" autoFocus>
+          Focus (autoFocus)
+        </Button>
       </div>
     </Demo>
   );
@@ -77,7 +103,11 @@ function InputsDemo() {
         <Input label="Email" placeholder="parent@exemple.fr" />
       </Demo>
       <Demo title="Input — erreur">
-        <Input label="Email" defaultValue="invalide" error="Adresse email invalide." />
+        <Input
+          label="Email"
+          defaultValue="invalide"
+          error="Adresse email invalide."
+        />
       </Demo>
       <Demo title="Input — désactivé">
         <Input label="Champ verrouillé" disabled placeholder="Non modifiable" />
@@ -95,7 +125,11 @@ function PinPadDemo() {
         <PinPad value={pin} onChange={setPin} />
       </Demo>
       <Demo title="PinPad — erreur">
-        <PinPad value={errPin} onChange={setErrPin} error="Code incorrect, réessaie." />
+        <PinPad
+          value={errPin}
+          onChange={setErrPin}
+          error="Code incorrect, réessaie."
+        />
       </Demo>
       <Demo title="PinPad — vérification (loading)">
         <PinPad value="5678" onChange={() => {}} loading />
@@ -123,9 +157,24 @@ function ProfileCardsDemo() {
   return (
     <Demo title="ProfileCard — états">
       <div className="flex flex-wrap gap-3">
-        <ProfileCard prenom="Léa" avatar="avatar-01" status="active" onClick={() => {}} />
-        <ProfileCard prenom="Inès" avatar="avatar-09" status="locked" onClick={() => {}} />
-        <ProfileCard prenom="Noah" avatar="avatar-05" status="inactive" onClick={() => {}} />
+        <ProfileCard
+          prenom="Léa"
+          avatar="avatar-01"
+          status="active"
+          onClick={() => {}}
+        />
+        <ProfileCard
+          prenom="Inès"
+          avatar="avatar-09"
+          status="locked"
+          onClick={() => {}}
+        />
+        <ProfileCard
+          prenom="Noah"
+          avatar="avatar-05"
+          status="inactive"
+          onClick={() => {}}
+        />
       </div>
     </Demo>
   );
@@ -138,11 +187,15 @@ function ChatDemo() {
         <div className="dp-chat-sample">
           <ChatBubble role="child">3 + 5 ça fait 8 !</ChatBubble>
           <ChatBubble role="assistant">
-            Bravo Léa, c'est exactement ça ! Peux-tu me dire comment tu as trouvé ?
+            Bravo Léa, c'est exactement ça ! Peux-tu me dire comment tu as
+            trouvé ?
           </ChatBubble>
-          <ChatBubble role="system_notice">Il te reste 3 messages aujourd'hui.</ChatBubble>
+          <ChatBubble role="system_notice">
+            Il te reste 3 messages aujourd'hui.
+          </ChatBubble>
           <ChatBubble role="assistant" calm>
-            Je suis là pour t'aider. Si tu te sens en danger, appelle le 119 ou le 3018.
+            Je suis là pour t'aider. Si tu te sens en danger, appelle le 119 ou
+            le 3018.
           </ChatBubble>
         </div>
       </Demo>
@@ -195,14 +248,22 @@ function CardsDemo() {
     <>
       <Demo title="Card — statique">
         <Card>
-          <p className="text-body font-semibold text-foreground">Titre de carte</p>
-          <p className="text-small text-foreground-muted">Contenu de la carte.</p>
+          <p className="text-body font-semibold text-foreground">
+            Titre de carte
+          </p>
+          <p className="text-small text-foreground-muted">
+            Contenu de la carte.
+          </p>
         </Card>
       </Demo>
       <Demo title="Card — cliquable">
         <Card onClick={() => {}}>
-          <p className="text-body font-semibold text-foreground">Carte cliquable</p>
-          <p className="text-small text-foreground-muted">Survolez : ombre + léger lift.</p>
+          <p className="text-body font-semibold text-foreground">
+            Carte cliquable
+          </p>
+          <p className="text-small text-foreground-muted">
+            Survolez : ombre + léger lift.
+          </p>
         </Card>
       </Demo>
     </>
@@ -223,7 +284,11 @@ function TableDemo() {
         />
       </Demo>
       <Demo title="Table — vide">
-        <Table headers={["Prénom"]} rows={[]} emptyMessage="Aucune donnée pour le moment." />
+        <Table
+          headers={["Prénom"]}
+          rows={[]}
+          emptyMessage="Aucune donnée pour le moment."
+        />
       </Demo>
     </>
   );
@@ -255,7 +320,11 @@ function ModalsDemo() {
           Ouvrir une confirmation danger
         </Button>
       </div>
-      <Modal open={modal} onClose={() => setModal(false)} title="Exemple de modale">
+      <Modal
+        open={modal}
+        onClose={() => setModal(false)}
+        title="Exemple de modale"
+      >
         <p className="text-body text-foreground-muted">
           Contenu de la modale. Échap ou clic sur le fond ferme la fenêtre.
         </p>
@@ -280,8 +349,17 @@ function TogglesDemo() {
     <Demo title="Toggle — états">
       <div className="flex flex-col gap-2">
         <Toggle checked={a} onChange={setA} label="Profil actif" />
-        <Toggle checked={b} onChange={setB} label="Hors plage horaire autorisée" />
-        <Toggle checked={false} onChange={() => {}} disabled label="Désactivé" />
+        <Toggle
+          checked={b}
+          onChange={setB}
+          label="Hors plage horaire autorisée"
+        />
+        <Toggle
+          checked={false}
+          onChange={() => {}}
+          disabled
+          label="Désactivé"
+        />
       </div>
     </Demo>
   );
@@ -300,7 +378,9 @@ function TabsDemo() {
         activeKey={tab}
         onChange={setTab}
       />
-      <p className="mt-2 text-small text-foreground-muted">Onglet actif : {tab}</p>
+      <p className="mt-2 text-small text-foreground-muted">
+        Onglet actif : {tab}
+      </p>
     </Demo>
   );
 }
@@ -309,7 +389,11 @@ function TagInputDemo() {
   const [tags, setTags] = useState(["jeux vidéo violents", "réseaux sociaux"]);
   return (
     <Demo title="TagInput — sujets interdits en étiquettes">
-      <TagInput tags={tags} onChange={setTags} placeholder="Ajouter un sujet interdit..." />
+      <TagInput
+        tags={tags}
+        onChange={setTags}
+        placeholder="Ajouter un sujet interdit..."
+      />
     </Demo>
   );
 }
@@ -333,13 +417,25 @@ function ToastDemo() {
   return (
     <Demo title="Toast">
       <div className="dp-row">
-        <Button variant="secondary" size="sm" onClick={() => toast("success", "Enregistré.")}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => toast("success", "Enregistré.")}
+        >
           Succès
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => toast("info", "Information.")}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => toast("info", "Information.")}
+        >
           Info
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => toast("error", "Une erreur est survenue.")}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => toast("error", "Une erreur est survenue.")}
+        >
           Erreur
         </Button>
       </div>
@@ -375,9 +471,16 @@ function LogoDemo() {
 
 function ThemeSection({ theme }: { theme: Theme }) {
   return (
-    <section className="dp-piste" {...parseAttr(theme.attr)} aria-label={`Thème ${theme.label}`}>
+    <section
+      className="dp-piste"
+      {...parseAttr(theme.attr)}
+      aria-label={`Thème ${theme.label}`}
+    >
       <h2>
-        Thème {theme.label} <code style={{ fontSize: "0.8rem", color: "#55607A" }}>{theme.attr}</code>
+        Thème {theme.label}{" "}
+        <code style={{ fontSize: "0.8rem", color: "#55607A" }}>
+          {theme.attr}
+        </code>
       </h2>
       <p className="dp-pitch">{theme.desc}</p>
       <div className="dp-samples">
@@ -411,8 +514,13 @@ export function ComponentsPage() {
         <div className="dp-wrap">
           <header className="dp-header">
             <h1>Lumio — Composants</h1>
-            <p>Chaque composant dans chacun de ses états, pour chaque thème. Mode maquette uniquement.</p>
-            <span className="dp-banner">Page /__design/components — absente du build de production</span>
+            <p>
+              Chaque composant dans chacun de ses états, pour chaque thème. Mode
+              maquette uniquement.
+            </p>
+            <span className="dp-banner">
+              Page /__design/components — absente du build de production
+            </span>
             <p style={{ marginTop: "0.75rem" }}>
               <a href="/__design">← Retour aux pistes</a>
             </p>

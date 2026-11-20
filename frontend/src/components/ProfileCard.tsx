@@ -7,7 +7,12 @@ interface ProfileCardProps {
   onClick?: () => void;
 }
 
-export function ProfileCard({ prenom, avatar, status = "active", onClick }: ProfileCardProps) {
+export function ProfileCard({
+  prenom,
+  avatar,
+  status = "active",
+  onClick,
+}: ProfileCardProps) {
   const locked = status === "locked";
   const inactive = status === "inactive";
   return (
@@ -27,11 +32,25 @@ export function ProfileCard({ prenom, avatar, status = "active", onClick }: Prof
         .filter(Boolean)
         .join(" ")}
     >
-      <Avatar avatarKey={avatar} size="lg" alt={prenom} className={inactive ? "grayscale" : ""} />
-      <span className="text-subheading font-semibold text-foreground">{prenom}</span>
+      <Avatar
+        avatarKey={avatar}
+        size="lg"
+        alt={prenom}
+        className={inactive ? "grayscale" : ""}
+      />
+      <span className="text-subheading font-semibold text-foreground">
+        {prenom}
+      </span>
       {locked && (
         <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-tiny font-medium text-warning">
-          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-3 w-3"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            aria-hidden="true"
+          >
             <rect x="4" y="10" width="16" height="10" rx="2" />
             <path d="M8 10V7a4 4 0 0 1 8 0v3" />
           </svg>

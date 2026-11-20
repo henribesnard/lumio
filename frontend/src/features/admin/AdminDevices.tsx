@@ -17,7 +17,9 @@ export function AdminDevices() {
   const [loading, setLoading] = useState(true);
   const [label, setLabel] = useState("");
   const [message, setMessage] = useState("");
-  const [messageKind, setMessageKind] = useState<"success" | "error">("success");
+  const [messageKind, setMessageKind] = useState<"success" | "error">(
+    "success",
+  );
   const [revokeTarget, setRevokeTarget] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,7 +33,9 @@ export function AdminDevices() {
     e.preventDefault();
     if (!label.trim()) return;
     try {
-      const device = await apiPost<DeviceResponse>("/api/admin/devices", { label: label.trim() });
+      const device = await apiPost<DeviceResponse>("/api/admin/devices", {
+        label: label.trim(),
+      });
       setDevices((prev) => [device, ...prev]);
       setLabel("");
       setMessage("Appareil ajouté. Le cookie a été posé sur cet appareil.");
@@ -59,11 +63,14 @@ export function AdminDevices() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Appareils de confiance</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Appareils de confiance
+        </h2>
 
         <p className="mb-4 text-small leading-body text-foreground-muted">
-          Seuls les appareils de confiance peuvent afficher la liste des profils enfants. Activez
-          cet appareil comme « appareil familial » pour permettre aux enfants de se connecter.
+          Seuls les appareils de confiance peuvent afficher la liste des profils
+          enfants. Activez cet appareil comme « appareil familial » pour
+          permettre aux enfants de se connecter.
         </p>
 
         {message && (
@@ -99,7 +106,9 @@ export function AdminDevices() {
 
         {/* Liste des appareils */}
         {loading ? (
-          <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+          <p className="animate-pulse text-body text-foreground-muted">
+            Chargement...
+          </p>
         ) : devices.length === 0 ? (
           <EmptyState
             title="Aucun appareil de confiance"
@@ -124,17 +133,28 @@ export function AdminDevices() {
                       <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm-1 3v2m18-2v2M7 19h10" />
                     </svg>
                     <div>
-                      <p className="text-body font-medium text-foreground">{device.label}</p>
+                      <p className="text-body font-medium text-foreground">
+                        {device.label}
+                      </p>
                       <p className="text-tiny text-foreground-muted">
-                        Créé le {new Date(device.created_at).toLocaleDateString("fr-FR")}
+                        Créé le{" "}
+                        {new Date(device.created_at).toLocaleDateString(
+                          "fr-FR",
+                        )}
                         {device.last_seen_at &&
                           ` — vu le ${new Date(device.last_seen_at).toLocaleDateString("fr-FR")}`}
                         {" — expire le "}
-                        {new Date(device.expires_at).toLocaleDateString("fr-FR")}
+                        {new Date(device.expires_at).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </p>
                     </div>
                   </div>
-                  <Button variant="danger" size="sm" onClick={() => setRevokeTarget(device.id)}>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setRevokeTarget(device.id)}
+                  >
                     Révoquer
                   </Button>
                 </Card>

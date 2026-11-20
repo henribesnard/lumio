@@ -15,12 +15,19 @@ import { Tabs } from "@/components/Tabs";
 import { TagInput } from "@/components/TagInput";
 import { Toggle } from "@/components/Toggle";
 
-import type { ConversationResponse, LearnerNotesResponse, ProfileResponse } from "@/api/types";
+import type {
+  ConversationResponse,
+  LearnerNotesResponse,
+  ProfileResponse,
+} from "@/api/types";
 
 import { AdminLayout } from "./AdminLayout";
 
 const NIVEAUX = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
-const AVATARS = Array.from({ length: 12 }, (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`);
+const AVATARS = Array.from(
+  { length: 12 },
+  (_, i) => `avatar-${String(i + 1).padStart(2, "0")}`,
+);
 
 const TABS = [
   { key: "identite", label: "Identité" },
@@ -65,7 +72,9 @@ export function AdminProfileDetail() {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
-  const [conversations, setConversations] = useState<ConversationResponse[]>([]);
+  const [conversations, setConversations] = useState<ConversationResponse[]>(
+    [],
+  );
   const [notes, setNotes] = useState<LearnerNotesResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("identite");
@@ -74,7 +83,9 @@ export function AdminProfileDetail() {
   const [sujetsInput, setSujetsInput] = useState("");
   const [pinForm, setPinForm] = useState("");
   const [message, setMessage] = useState("");
-  const [messageKind, setMessageKind] = useState<"success" | "error">("success");
+  const [messageKind, setMessageKind] = useState<"success" | "error">(
+    "success",
+  );
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [promptPreview, setPromptPreview] = useState<string | null>(null);
   const [promptLoading, setPromptLoading] = useState(false);
@@ -83,8 +94,12 @@ export function AdminProfileDetail() {
     if (!profileId) return;
     Promise.all([
       apiGet<ProfileResponse>(`/api/admin/profiles/${profileId}`),
-      apiGet<ConversationResponse[]>(`/api/admin/profiles/${profileId}/conversations`),
-      apiGet<LearnerNotesResponse[]>(`/api/admin/profiles/${profileId}/learner-notes`),
+      apiGet<ConversationResponse[]>(
+        `/api/admin/profiles/${profileId}/conversations`,
+      ),
+      apiGet<LearnerNotesResponse[]>(
+        `/api/admin/profiles/${profileId}/learner-notes`,
+      ),
     ])
       .then(([p, c, n]) => {
         setProfile(p);
@@ -99,9 +114,17 @@ export function AdminProfileDetail() {
 
   // Aperçu du prompt : chargé à la demande (endpoint existant, lecture seule)
   useEffect(() => {
-    if (activeTab !== "prompt" || !profileId || promptPreview !== null || promptLoading) return;
+    if (
+      activeTab !== "prompt" ||
+      !profileId ||
+      promptPreview !== null ||
+      promptLoading
+    )
+      return;
     setPromptLoading(true);
-    apiGet<{ prompt: string }>(`/api/admin/profiles/${profileId}/prompt-preview`)
+    apiGet<{ prompt: string }>(
+      `/api/admin/profiles/${profileId}/prompt-preview`,
+    )
       .then((d) => setPromptPreview(d.prompt))
       .catch(() => setPromptPreview(""))
       .finally(() => setPromptLoading(false));
@@ -123,7 +146,10 @@ export function AdminProfileDetail() {
       delete update.locked_until;
       delete update.pin_hash;
 
-      const updated = await apiPatch<ProfileResponse>(`/api/admin/profiles/${profileId}`, update);
+      const updated = await apiPatch<ProfileResponse>(
+        `/api/admin/profiles/${profileId}`,
+        update,
+      );
       setProfile(updated);
       setMessage("Profil mis à jour.");
       setMessageKind("success");
@@ -153,7 +179,9 @@ export function AdminProfileDetail() {
   async function handleUnlock() {
     if (!profileId) return;
     await apiPost(`/api/admin/profiles/${profileId}/unlock`);
-    setProfile((p) => (p ? { ...p, failed_pin_count: 0, locked_until: null } : p));
+    setProfile((p) =>
+      p ? { ...p, failed_pin_count: 0, locked_until: null } : p,
+    );
     setMessage("Profil déverrouillé.");
     setMessageKind("success");
   }
@@ -167,18 +195,24 @@ export function AdminProfileDetail() {
   if (loading || !profile) {
     return (
       <AdminLayout>
-        <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+        <p className="animate-pulse text-body text-foreground-muted">
+          Chargement...
+        </p>
       </AdminLayout>
     );
   }
 
-  const isLocked = !!(profile.locked_until && new Date(profile.locked_until) > new Date());
+  const isLocked = !!(
+    profile.locked_until && new Date(profile.locked_until) > new Date()
+  );
   const sujetsTags = sujetsInput
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
   const plages = profile.plages_horaires
-    ? Object.entries(profile.plages_horaires).filter(([, slots]) => slots.length > 0)
+    ? Object.entries(profile.plages_horaires).filter(
+        ([, slots]) => slots.length > 0,
+      )
     : [];
 
   return (
@@ -206,9 +240,16 @@ export function AdminProfileDetail() {
         </Button>
 
         <div className="mb-6 flex items-center gap-4">
-          <Avatar avatarKey={profile.avatar} size="lg" alt={`Avatar de ${profile.prenom}`} className="!h-16 !w-16" />
+          <Avatar
+            avatarKey={profile.avatar}
+            size="lg"
+            alt={`Avatar de ${profile.prenom}`}
+            className="!h-16 !w-16"
+          />
           <div>
-            <h2 className="text-heading font-bold text-foreground">{profile.prenom}</h2>
+            <h2 className="text-heading font-bold text-foreground">
+              {profile.prenom}
+            </h2>
             <p className="text-small text-foreground-muted">
               {profile.age} ans — {profile.niveau}
             </p>
@@ -240,7 +281,9 @@ export function AdminProfileDetail() {
                 <Input
                   label="Prénom"
                   value={form.prenom || ""}
-                  onChange={(e) => setForm((f) => ({ ...f, prenom: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, prenom: e.target.value }))
+                  }
                 />
                 <Input
                   label="Âge"
@@ -248,16 +291,23 @@ export function AdminProfileDetail() {
                   min={6}
                   max={14}
                   value={form.age || 8}
-                  onChange={(e) => setForm((f) => ({ ...f, age: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, age: Number(e.target.value) }))
+                  }
                 />
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="niveau" className="text-small font-medium text-foreground">
+                  <label
+                    htmlFor="niveau"
+                    className="text-small font-medium text-foreground"
+                  >
                     Niveau
                   </label>
                   <select
                     id="niveau"
                     value={form.niveau || ""}
-                    onChange={(e) => setForm((f) => ({ ...f, niveau: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, niveau: e.target.value }))
+                    }
                     className={fieldClass}
                   >
                     {NIVEAUX.map((n) => (
@@ -269,7 +319,9 @@ export function AdminProfileDetail() {
                 </div>
               </div>
               <fieldset className="mt-4">
-                <legend className="mb-2 text-small font-medium text-foreground">Avatar</legend>
+                <legend className="mb-2 text-small font-medium text-foreground">
+                  Avatar
+                </legend>
                 <div className="flex flex-wrap gap-2">
                   {AVATARS.map((a) => {
                     const selected = form.avatar === a;
@@ -286,7 +338,12 @@ export function AdminProfileDetail() {
                             : "ring-2 ring-transparent hover:ring-border"
                         }`}
                       >
-                        <Avatar avatarKey={a} size="sm" alt="" className="!ring-0" />
+                        <Avatar
+                          avatarKey={a}
+                          size="sm"
+                          alt=""
+                          className="!ring-0"
+                        />
                       </button>
                     );
                   })}
@@ -302,20 +359,28 @@ export function AdminProfileDetail() {
           {activeTab === "comportement" && (
             <Card>
               <div className="flex flex-col gap-1">
-                <label htmlFor="consignes" className="text-small font-medium text-foreground">
+                <label
+                  htmlFor="consignes"
+                  className="text-small font-medium text-foreground"
+                >
                   Consignes personnalisées pour l'agent
                 </label>
                 <textarea
                   id="consignes"
                   value={form.consignes_admin || ""}
-                  onChange={(e) => setForm((f) => ({ ...f, consignes_admin: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, consignes_admin: e.target.value }))
+                  }
                   rows={5}
                   className={textareaClass}
                   placeholder="Ex : toujours féliciter l'enfant quand il trouve seul..."
                 />
               </div>
               <div className="mt-4">
-                <p id="sujets-label" className="mb-2 text-small font-medium text-foreground">
+                <p
+                  id="sujets-label"
+                  className="mb-2 text-small font-medium text-foreground"
+                >
                   Sujets interdits
                 </p>
                 <div role="group" aria-labelledby="sujets-label">
@@ -345,7 +410,10 @@ export function AdminProfileDetail() {
                   min={0}
                   value={form.quota_messages_jour || 0}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, quota_messages_jour: Number(e.target.value) }))
+                    setForm((f) => ({
+                      ...f,
+                      quota_messages_jour: Number(e.target.value),
+                    }))
                   }
                 />
                 <Input
@@ -354,16 +422,22 @@ export function AdminProfileDetail() {
                   min={0}
                   value={form.quota_tokens_jour || 0}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, quota_tokens_jour: Number(e.target.value) }))
+                    setForm((f) => ({
+                      ...f,
+                      quota_tokens_jour: Number(e.target.value),
+                    }))
                   }
                 />
               </div>
 
               <div className="mt-6">
-                <h4 className="mb-2 text-small font-medium text-foreground">Horaires autorisés</h4>
+                <h4 className="mb-2 text-small font-medium text-foreground">
+                  Horaires autorisés
+                </h4>
                 {plages.length === 0 ? (
                   <p className="text-small text-foreground-muted">
-                    Aucune restriction horaire : connexion autorisée à tout moment.
+                    Aucune restriction horaire : connexion autorisée à tout
+                    moment.
                   </p>
                 ) : (
                   <ul className="flex flex-wrap gap-2">
@@ -384,7 +458,9 @@ export function AdminProfileDetail() {
               <div className="mt-6 border-t border-border pt-4">
                 <Toggle
                   checked={form.actif ?? true}
-                  onChange={(checked) => setForm((f) => ({ ...f, actif: checked }))}
+                  onChange={(checked) =>
+                    setForm((f) => ({ ...f, actif: checked }))
+                  }
                   label="Profil actif (autorise la connexion)"
                 />
               </div>
@@ -406,8 +482,12 @@ export function AdminProfileDetail() {
               <div className="space-y-3">
                 {notes.map((n) => (
                   <Card key={n.id} className="!p-4">
-                    <p className="text-small font-semibold text-primary">{n.matiere}</p>
-                    <p className="mt-1 text-small text-foreground leading-body">{n.notes}</p>
+                    <p className="text-small font-semibold text-primary">
+                      {n.matiere}
+                    </p>
+                    <p className="mt-1 text-small text-foreground leading-body">
+                      {n.notes}
+                    </p>
                     <p className="mt-2 text-tiny text-foreground-muted">
                       Mise à jour le{" "}
                       {new Date(n.updated_at).toLocaleDateString("fr-FR", {
@@ -428,11 +508,13 @@ export function AdminProfileDetail() {
                 Prompt système envoyé à l'agent pour ce profil
               </h3>
               <p className="mb-4 text-small text-foreground-muted leading-body">
-                Lecture seule — le prompt est composé côté serveur à partir de l'âge, du niveau,
-                des consignes et des sujets interdits.
+                Lecture seule — le prompt est composé côté serveur à partir de
+                l'âge, du niveau, des consignes et des sujets interdits.
               </p>
               {promptLoading ? (
-                <p className="animate-pulse text-small text-foreground-muted">Chargement...</p>
+                <p className="animate-pulse text-small text-foreground-muted">
+                  Chargement...
+                </p>
               ) : (
                 <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-input border border-border bg-surface-alt p-4 font-mono text-tiny text-foreground leading-body">
                   {promptPreview ?? "Aperçu indisponible."}
@@ -457,7 +539,9 @@ export function AdminProfileDetail() {
                     className="flex w-full items-center justify-between gap-4 rounded-input border border-border bg-surface p-4 text-left shadow-card transition-all duration-fast ease-out hover:-translate-y-0.5 hover:shadow-modal focus:outline-none focus-visible:shadow-focus"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-small font-medium text-foreground">{c.titre}</p>
+                      <p className="truncate text-small font-medium text-foreground">
+                        {c.titre}
+                      </p>
                       <p className="text-tiny text-foreground-muted">
                         {new Date(c.updated_at).toLocaleDateString("fr-FR", {
                           day: "numeric",
@@ -487,17 +571,21 @@ export function AdminProfileDetail() {
           {activeTab === "danger" && (
             <div className="space-y-4">
               <Card className="border-danger/40">
-                <h3 className="mb-1 text-subheading font-semibold text-danger">Zone dangereuse</h3>
+                <h3 className="mb-1 text-subheading font-semibold text-danger">
+                  Zone dangereuse
+                </h3>
                 <p className="mb-4 text-small text-foreground-muted leading-body">
-                  Ces actions sont sensibles. Le déverrouillage efface le compteur d'échecs PIN ;
-                  la suppression efface définitivement le profil et toutes ses données.
+                  Ces actions sont sensibles. Le déverrouillage efface le
+                  compteur d'échecs PIN ; la suppression efface définitivement
+                  le profil et toutes ses données.
                 </p>
 
                 <div className="space-y-4">
                   {isLocked && (
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-input border border-warning/30 bg-warning/10 p-4">
                       <p className="text-small text-warning">
-                        Ce profil est actuellement verrouillé après des tentatives de PIN erronées.
+                        Ce profil est actuellement verrouillé après des
+                        tentatives de PIN erronées.
                       </p>
                       <Button variant="secondary" onClick={handleUnlock}>
                         Déverrouiller le profil
@@ -517,18 +605,26 @@ export function AdminProfileDetail() {
                         maxLength={4}
                         value={pinForm}
                         onChange={(e) =>
-                          setPinForm(e.target.value.replace(/\D/g, "").slice(0, 4))
+                          setPinForm(
+                            e.target.value.replace(/\D/g, "").slice(0, 4),
+                          )
                         }
                         className="sm:max-w-56"
                       />
-                      <Button onClick={handlePinChange} disabled={pinForm.length !== 4}>
+                      <Button
+                        onClick={handlePinChange}
+                        disabled={pinForm.length !== 4}
+                      >
                         Mettre à jour le PIN
                       </Button>
                     </div>
                   </div>
 
                   <div className="border-t border-border pt-4">
-                    <Button variant="danger" onClick={() => setConfirmDeleteOpen(true)}>
+                    <Button
+                      variant="danger"
+                      onClick={() => setConfirmDeleteOpen(true)}
+                    >
                       Supprimer le profil
                     </Button>
                   </div>

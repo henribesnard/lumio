@@ -32,7 +32,9 @@ export function AdminSecurity() {
 
   async function handleStartSetup() {
     try {
-      const data = await apiPost<{ secret: string; uri: string }>("/api/admin/totp/setup");
+      const data = await apiPost<{ secret: string; uri: string }>(
+        "/api/admin/totp/setup",
+      );
       setSetupSecret(data.secret);
       setSetupUri(data.uri);
       setShowSetup(true);
@@ -74,7 +76,9 @@ export function AdminSecurity() {
   if (loading) {
     return (
       <AdminLayout>
-        <p className="animate-pulse text-body text-foreground-muted">Chargement...</p>
+        <p className="animate-pulse text-body text-foreground-muted">
+          Chargement...
+        </p>
       </AdminLayout>
     );
   }
@@ -82,20 +86,28 @@ export function AdminSecurity() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Sécurité du compte</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Sécurité du compte
+        </h2>
 
         <Card className="max-w-xl">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <h3 className="text-subheading font-semibold text-foreground">
               Authentification à deux facteurs (TOTP)
             </h3>
-            {totpEnabled ? <Badge variant="success">Activée</Badge> : <Badge variant="info">Désactivée</Badge>}
+            {totpEnabled ? (
+              <Badge variant="success">Activée</Badge>
+            ) : (
+              <Badge variant="info">Désactivée</Badge>
+            )}
           </div>
 
           {totpEnabled ? (
             <div>
               <div className="mb-4">
-                <Notice variant="success">TOTP activé. Un code sera demandé à chaque connexion.</Notice>
+                <Notice variant="success">
+                  TOTP activé. Un code sera demandé à chaque connexion.
+                </Notice>
               </div>
               <Button variant="danger" onClick={() => setDisableOpen(true)}>
                 Désactiver le TOTP
@@ -104,12 +116,14 @@ export function AdminSecurity() {
           ) : showSetup ? (
             <div className="space-y-4">
               <p className="text-body leading-body text-foreground-muted">
-                Scannez ce code dans votre application d'authentification (Google Authenticator,
-                Authy, etc.) :
+                Scannez ce code dans votre application d'authentification
+                (Google Authenticator, Authy, etc.) :
               </p>
 
               <div className="rounded-input border border-border bg-surface-alt p-3">
-                <p className="break-all font-mono text-small text-foreground">{setupSecret}</p>
+                <p className="break-all font-mono text-small text-foreground">
+                  {setupSecret}
+                </p>
               </div>
 
               <details>
@@ -128,14 +142,20 @@ export function AdminSecurity() {
                 inputMode="numeric"
                 maxLength={6}
                 value={confirmCode}
-                onChange={(e) => setConfirmCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(e) =>
+                  setConfirmCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 placeholder="123456"
               />
 
               {setupError && <Notice variant="error">{setupError}</Notice>}
 
               <div className="flex flex-wrap gap-2">
-                <Button onClick={handleConfirm} loading={confirming} disabled={confirmCode.length !== 6}>
+                <Button
+                  onClick={handleConfirm}
+                  loading={confirming}
+                  disabled={confirmCode.length !== 6}
+                >
                   Confirmer l'activation
                 </Button>
                 <Button variant="secondary" onClick={() => setShowSetup(false)}>
@@ -146,8 +166,8 @@ export function AdminSecurity() {
           ) : (
             <div>
               <p className="mb-4 text-body leading-body text-foreground-muted">
-                Ajoutez une couche de sécurité supplémentaire avec un code temporaire généré par
-                votre application d'authentification.
+                Ajoutez une couche de sécurité supplémentaire avec un code
+                temporaire généré par votre application d'authentification.
               </p>
               <Button onClick={handleStartSetup}>Activer le TOTP</Button>
               {setupError && (

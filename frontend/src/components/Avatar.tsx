@@ -13,12 +13,21 @@ const sizeClasses: Record<AvatarSize, string> = {
   lg: "w-[var(--size-avatar-lg)] h-[var(--size-avatar-lg)]",
 };
 
-export function Avatar({ avatarKey, size = "md", alt = "", className = "" }: AvatarProps) {
+export function Avatar({
+  avatarKey,
+  size = "md",
+  alt = "",
+  className = "",
+}: AvatarProps) {
   return (
     <img
       src={`/avatars/${avatarKey}.svg`}
       alt={alt}
-      className={["rounded-full object-cover shrink-0 ring-2 ring-border/40", sizeClasses[size], className]
+      className={[
+        "rounded-full object-cover shrink-0 ring-2 ring-border/40",
+        sizeClasses[size],
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     />

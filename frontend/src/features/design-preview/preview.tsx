@@ -12,5 +12,7 @@ import { ComponentsPage } from "./ComponentsPage";
 import "./preview.css";
 
 export function renderDesignPreview() {
-  ReactDOM.createRoot(document.getElementById("root")!).render(<ComponentsPage />);
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <ComponentsPage />,
+  );
 }
