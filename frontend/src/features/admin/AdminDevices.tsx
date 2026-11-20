@@ -63,9 +63,9 @@ export function AdminDevices() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">
+        <h1 className="mb-6 text-heading font-bold text-foreground">
           Appareils de confiance
-        </h2>
+        </h1>
 
         <p className="mb-4 text-small leading-body text-foreground-muted">
           Seuls les appareils de confiance peuvent afficher la liste des profils
@@ -122,7 +122,7 @@ export function AdminDevices() {
                   <div className="flex items-center gap-3">
                     <svg
                       viewBox="0 0 24 24"
-                      className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0 text-primary"
+                      className="h-[var(--size-icon)] w-[var(--size-icon)] shrink-0 text-link"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"

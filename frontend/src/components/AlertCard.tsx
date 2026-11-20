@@ -68,7 +68,6 @@ export function AlertCard({
         critical && !done
           ? "shadow-[inset_0_0_0_2px_var(--color-danger)]"
           : "shadow-[inset_0_0_0_1px_var(--color-border-subtle)]",
-        done ? "opacity-80" : "",
       ].join(" ")}
     >
       <div className="min-w-0 flex-1">

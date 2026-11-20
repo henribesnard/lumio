@@ -14,6 +14,8 @@ import { Notice } from "@/components/Notice";
 import { Tabs } from "@/components/Tabs";
 import { TagInput } from "@/components/TagInput";
 import { Toggle } from "@/components/Toggle";
+import { ScheduleEditor } from "@/components/ScheduleEditor";
+import { validateSchedule, type Schedule } from "@/components/schedule";
 
 import type {
   ConversationResponse,
@@ -43,30 +45,6 @@ const fieldClass =
   "w-full rounded-input border border-border bg-surface px-3 py-2 text-body text-foreground min-h-[var(--size-touch-target)] transition-colors duration-fast ease-out placeholder:text-foreground-muted focus:outline-none focus-visible:shadow-focus focus:border-primary hover:border-foreground-muted";
 
 const textareaClass = `${fieldClass} resize-y leading-body`;
-
-const JOURS: Record<string, string> = {
-  lundi: "Lundi",
-  mardi: "Mardi",
-  mercredi: "Mercredi",
-  jeudi: "Jeudi",
-  vendredi: "Vendredi",
-  samedi: "Samedi",
-  dimanche: "Dimanche",
-  lun: "Lundi",
-  mar: "Mardi",
-  mer: "Mercredi",
-  jeu: "Jeudi",
-  ven: "Vendredi",
-  sam: "Samedi",
-  dim: "Dimanche",
-  mon: "Lundi",
-  tue: "Mardi",
-  wed: "Mercredi",
-  thu: "Jeudi",
-  fri: "Vendredi",
-  sat: "Samedi",
-  sun: "Dimanche",
-};
 
 export function AdminProfileDetail() {
   const { profileId } = useParams<{ profileId: string }>();
@@ -209,11 +187,9 @@ export function AdminProfileDetail() {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  const plages = profile.plages_horaires
-    ? Object.entries(profile.plages_horaires).filter(
-        ([, slots]) => slots.length > 0,
-      )
-    : [];
+  const scheduleInvalid =
+    !!form.plages_horaires &&
+    Object.keys(validateSchedule(form.plages_horaires as Schedule)).length > 0;
 
   return (
     <AdminLayout>
@@ -247,9 +223,9 @@ export function AdminProfileDetail() {
             className="!h-16 !w-16"
           />
           <div>
-            <h2 className="text-heading font-bold text-foreground">
+            <h1 className="text-heading font-bold text-foreground">
               {profile.prenom}
-            </h2>
+            </h1>
             <p className="text-small text-foreground-muted">
               {profile.age} ans — {profile.niveau}
             </p>
@@ -430,30 +406,20 @@ export function AdminProfileDetail() {
                 />
               </div>
 
-              <div className="mt-6">
-                <h4 className="mb-2 text-small font-medium text-foreground">
+              <section className="mt-6" aria-labelledby="horaires-titre">
+                <h3
+                  id="horaires-titre"
+                  className="mb-3 text-subheading font-semibold text-foreground"
+                >
                   Horaires autorisés
-                </h4>
-                {plages.length === 0 ? (
-                  <p className="text-small text-foreground-muted">
-                    Aucune restriction horaire : connexion autorisée à tout
-                    moment.
-                  </p>
-                ) : (
-                  <ul className="flex flex-wrap gap-2">
-                    {plages.map(([jour, slots]) =>
-                      slots.map((slot, i) => (
-                        <li
-                          key={`${jour}-${i}`}
-                          className="rounded-full border border-border bg-surface-alt px-3 py-1 text-tiny text-foreground"
-                        >
-                          {JOURS[jour] ?? jour} · {slot.debut}–{slot.fin}
-                        </li>
-                      )),
-                    )}
-                  </ul>
-                )}
-              </div>
+                </h3>
+                <ScheduleEditor
+                  value={(form.plages_horaires as Schedule | null) ?? null}
+                  onChange={(v) =>
+                    setForm((f) => ({ ...f, plages_horaires: v }))
+                  }
+                />
+              </section>
 
               <div className="mt-6 border-t border-border pt-4">
                 <Toggle
@@ -465,9 +431,19 @@ export function AdminProfileDetail() {
                 />
               </div>
 
-              <Button onClick={handleSave} loading={saving} className="mt-6">
+              <Button
+                onClick={handleSave}
+                loading={saving}
+                disabled={scheduleInvalid}
+                className="mt-6"
+              >
                 Enregistrer les modifications
               </Button>
+              {scheduleInvalid && (
+                <p className="mt-2 text-small text-danger" role="status">
+                  Corrigez les horaires avant d'enregistrer.
+                </p>
+              )}
             </Card>
           )}
 
@@ -482,7 +458,7 @@ export function AdminProfileDetail() {
               <div className="space-y-3">
                 {notes.map((n) => (
                   <Card key={n.id} className="!p-4">
-                    <p className="text-small font-semibold text-primary">
+                    <p className="text-small font-semibold text-link">
                       {n.matiere}
                     </p>
                     <p className="mt-1 text-small text-foreground leading-body">
@@ -570,7 +546,7 @@ export function AdminProfileDetail() {
           {/* Zone dangereuse */}
           {activeTab === "danger" && (
             <div className="space-y-4">
-              <Card className="border-danger/40">
+              <Card className="border-danger">
                 <h3 className="mb-1 text-subheading font-semibold text-danger">
                   Zone dangereuse
                 </h3>
@@ -582,7 +558,7 @@ export function AdminProfileDetail() {
 
                 <div className="space-y-4">
                   {isLocked && (
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-input border border-warning/30 bg-warning/10 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-input border border-warning bg-warning-bg p-4">
                       <p className="text-small text-warning">
                         Ce profil est actuellement verrouillé après des
                         tentatives de PIN erronées.

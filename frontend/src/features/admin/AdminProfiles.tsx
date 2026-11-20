@@ -77,9 +77,9 @@ export function AdminProfiles() {
     <AdminLayout>
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-heading font-bold text-foreground">
+          <h1 className="text-heading font-bold text-foreground">
             Profils enfants
-          </h2>
+          </h1>
           <Button
             onClick={() => setShowCreate(!showCreate)}
             variant={showCreate ? "secondary" : "primary"}

@@ -41,7 +41,7 @@ export function ChatInput({
           "flex min-h-send flex-1 items-center gap-2 rounded-[var(--radius-chat-input)] bg-surface pl-[1.1em] pr-[1em]",
           "shadow-[inset_0_0_0_var(--ring-width)_var(--color-chat-input-ring)] transition-shadow duration-fast",
           "focus-within:shadow-[inset_0_0_0_var(--ring-width)_var(--color-focus)]",
-          disabled ? "opacity-60" : "",
+          disabled ? "bg-surface-alt" : "",
         ].join(" ")}
       >
         <textarea
