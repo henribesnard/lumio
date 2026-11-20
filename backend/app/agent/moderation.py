@@ -23,7 +23,9 @@ _PERSONAL_INFO_PATTERNS = [
     re.compile(r"\b0[1-9][\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2}[\s.-]?\d{2}\b"),  # FR phone
     re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # email
     re.compile(r"\b\d{1,3}\s+(rue|avenue|boulevard|impasse|chemin|allée|place)\b", re.I),  # address
-    re.compile(r"\b(instagram|tiktok|snapchat|facebook|twitter|discord)\s*[:@]?\s*\w+", re.I),  # social
+    re.compile(
+        r"\b(instagram|tiktok|snapchat|facebook|twitter|discord)\s*[:@]?\s*\w+", re.I
+    ),  # social
 ]
 
 

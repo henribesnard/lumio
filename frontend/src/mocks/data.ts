@@ -10,17 +10,30 @@ export const mockProfiles = [
     age: 7,
     niveau: "CP",
     avatar: "avatar-01",
-    consignes_admin: "Léa travaille beaucoup les mathématiques. L'encourager sur la lecture.",
+    consignes_admin:
+      "Léa travaille beaucoup les mathématiques. L'encourager sur la lecture.",
     sujets_interdits: ["jeux vidéo violents"],
     modele: null,
     quota_messages_jour: 30,
     quota_tokens_jour: 30000,
     plages_horaires: {
-      lundi: [{ debut: "08:00", fin: "12:00" }, { debut: "14:00", fin: "18:00" }],
-      mardi: [{ debut: "08:00", fin: "12:00" }, { debut: "14:00", fin: "18:00" }],
+      lundi: [
+        { debut: "08:00", fin: "12:00" },
+        { debut: "14:00", fin: "18:00" },
+      ],
+      mardi: [
+        { debut: "08:00", fin: "12:00" },
+        { debut: "14:00", fin: "18:00" },
+      ],
       mercredi: [{ debut: "08:00", fin: "18:00" }],
-      jeudi: [{ debut: "08:00", fin: "12:00" }, { debut: "14:00", fin: "18:00" }],
-      vendredi: [{ debut: "08:00", fin: "12:00" }, { debut: "14:00", fin: "18:00" }],
+      jeudi: [
+        { debut: "08:00", fin: "12:00" },
+        { debut: "14:00", fin: "18:00" },
+      ],
+      vendredi: [
+        { debut: "08:00", fin: "12:00" },
+        { debut: "14:00", fin: "18:00" },
+      ],
       samedi: [{ debut: "09:00", fin: "12:00" }],
     },
     actif: true,
@@ -35,7 +48,8 @@ export const mockProfiles = [
     age: 10,
     niveau: "CM2",
     avatar: "avatar-05",
-    consignes_admin: "Noah prépare l'entrée en 6e. Travailler la grammaire et les fractions.",
+    consignes_admin:
+      "Noah prépare l'entrée en 6e. Travailler la grammaire et les fractions.",
     sujets_interdits: [],
     modele: null,
     quota_messages_jour: 50,
@@ -115,7 +129,8 @@ export const mockMessages = [
     id: "msg-2",
     conversation_id: "conv-lea-1",
     role: "assistant" as const,
-    contenu: "Bonne question ! 🌟 Est-ce que tu sais compter sur tes doigts ? Essaie de lever 3 doigts, puis 5 de plus !",
+    contenu:
+      "Bonne question ! 🌟 Est-ce que tu sais compter sur tes doigts ? Essaie de lever 3 doigts, puis 5 de plus !",
     created_at: "2025-01-20T14:00:30Z",
   },
   {
@@ -129,7 +144,8 @@ export const mockMessages = [
     id: "msg-4",
     conversation_id: "conv-lea-1",
     role: "assistant" as const,
-    contenu: "Bravo Léa ! 🎉 C'est exactement ça ! Tu peux me dire comment tu as trouvé ?",
+    contenu:
+      "Bravo Léa ! 🎉 C'est exactement ça ! Tu peux me dire comment tu as trouvé ?",
     created_at: "2025-01-20T14:01:30Z",
   },
   // Noah - fractions (Socratic method with older child)
@@ -144,7 +160,8 @@ export const mockMessages = [
     id: "msg-6",
     conversation_id: "conv-noah-1",
     role: "assistant" as const,
-    contenu: "Bonne question Noah ! Avant de calculer, qu'est-ce que tu sais sur l'addition de fractions ? Est-ce qu'on peut additionner directement quand les dénominateurs sont différents ?",
+    contenu:
+      "Bonne question Noah ! Avant de calculer, qu'est-ce que tu sais sur l'addition de fractions ? Est-ce qu'on peut additionner directement quand les dénominateurs sont différents ?",
     created_at: "2025-01-20T16:00:30Z",
   },
   {
@@ -158,7 +175,8 @@ export const mockMessages = [
     id: "msg-8",
     conversation_id: "conv-noah-1",
     role: "assistant" as const,
-    contenu: "Exactement ! Alors, quel nombre pourrait servir de dénominateur commun pour 3 et 4 ? Un indice : cherche le plus petit nombre que 3 et 4 peuvent diviser.",
+    contenu:
+      "Exactement ! Alors, quel nombre pourrait servir de dénominateur commun pour 3 et 4 ? Un indice : cherche le plus petit nombre que 3 et 4 peuvent diviser.",
     created_at: "2025-01-20T16:01:30Z",
   },
   // Inès - Révolution française
@@ -173,7 +191,8 @@ export const mockMessages = [
     id: "msg-10",
     conversation_id: "conv-ines-1",
     role: "assistant" as const,
-    contenu: "Question intéressante, Inès. Avant d'explorer les causes, qu'est-ce que tu connais déjà de la situation en France à la fin du XVIIIe siècle ? Pense à la société, à l'économie, au pouvoir politique.",
+    contenu:
+      "Question intéressante, Inès. Avant d'explorer les causes, qu'est-ce que tu connais déjà de la situation en France à la fin du XVIIIe siècle ? Pense à la société, à l'économie, au pouvoir politique.",
     created_at: "2025-01-21T08:00:30Z",
   },
 ];
@@ -248,9 +267,27 @@ export const mockStats = {
     info: 1,
   },
   usage_by_profile: [
-    { profile_id: "profile-lea", prenom: "Léa", messages: 25, tokens_in: 12000, tokens_out: 5000 },
-    { profile_id: "profile-noah", prenom: "Noah", messages: 40, tokens_in: 20000, tokens_out: 7000 },
-    { profile_id: "profile-ines", prenom: "Inès", messages: 22, tokens_in: 10000, tokens_out: 3000 },
+    {
+      profile_id: "profile-lea",
+      prenom: "Léa",
+      messages: 25,
+      tokens_in: 12000,
+      tokens_out: 5000,
+    },
+    {
+      profile_id: "profile-noah",
+      prenom: "Noah",
+      messages: 40,
+      tokens_in: 20000,
+      tokens_out: 7000,
+    },
+    {
+      profile_id: "profile-ines",
+      prenom: "Inès",
+      messages: 22,
+      tokens_in: 10000,
+      tokens_out: 3000,
+    },
   ],
 };
 
@@ -278,21 +315,24 @@ export const mockLearnerNotes = [
     id: "ln-1",
     profile_id: "profile-lea",
     matiere: "Mathématiques",
-    notes: "Maîtrise les additions simples jusqu'à 10. En progrès sur les additions avec retenue. Difficulté avec les soustractions. Prochaine étape : additions jusqu'à 20.",
+    notes:
+      "Maîtrise les additions simples jusqu'à 10. En progrès sur les additions avec retenue. Difficulté avec les soustractions. Prochaine étape : additions jusqu'à 20.",
     updated_at: "2025-01-20T14:30:00Z",
   },
   {
     id: "ln-2",
     profile_id: "profile-noah",
     matiere: "Mathématiques",
-    notes: "Bonne compréhension des fractions simples. Commence à additionner des fractions de dénominateurs différents. Point fort : logique. Prochaine étape : multiplications de fractions.",
+    notes:
+      "Bonne compréhension des fractions simples. Commence à additionner des fractions de dénominateurs différents. Point fort : logique. Prochaine étape : multiplications de fractions.",
     updated_at: "2025-01-20T16:30:00Z",
   },
   {
     id: "ln-3",
     profile_id: "profile-ines",
     matiere: "Histoire",
-    notes: "Bonne culture générale. Capable d'argumenter et de structurer une réponse. Encourage la recherche de sources. Prochaine étape : dissertation structurée.",
+    notes:
+      "Bonne culture générale. Capable d'argumenter et de structurer une réponse. Encourage la recherche de sources. Prochaine étape : dissertation structurée.",
     updated_at: "2025-01-21T08:45:00Z",
   },
 ];

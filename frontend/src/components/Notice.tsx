@@ -13,10 +13,17 @@ export function Notice({ variant = "info", children, onDismiss }: NoticeProps) {
   };
 
   return (
-    <div className={`flex items-start gap-2 rounded-input border px-4 py-3 text-small ${styles[variant]}`}>
+    <div
+      className={`flex items-start gap-2 rounded-input border px-4 py-3 text-small ${styles[variant]}`}
+    >
       <div className="flex-1">{children}</div>
       {onDismiss && (
-        <button onClick={onDismiss} className="ml-2 opacity-60 hover:opacity-100">&times;</button>
+        <button
+          onClick={onDismiss}
+          className="ml-2 opacity-60 hover:opacity-100"
+        >
+          &times;
+        </button>
       )}
     </div>
   );

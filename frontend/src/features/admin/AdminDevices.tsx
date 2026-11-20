@@ -20,7 +20,9 @@ export function AdminDevices() {
     e.preventDefault();
     if (!label.trim()) return;
     try {
-      const device = await apiPost<DeviceResponse>("/api/admin/devices", { label: label.trim() });
+      const device = await apiPost<DeviceResponse>("/api/admin/devices", {
+        label: label.trim(),
+      });
       setDevices((prev) => [device, ...prev]);
       setLabel("");
       setMessage("Appareil ajouté. Le cookie a été posé sur cet appareil.");
@@ -44,11 +46,14 @@ export function AdminDevices() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Appareils de confiance</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Appareils de confiance
+        </h2>
 
         <p className="mb-4 text-small text-foreground-muted">
-          Seuls les appareils de confiance peuvent afficher la liste des profils enfants.
-          Activez cet appareil comme « appareil familial » pour permettre aux enfants de se connecter.
+          Seuls les appareils de confiance peuvent afficher la liste des profils
+          enfants. Activez cet appareil comme « appareil familial » pour
+          permettre aux enfants de se connecter.
         </p>
 
         {message && (
@@ -77,7 +82,9 @@ export function AdminDevices() {
 
         {/* Devices list */}
         {loading ? (
-          <div className="animate-pulse text-foreground-muted">Chargement...</div>
+          <div className="animate-pulse text-foreground-muted">
+            Chargement...
+          </div>
         ) : devices.length === 0 ? (
           <div className="py-8 text-center text-body text-foreground-muted">
             Aucun appareil de confiance.
@@ -90,14 +97,18 @@ export function AdminDevices() {
                 className="flex items-center justify-between rounded-card bg-surface p-4 shadow-card"
               >
                 <div>
-                  <p className="text-body font-medium text-foreground">{device.label}</p>
+                  <p className="text-body font-medium text-foreground">
+                    {device.label}
+                  </p>
                   <p className="text-tiny text-foreground-muted">
                     Créé le{" "}
                     {new Date(device.created_at).toLocaleDateString("fr-FR")}
                     {device.last_seen_at && (
                       <>
                         {" — Vu le "}
-                        {new Date(device.last_seen_at).toLocaleDateString("fr-FR")}
+                        {new Date(device.last_seen_at).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </>
                     )}
                   </p>

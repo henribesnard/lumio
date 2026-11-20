@@ -12,7 +12,9 @@ export function AdminConversationView() {
 
   useEffect(() => {
     if (!conversationId) return;
-    apiGet<MessageResponse[]>(`/api/admin/conversations/${conversationId}/messages`)
+    apiGet<MessageResponse[]>(
+      `/api/admin/conversations/${conversationId}/messages`,
+    )
       .then(setMessages)
       .catch(() => navigate("/admin", { replace: true }))
       .finally(() => setLoading(false));
@@ -21,13 +23,20 @@ export function AdminConversationView() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <button onClick={() => navigate(-1)} className="mb-4 text-small text-foreground-muted hover:text-foreground">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 text-small text-foreground-muted hover:text-foreground"
+        >
           ← Retour
         </button>
-        <h2 className="mb-6 text-heading font-bold text-foreground">Conversation</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Conversation
+        </h2>
 
         {loading ? (
-          <div className="animate-pulse text-foreground-muted">Chargement...</div>
+          <div className="animate-pulse text-foreground-muted">
+            Chargement...
+          </div>
         ) : messages.length === 0 ? (
           <p className="text-foreground-muted">Aucun message.</p>
         ) : (
@@ -46,10 +55,18 @@ export function AdminConversationView() {
                 <div className="mb-1 flex items-center justify-between">
                   <span
                     className={`text-tiny font-semibold ${
-                      msg.role === "child" ? "text-info" : msg.role === "system_notice" ? "text-warning" : "text-foreground-muted"
+                      msg.role === "child"
+                        ? "text-info"
+                        : msg.role === "system_notice"
+                          ? "text-warning"
+                          : "text-foreground-muted"
                     }`}
                   >
-                    {msg.role === "child" ? "Enfant" : msg.role === "assistant" ? "Lumio" : "Système"}
+                    {msg.role === "child"
+                      ? "Enfant"
+                      : msg.role === "assistant"
+                        ? "Lumio"
+                        : "Système"}
                   </span>
                   <span className="text-tiny text-foreground-muted">
                     {new Date(msg.created_at).toLocaleTimeString("fr-FR", {
@@ -58,7 +75,9 @@ export function AdminConversationView() {
                     })}
                   </span>
                 </div>
-                <p className="whitespace-pre-wrap text-small text-foreground">{msg.contenu}</p>
+                <p className="whitespace-pre-wrap text-small text-foreground">
+                  {msg.contenu}
+                </p>
 
                 {/* Moderation & guard details */}
                 {(msg.moderation || msg.guard_verdict) && (

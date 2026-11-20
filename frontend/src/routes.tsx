@@ -22,7 +22,8 @@ import { AdminSecurity } from "@/features/admin/AdminSecurity";
 function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  if (!user || user.role !== "admin") return <Navigate to="/admin/login" replace />;
+  if (!user || user.role !== "admin")
+    return <Navigate to="/admin/login" replace />;
   return <>{children}</>;
 }
 

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from app.db.models import LearnerNotes, Profile
+if TYPE_CHECKING:
+    from app.db.models import LearnerNotes, Profile
 
 _PROMPT_DIR = Path(__file__).parent
 
@@ -46,9 +48,7 @@ def build_system_prompt(
     template = _read("04_profil.md")
     notes_text = "Aucune note pour le moment."
     if learner_notes:
-        notes_text = "\n".join(
-            f"- {n.matiere} : {n.notes}" for n in learner_notes
-        )
+        notes_text = "\n".join(f"- {n.matiere} : {n.notes}" for n in learner_notes)
 
     sujets = ", ".join(profile.sujets_interdits) if profile.sujets_interdits else "Aucun"
     consignes = profile.consignes_admin or "Aucune consigne particulière."

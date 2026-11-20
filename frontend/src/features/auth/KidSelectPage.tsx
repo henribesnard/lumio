@@ -49,8 +49,18 @@ export function KidSelectPage() {
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <div className="max-w-md rounded-card bg-surface p-8 text-center shadow-card">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning/10">
-            <svg viewBox="0 0 24 24" className="h-8 w-8 text-warning" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4.99c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z" />
+            <svg
+              viewBox="0 0 24 24"
+              className="h-8 w-8 text-warning"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4.99c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+              />
             </svg>
           </div>
           <h2 className="mb-2 text-heading font-bold text-foreground">
@@ -60,7 +70,8 @@ export function KidSelectPage() {
             Cet appareil n'est pas encore activ&eacute; comme appareil familial.
           </p>
           <p className="text-small text-foreground-muted">
-            Demande &agrave; un parent d'aller dans l'espace administration pour ajouter cet appareil.
+            Demande &agrave; un parent d'aller dans l'espace administration pour
+            ajouter cet appareil.
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import auth, admin, kid
+from app.api import admin, auth, kid
 from app.api.schemas import HealthResponse
 from app.auth.sessions import verify_csrf
 from app.config import get_settings
@@ -47,17 +47,16 @@ async def csrf_middleware(request: Request, call_next):
         request.method not in CSRF_SAFE_METHODS
         and request.url.path not in CSRF_EXEMPT_PATHS
         and request.url.path.startswith("/api/")
-    ):
-        if not verify_csrf(request):
-            return JSONResponse(
-                status_code=403,
-                content={
-                    "error": {
-                        "code": "csrf_failed",
-                        "message": "Vérification CSRF échouée.",
-                    }
-                },
-            )
+    ) and not verify_csrf(request):
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": {
+                    "code": "csrf_failed",
+                    "message": "Vérification CSRF échouée.",
+                }
+            },
+        )
     response = await call_next(request)
     return response
 

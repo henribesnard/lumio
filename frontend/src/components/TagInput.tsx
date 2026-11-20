@@ -6,7 +6,11 @@ interface TagInputProps {
   placeholder?: string;
 }
 
-export function TagInput({ tags, onChange, placeholder = "Ajouter..." }: TagInputProps) {
+export function TagInput({
+  tags,
+  onChange,
+  placeholder = "Ajouter...",
+}: TagInputProps) {
   const [input, setInput] = useState("");
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -29,9 +33,18 @@ export function TagInput({ tags, onChange, placeholder = "Ajouter..." }: TagInpu
   return (
     <div className="flex flex-wrap items-center gap-1 rounded-input border border-border bg-surface-alt px-2 py-1.5 focus-within:border-primary">
       {tags.map((tag, i) => (
-        <span key={i} className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-tiny font-medium text-primary">
+        <span
+          key={i}
+          className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-tiny font-medium text-primary"
+        >
           {tag}
-          <button type="button" onClick={() => removeTag(i)} className="hover:text-danger">&times;</button>
+          <button
+            type="button"
+            onClick={() => removeTag(i)}
+            className="hover:text-danger"
+          >
+            &times;
+          </button>
         </span>
       ))}
       <input

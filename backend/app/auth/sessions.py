@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import secrets
-import uuid
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
-from fastapi import Request, Response
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 from sqlalchemy import delete, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.db.models import SessionRecord
+
+if TYPE_CHECKING:
+    from fastapi import Request, Response
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 settings = get_settings()
 _signer = URLSafeTimedSerializer(settings.session_secret)

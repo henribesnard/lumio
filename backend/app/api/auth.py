@@ -4,18 +4,17 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
     AdminLoginRequest,
     AuthMeResponse,
-    ErrorResponse,
     KidLoginRequest,
 )
-from app.auth.dependencies import get_real_ip, require_admin, require_kid
+from app.auth.dependencies import get_real_ip
 from app.auth.passwords import verify_password, verify_pin
 from app.auth.sessions import (
     ADMIN_COOKIE,
@@ -30,6 +29,9 @@ from app.db import get_db
 from app.db.models import Admin, Profile, TrustedDevice
 from app.services.audit import log_action
 from app.services.safety import create_safety_event
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 settings = get_settings()
@@ -69,7 +71,9 @@ async def admin_login(
     if not admin:
         raise HTTPException(
             status_code=401,
-            detail={"error": {"code": "invalid_credentials", "message": "Identifiants incorrects."}},
+            detail={
+                "error": {"code": "invalid_credentials", "message": "Identifiants incorrects."}
+            },
         )
 
     # Check lockout
@@ -89,10 +93,14 @@ async def admin_login(
         if admin.failed_login_count >= settings.admin_max_attempts:
             from datetime import timedelta
 
-            admin.locked_until = datetime.utcnow() + timedelta(seconds=settings.admin_lockout_seconds)
+            admin.locked_until = datetime.utcnow() + timedelta(
+                seconds=settings.admin_lockout_seconds
+            )
         raise HTTPException(
             status_code=401,
-            detail={"error": {"code": "invalid_credentials", "message": "Identifiants incorrects."}},
+            detail={
+                "error": {"code": "invalid_credentials", "message": "Identifiants incorrects."}
+            },
         )
 
     # Check TOTP if enabled
@@ -215,10 +223,12 @@ async def kid_login(
         if profile.failed_pin_count >= settings.pin_max_attempts:
             from datetime import timedelta
 
-            profile.locked_until = datetime.utcnow() + timedelta(seconds=settings.pin_lockout_seconds)
+            profile.locked_until = datetime.utcnow() + timedelta(
+                seconds=settings.pin_lockout_seconds
+            )
             await create_safety_event(
                 db,
-                type="pin_lockout",
+                event_type="pin_lockout",
                 severity="warning",
                 profile_id=profile.id,
                 extrait=f"5 tentatives échouées depuis {ip}",
@@ -272,14 +282,10 @@ async def auth_me(
         db, request, cookie_name=KID_COOKIE, max_age=settings.kid_session_inactivity
     )
     if kid_data and "profile_id" in kid_data:
-        result = await db.execute(
-            select(Profile).where(Profile.id == kid_data["profile_id"])
-        )
+        result = await db.execute(select(Profile).where(Profile.id == kid_data["profile_id"]))
         profile = result.scalar_one_or_none()
         if profile:
-            return AuthMeResponse(
-                role="kid", profile_id=profile.id, prenom=profile.prenom
-            )
+            return AuthMeResponse(role="kid", profile_id=profile.id, prenom=profile.prenom)
 
     raise HTTPException(
         status_code=401,

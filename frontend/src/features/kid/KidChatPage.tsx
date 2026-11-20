@@ -4,11 +4,6 @@ import { apiGet } from "@/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
 import type { KidMeResponse, MessageResponse } from "@/api/types";
 
-interface SSEEvent {
-  type: string;
-  data: Record<string, unknown>;
-}
-
 export function KidChatPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { logout } = useAuth();
@@ -27,7 +22,9 @@ export function KidChatPage() {
   useEffect(() => {
     if (!conversationId) return;
     Promise.all([
-      apiGet<MessageResponse[]>(`/api/kid/conversations/${conversationId}/messages`),
+      apiGet<MessageResponse[]>(
+        `/api/kid/conversations/${conversationId}/messages`,
+      ),
       apiGet<KidMeResponse>("/api/kid/me"),
     ])
       .then(([msgs, meData]) => {
@@ -61,7 +58,9 @@ export function KidChatPage() {
 
       try {
         // Get CSRF token
-        const csrfMatch = document.cookie.split("; ").find((r) => r.startsWith("lumio_csrf="));
+        const csrfMatch = document.cookie
+          .split("; ")
+          .find((r) => r.startsWith("lumio_csrf="));
         const csrf = csrfMatch ? csrfMatch.split("=")[1] : "";
 
         const response = await fetch(
@@ -146,8 +145,13 @@ export function KidChatPage() {
 
   if (loading) {
     return (
-      <div data-age={ageBracket} className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse text-foreground-muted text-heading">Chargement...</div>
+      <div
+        data-age={ageBracket}
+        className="flex min-h-screen items-center justify-center bg-background"
+      >
+        <div className="animate-pulse text-foreground-muted text-heading">
+          Chargement...
+        </div>
       </div>
     );
   }
@@ -170,10 +174,15 @@ export function KidChatPage() {
               className="h-[var(--size-avatar-sm)] w-[var(--size-avatar-sm)]"
             />
           )}
-          <span className="text-small font-medium text-foreground">{me?.prenom}</span>
+          <span className="text-small font-medium text-foreground">
+            {me?.prenom}
+          </span>
         </div>
         <button
-          onClick={async () => { await logout(); navigate("/select", { replace: true }); }}
+          onClick={async () => {
+            await logout();
+            navigate("/select", { replace: true });
+          }}
           className="text-small text-foreground-muted hover:text-foreground"
         >
           Quitter
@@ -199,14 +208,20 @@ export function KidChatPage() {
           {messages.map((msg) => {
             if (msg.role === "system_notice") {
               return (
-                <div key={msg.id} className="mx-auto my-2 max-w-md rounded-input bg-[var(--color-bubble-notice)] px-4 py-2 text-center text-small text-[var(--color-bubble-notice-text)]">
+                <div
+                  key={msg.id}
+                  className="mx-auto my-2 max-w-md rounded-input bg-[var(--color-bubble-notice)] px-4 py-2 text-center text-small text-[var(--color-bubble-notice-text)]"
+                >
                   {msg.contenu}
                 </div>
               );
             }
             const isChild = msg.role === "child";
             return (
-              <div key={msg.id} className={`flex ${isChild ? "justify-end" : "justify-start"} my-1`}>
+              <div
+                key={msg.id}
+                className={`flex ${isChild ? "justify-end" : "justify-start"} my-1`}
+              >
                 <div
                   className={`max-w-[80%] rounded-card px-4 py-3 text-body whitespace-pre-wrap ${
                     isChild
@@ -233,9 +248,18 @@ export function KidChatPage() {
           {streaming && !streamText && (
             <div className="flex justify-start my-1">
               <div className="flex items-center gap-1 rounded-card bg-[var(--color-bubble-assistant)] px-4 py-3 shadow-card">
-                <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-foreground-muted" style={{ animationDelay: "0ms" }} />
-                <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-foreground-muted" style={{ animationDelay: "150ms" }} />
-                <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-foreground-muted" style={{ animationDelay: "300ms" }} />
+                <span
+                  className="inline-block h-2 w-2 animate-bounce rounded-full bg-foreground-muted"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="inline-block h-2 w-2 animate-bounce rounded-full bg-foreground-muted"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <span
+                  className="inline-block h-2 w-2 animate-bounce rounded-full bg-foreground-muted"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
             </div>
           )}
@@ -245,12 +269,19 @@ export function KidChatPage() {
       </main>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="flex items-end gap-2 border-t border-border bg-surface p-3">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-end gap-2 border-t border-border bg-surface p-3"
+      >
         <div className="relative flex-1">
           <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value.slice(0, 1000))}
-            disabled={streaming || me?.hors_plage_horaire || (me?.quota_messages_restant ?? 0) <= 0}
+            disabled={
+              streaming ||
+              me?.hors_plage_horaire ||
+              (me?.quota_messages_restant ?? 0) <= 0
+            }
             placeholder="Écris ton message..."
             rows={1}
             className="w-full resize-none rounded-input border border-border bg-surface-alt px-3 py-2 text-body text-foreground outline-none focus:border-primary disabled:opacity-50"
@@ -269,9 +300,17 @@ export function KidChatPage() {
           type="submit"
           disabled={streaming || !inputText.trim()}
           className="flex items-center justify-center rounded-button bg-primary px-4 text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
-          style={{ minHeight: "var(--size-touch-target)", minWidth: "var(--size-touch-target)" }}
+          style={{
+            minHeight: "var(--size-touch-target)",
+            minWidth: "var(--size-touch-target)",
+          }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="h-5 w-5"
+          >
             <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
           </svg>
         </button>

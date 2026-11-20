@@ -5,9 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import uuid
-from collections.abc import AsyncGenerator
-from typing import Any, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_mistralai import ChatMistralAI
@@ -19,7 +17,11 @@ from app.agent.moderation import (
 )
 from app.agent.prompts.builder import build_system_prompt, get_age_bracket
 from app.config import get_settings
-from app.db.models import LearnerNotes, Message, Profile
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from app.db.models import LearnerNotes, Message, Profile
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -133,11 +135,13 @@ async def run_agent(
             event_type = "abuse_disclosure"
 
         safe_text = get_safe_response(event_type, age_bracket)
-        safety_events.append({
-            "type": event_type,
-            "severity": "critical",
-            "extrait": child_message[:200],
-        })
+        safety_events.append(
+            {
+                "type": event_type,
+                "severity": "critical",
+                "extrait": child_message[:200],
+            }
+        )
 
         # Stream safe response
         for word in safe_text.split():
@@ -157,9 +161,8 @@ async def run_agent(
         return
 
     # Blocked content
-    is_blocked = (
-        input_verdict.get("inappropriate_request")
-        or input_verdict.get("jailbreak_attempt")
+    is_blocked = input_verdict.get("inappropriate_request") or input_verdict.get(
+        "jailbreak_attempt"
     )
     is_forbidden = input_verdict.get("forbidden_topic")
 
@@ -167,11 +170,13 @@ async def run_agent(
         event_type = "inappropriate_content"
         if input_verdict.get("jailbreak_attempt"):
             event_type = "jailbreak_attempt"
-            safety_events.append({
-                "type": "jailbreak_attempt",
-                "severity": "warning",
-                "extrait": child_message[:200],
-            })
+            safety_events.append(
+                {
+                    "type": "jailbreak_attempt",
+                    "severity": "warning",
+                    "extrait": child_message[:200],
+                }
+            )
 
         safe_text = get_safe_response("inappropriate_content", age_bracket)
 
@@ -193,11 +198,13 @@ async def run_agent(
 
     if is_forbidden:
         safe_text = get_safe_response("forbidden_topic", age_bracket)
-        safety_events.append({
-            "type": "forbidden_topic",
-            "severity": "info",
-            "extrait": child_message[:200],
-        })
+        safety_events.append(
+            {
+                "type": "forbidden_topic",
+                "severity": "info",
+                "extrait": child_message[:200],
+            }
+        )
 
         for word in safe_text.split():
             yield {"type": "token", "data": {"text": word + " "}}
@@ -217,11 +224,13 @@ async def run_agent(
 
     # Personal info shared — log but continue
     if input_verdict.get("personal_info_shared"):
-        safety_events.append({
-            "type": "personal_info_shared",
-            "severity": "warning",
-            "extrait": child_message[:200],
-        })
+        safety_events.append(
+            {
+                "type": "personal_info_shared",
+                "severity": "warning",
+                "extrait": child_message[:200],
+            }
+        )
 
     # -----------------------------------------------------------------------
     # 3. Context assembly
@@ -343,7 +352,7 @@ async def run_agent(
             "tokens_in": total_tokens_in,
             "tokens_out": total_tokens_out,
             "input_verdict": input_verdict,
-            "output_verdict": output_verdict if 'output_verdict' in dir() else {},
+            "output_verdict": output_verdict if "output_verdict" in dir() else {},
             "model": model_override or settings.mistral_tutor_model,
         },
     }
@@ -372,13 +381,13 @@ async def _update_learner_notes(
         # Build exchanges text from last 20 messages
         recent = history[-20:] if len(history) > 20 else history
         exchanges = "\n".join(
-            f"{'Enfant' if m.role == 'child' else 'Tuteur'}: {m.contenu}"
-            for m in recent
+            f"{'Enfant' if m.role == 'child' else 'Tuteur'}: {m.contenu}" for m in recent
         )
 
-        existing_text = "\n".join(
-            f"- {n.matiere}: {n.notes}" for n in existing_notes
-        ) or "Aucune note existante."
+        existing_text = (
+            "\n".join(f"- {n.matiere}: {n.notes}" for n in existing_notes)
+            or "Aucune note existante."
+        )
 
         prompt = template.format(
             prenom=profile.prenom,
@@ -405,14 +414,15 @@ async def _update_learner_notes(
         notes_data = json.loads(content)
 
         # Save to DB
-        from app.db.session import async_session
-        from app.db.models import LearnerNotes as LN
         from sqlalchemy import delete
 
+        from app.db.models import LearnerNotes
+        from app.db.session import async_session
+
         async with async_session() as db:
-            await db.execute(delete(LN).where(LN.profile_id == profile.id))
+            await db.execute(delete(LearnerNotes).where(LearnerNotes.profile_id == profile.id))
             for item in notes_data:
-                note = LN(
+                note = LearnerNotes(
                     profile_id=profile.id,
                     matiere=item["matiere"],
                     notes=item["notes"][:500],

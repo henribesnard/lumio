@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-import uuid
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import TYPE_CHECKING
 
 from app.db.models import AuditLog
+
+if TYPE_CHECKING:
+    import uuid
+
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def log_action(

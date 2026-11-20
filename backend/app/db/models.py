@@ -149,9 +149,7 @@ class Message(Base):
     conversation_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("conversation.id", ondelete="CASCADE"), nullable=False
     )
-    role: Mapped[str] = mapped_column(
-        String(20), nullable=False
-    )  # child, assistant, system_notice
+    role: Mapped[str] = mapped_column(String(20), nullable=False)  # child, assistant, system_notice
     contenu: Mapped[str] = mapped_column(Text, nullable=False)
     tokens_in: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     tokens_out: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

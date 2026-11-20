@@ -13,7 +13,7 @@ from app.config import get_settings
 
 def create_admin() -> None:
     """Create the admin account interactively."""
-    settings = get_settings()
+    get_settings()
 
     print("=== Création du compte administrateur Lumio ===\n")
     email = input("Email : ").strip()
@@ -33,9 +33,10 @@ def create_admin() -> None:
         sys.exit(1)
 
     async def _create():
-        from app.db.session import async_session
-        from app.db.models import Admin
         from sqlalchemy import select
+
+        from app.db.models import Admin
+        from app.db.session import async_session
 
         async with async_session() as db:
             # Check if admin already exists

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-import uuid
-from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator
+
+if TYPE_CHECKING:
+    import uuid
+    from datetime import datetime
 
 
 # ---------------------------------------------------------------------------
@@ -102,6 +105,7 @@ class ProfileResponse(BaseModel):
 
 class ProfilePublic(BaseModel):
     """Minimal profile info for kid selection screen."""
+
     id: uuid.UUID
     prenom: str
     avatar: str
@@ -180,6 +184,7 @@ class MessageResponse(BaseModel):
 
 class MessageResponseKid(BaseModel):
     """Message response for kids — no moderation/guard details."""
+
     id: uuid.UUID
     conversation_id: uuid.UUID
     role: str

@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
-import uuid
-from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas import (
     ConversationCreate,
@@ -29,9 +26,13 @@ from app.db.models import (
     Message,
     Profile,
     TrustedDevice,
-    UsageDaily,
 )
 from app.services.quota import check_quota_and_schedule, get_remaining_quota, is_within_time_window
+
+if TYPE_CHECKING:
+    import uuid
+
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/api/kid", tags=["kid"])
 settings = get_settings()
@@ -151,9 +152,11 @@ async def send_message(
     # Check quota and schedule
     error_msg = await check_quota_and_schedule(db, profile)
     if error_msg:
+
         async def quota_stream():
             yield f"event: notice\ndata: {json.dumps({'message': error_msg})}\n\n"
             yield f"event: done\ndata: {json.dumps({'message_id': None})}\n\n"
+
         return StreamingResponse(
             quota_stream(),
             media_type="text/event-stream",
@@ -180,8 +183,7 @@ async def send_message(
 
     # Count child messages in this conversation for learner notes trigger
     msg_count_result = await db.execute(
-        select(Message)
-        .where(
+        select(Message).where(
             Message.conversation_id == conversation_id,
             Message.role == "child",
         )
@@ -201,11 +203,6 @@ async def send_message(
 
     # Capture data needed in the closure
     profile_id = profile.id
-    profile_age = profile.age
-    profile_niveau = profile.niveau
-    profile_sujets = profile.sujets_interdits
-    profile_modele = profile.modele
-    profile_prenom = profile.prenom
     child_contenu = body.contenu
 
     async def sse_stream():
@@ -250,10 +247,11 @@ async def send_message(
 
                     # Create safety events
                     from app.services.safety import create_safety_event
+
                     for se in done_data.get("safety_events", []):
                         await create_safety_event(
                             post_db,
-                            type=se["type"],
+                            event_type=se["type"],
                             severity=se["severity"],
                             profile_id=profile_id,
                             conversation_id=conversation_id,
@@ -263,6 +261,7 @@ async def send_message(
 
                     # Increment usage
                     from app.services.quota import increment_usage
+
                     await increment_usage(
                         post_db,
                         profile_id,

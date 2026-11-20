@@ -23,7 +23,9 @@ const TYPE_LABELS: Record<string, string> = {
 
 export function AdminSafetyEvents() {
   const [events, setEvents] = useState<SafetyEventResponse[]>([]);
-  const [filter, setFilter] = useState<"all" | "pending" | "acknowledged">("pending");
+  const [filter, setFilter] = useState<"all" | "pending" | "acknowledged">(
+    "pending",
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +41,9 @@ export function AdminSafetyEvents() {
       await apiPost(`/api/admin/safety-events/${eventId}/ack`);
       setEvents((prev) =>
         prev.map((e) =>
-          e.id === eventId ? { ...e, acknowledged_at: new Date().toISOString() } : e,
+          e.id === eventId
+            ? { ...e, acknowledged_at: new Date().toISOString() }
+            : e,
         ),
       );
     } catch {
@@ -50,27 +54,38 @@ export function AdminSafetyEvents() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-4xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">Alertes de sécurité</h2>
+        <h2 className="mb-6 text-heading font-bold text-foreground">
+          Alertes de sécurité
+        </h2>
 
         {/* Filters */}
         <div className="mb-4 flex gap-2">
           {(["pending", "acknowledged", "all"] as const).map((f) => (
             <button
               key={f}
-              onClick={() => { setFilter(f); setLoading(true); }}
+              onClick={() => {
+                setFilter(f);
+                setLoading(true);
+              }}
               className={`rounded-button px-3 py-1.5 text-small font-medium transition-colors ${
                 filter === f
                   ? "bg-primary text-white"
                   : "border border-border text-foreground-muted hover:bg-surface-alt"
               }`}
             >
-              {f === "pending" ? "En attente" : f === "acknowledged" ? "Acquittées" : "Toutes"}
+              {f === "pending"
+                ? "En attente"
+                : f === "acknowledged"
+                  ? "Acquittées"
+                  : "Toutes"}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <div className="animate-pulse text-foreground-muted">Chargement...</div>
+          <div className="animate-pulse text-foreground-muted">
+            Chargement...
+          </div>
         ) : events.length === 0 ? (
           <div className="py-12 text-center text-body text-foreground-muted">
             Aucune alerte.

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import hashlib
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.sessions import (
     ADMIN_COOKIE,
@@ -18,6 +18,9 @@ from app.auth.sessions import (
 from app.config import get_settings
 from app.db import get_db
 from app.db.models import Admin, Profile, TrustedDevice
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 settings = get_settings()
 
@@ -30,9 +33,7 @@ def get_real_ip(request: Request) -> str:
     return client_host
 
 
-async def require_admin(
-    request: Request, db: AsyncSession = Depends(get_db)
-) -> Admin:
+async def require_admin(request: Request, db: AsyncSession = Depends(get_db)) -> Admin:
     """Require a valid admin session."""
     data = await get_session(
         db, request, cookie_name=ADMIN_COOKIE, max_age=settings.admin_session_max_age
@@ -52,9 +53,7 @@ async def require_admin(
     return admin
 
 
-async def require_kid(
-    request: Request, db: AsyncSession = Depends(get_db)
-) -> Profile:
+async def require_kid(request: Request, db: AsyncSession = Depends(get_db)) -> Profile:
     """Require a valid kid session."""
     data = await get_session(
         db, request, cookie_name=KID_COOKIE, max_age=settings.kid_session_inactivity
@@ -69,7 +68,9 @@ async def require_kid(
     if not profile or not profile.actif:
         raise HTTPException(
             status_code=401,
-            detail={"error": {"code": "profile_inactive", "message": "Ce profil n'est plus actif."}},
+            detail={
+                "error": {"code": "profile_inactive", "message": "Ce profil n'est plus actif."}
+            },
         )
     return profile
 

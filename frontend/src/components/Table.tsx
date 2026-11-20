@@ -4,9 +4,17 @@ interface TableProps {
   emptyMessage?: string;
 }
 
-export function Table({ headers, rows, emptyMessage = "Aucune donnée." }: TableProps) {
+export function Table({
+  headers,
+  rows,
+  emptyMessage = "Aucune donnée.",
+}: TableProps) {
   if (rows.length === 0) {
-    return <p className="py-8 text-center text-body text-foreground-muted">{emptyMessage}</p>;
+    return (
+      <p className="py-8 text-center text-body text-foreground-muted">
+        {emptyMessage}
+      </p>
+    );
   }
 
   return (
@@ -15,7 +23,9 @@ export function Table({ headers, rows, emptyMessage = "Aucune donnée." }: Table
         <thead className="border-b border-border bg-surface-alt">
           <tr>
             {headers.map((h, i) => (
-              <th key={i} className="px-4 py-3 font-semibold text-foreground">{h}</th>
+              <th key={i} className="px-4 py-3 font-semibold text-foreground">
+                {h}
+              </th>
             ))}
           </tr>
         </thead>
@@ -23,7 +33,9 @@ export function Table({ headers, rows, emptyMessage = "Aucune donnée." }: Table
           {rows.map((cells, ri) => (
             <tr key={ri} className="hover:bg-surface-alt">
               {cells.map((cell, ci) => (
-                <td key={ci} className="px-4 py-3 text-foreground">{cell}</td>
+                <td key={ci} className="px-4 py-3 text-foreground">
+                  {cell}
+                </td>
               ))}
             </tr>
           ))}

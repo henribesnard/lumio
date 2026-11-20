@@ -24,7 +24,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden w-56 flex-col border-r border-border bg-surface lg:flex">
         <div className="border-b border-border px-4 py-4">
-          <h1 className="text-subheading font-bold text-foreground">Lumio Admin</h1>
+          <h1 className="text-subheading font-bold text-foreground">
+            Lumio Admin
+          </h1>
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {NAV_ITEMS.map((item) => (
@@ -57,7 +59,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Mobile header */}
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 lg:hidden">
-          <h1 className="text-subheading font-bold text-foreground">Lumio Admin</h1>
+          <h1 className="text-subheading font-bold text-foreground">
+            Lumio Admin
+          </h1>
           <button
             onClick={handleLogout}
             className="text-small text-foreground-muted"

@@ -31,21 +31,23 @@ export function PinPad({
         onChange(value + key);
       }
     },
-    [disabled, value, maxLength, onChange]
+    [disabled, value, maxLength, onChange],
   );
 
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Dots */}
-      <div className="flex gap-3" role="status" aria-label={`${value.length} sur ${maxLength} chiffres saisis`}>
+      <div
+        className="flex gap-3"
+        role="status"
+        aria-label={`${value.length} sur ${maxLength} chiffres saisis`}
+      >
         {Array.from({ length: maxLength }).map((_, i) => (
           <div
             key={i}
             className={[
               "w-4 h-4 rounded-full transition-colors duration-150",
-              i < value.length
-                ? "bg-primary"
-                : "bg-border",
+              i < value.length ? "bg-primary" : "bg-border",
               error ? "bg-danger" : "",
             ]
               .filter(Boolean)

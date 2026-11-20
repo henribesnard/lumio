@@ -22,12 +22,15 @@ const SUGGESTIONS_BY_AGE: Record<string, string[]> = {
 export function KidConversationsPage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [conversations, setConversations] = useState<ConversationResponse[]>([]);
+  const [conversations, setConversations] = useState<ConversationResponse[]>(
+    [],
+  );
   const [me, setMe] = useState<KidMeResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const ageBracket = me ? (me.age <= 8 ? "6-8" : "9-14") : "9-14";
-  const canChat = !me?.hors_plage_horaire && (me?.quota_messages_restant ?? 0) > 0;
+  const canChat =
+    !me?.hors_plage_horaire && (me?.quota_messages_restant ?? 0) > 0;
 
   useEffect(() => {
     Promise.all([
@@ -44,7 +47,10 @@ export function KidConversationsPage() {
 
   async function handleNewConversation() {
     try {
-      const conv = await apiPost<ConversationResponse>("/api/kid/conversations", {});
+      const conv = await apiPost<ConversationResponse>(
+        "/api/kid/conversations",
+        {},
+      );
       navigate(`/chat/${conv.id}`);
     } catch {
       // handled by error boundary
@@ -58,18 +64,29 @@ export function KidConversationsPage() {
 
   if (loading) {
     return (
-      <div data-age={ageBracket} className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse text-foreground-muted text-heading">Chargement...</div>
+      <div
+        data-age={ageBracket}
+        className="flex min-h-screen items-center justify-center bg-background"
+      >
+        <div className="animate-pulse text-foreground-muted text-heading">
+          Chargement...
+        </div>
       </div>
     );
   }
 
   const quotaPercent = me
-    ? Math.round(((me.quota_messages_restant ?? 0) / (me.quota_messages_jour ?? 50)) * 100)
+    ? Math.round(
+        ((me.quota_messages_restant ?? 0) / (me.quota_messages_jour ?? 50)) *
+          100,
+      )
     : 100;
 
   return (
-    <div data-age={ageBracket} className="flex min-h-screen flex-col bg-background">
+    <div
+      data-age={ageBracket}
+      className="flex min-h-screen flex-col bg-background"
+    >
       {/* Header */}
       <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3">
         <div className="flex items-center gap-3">
@@ -108,12 +125,14 @@ export function KidConversationsPage() {
       {/* Notices */}
       {me?.hors_plage_horaire && (
         <div className="bg-warning/10 px-4 py-3 text-center text-small text-warning">
-          Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les heures autorisées !
+          Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les
+          heures autorisées !
         </div>
       )}
       {me && me.quota_messages_restant <= 0 && (
         <div className="bg-info/10 px-4 py-3 text-center text-small text-info">
-          Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve demain !
+          Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve
+          demain !
         </div>
       )}
 
@@ -136,17 +155,17 @@ export function KidConversationsPage() {
                 Des idées pour commencer :
               </p>
               <div className="grid grid-cols-2 gap-2">
-                {(SUGGESTIONS_BY_AGE[ageBracket] ?? SUGGESTIONS_BY_AGE["9-14"]).map(
-                  (suggestion) => (
-                    <button
-                      key={suggestion}
-                      onClick={handleNewConversation}
-                      className="rounded-card border border-border bg-surface px-3 py-3 text-left text-small text-foreground transition-colors hover:bg-surface-alt"
-                    >
-                      {suggestion}
-                    </button>
-                  ),
-                )}
+                {(
+                  SUGGESTIONS_BY_AGE[ageBracket] ?? SUGGESTIONS_BY_AGE["9-14"]
+                ).map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    onClick={handleNewConversation}
+                    className="rounded-card border border-border bg-surface px-3 py-3 text-left text-small text-foreground transition-colors hover:bg-surface-alt"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -166,7 +185,9 @@ export function KidConversationsPage() {
                   className="flex w-full items-center justify-between rounded-card bg-surface px-4 py-3 text-left shadow-card transition-colors hover:bg-surface-alt"
                 >
                   <div>
-                    <p className="text-body font-medium text-foreground">{conv.titre}</p>
+                    <p className="text-body font-medium text-foreground">
+                      {conv.titre}
+                    </p>
                     <p className="text-tiny text-foreground-muted">
                       {new Date(conv.updated_at).toLocaleDateString("fr-FR", {
                         day: "numeric",

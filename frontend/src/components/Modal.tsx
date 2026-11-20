@@ -16,7 +16,9 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   if (!open) return null;
@@ -25,12 +27,19 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onClick={(e) => {
+        if (e.target === overlayRef.current) onClose();
+      }}
     >
       <div className="w-full max-w-lg rounded-card bg-surface p-6 shadow-modal">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-subheading font-bold text-foreground">{title}</h2>
-          <button onClick={onClose} className="text-foreground-muted hover:text-foreground text-heading">&times;</button>
+          <button
+            onClick={onClose}
+            className="text-foreground-muted hover:text-foreground text-heading"
+          >
+            &times;
+          </button>
         </div>
         {children}
       </div>

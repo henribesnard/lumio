@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Profile, UsageDaily
 from app.services.quota import (
@@ -14,6 +14,9 @@ from app.services.quota import (
     get_remaining_quota,
     is_within_time_window,
 )
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TestQuota:

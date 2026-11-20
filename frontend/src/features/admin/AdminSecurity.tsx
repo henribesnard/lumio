@@ -22,7 +22,9 @@ export function AdminSecurity() {
 
   async function handleStartSetup() {
     try {
-      const data = await apiPost<{ secret: string; uri: string }>("/api/admin/totp/setup");
+      const data = await apiPost<{ secret: string; uri: string }>(
+        "/api/admin/totp/setup",
+      );
       setSetupSecret(data.secret);
       setSetupUri(data.uri);
       setShowSetup(true);
@@ -68,7 +70,9 @@ export function AdminSecurity() {
 
   return (
     <AdminLayout>
-      <h2 className="mb-6 text-heading font-bold text-foreground">Sécurité du compte</h2>
+      <h2 className="mb-6 text-heading font-bold text-foreground">
+        Sécurité du compte
+      </h2>
 
       <div className="max-w-lg rounded-card bg-surface p-6 shadow-card">
         <h3 className="mb-2 text-subheading font-semibold text-foreground">
@@ -90,7 +94,8 @@ export function AdminSecurity() {
         ) : showSetup ? (
           <div className="space-y-4">
             <p className="text-body text-foreground-muted">
-              Scannez ce code dans votre application d'authentification (Google Authenticator, Authy, etc.) :
+              Scannez ce code dans votre application d'authentification (Google
+              Authenticator, Authy, etc.) :
             </p>
 
             <div className="rounded-input bg-surface-alt p-3">
@@ -99,9 +104,7 @@ export function AdminSecurity() {
               </p>
             </div>
 
-            <p className="text-tiny text-foreground-muted">
-              URI : {setupUri}
-            </p>
+            <p className="text-tiny text-foreground-muted">URI : {setupUri}</p>
 
             <div>
               <label
@@ -145,7 +148,8 @@ export function AdminSecurity() {
         ) : (
           <div>
             <p className="mb-4 text-body text-foreground-muted">
-              Ajoutez une couche de sécurité supplémentaire avec un code temporaire.
+              Ajoutez une couche de sécurité supplémentaire avec un code
+              temporaire.
             </p>
             <button
               onClick={handleStartSetup}

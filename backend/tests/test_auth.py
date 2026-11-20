@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-import hashlib
-from datetime import datetime, timedelta
-from unittest.mock import patch
+from typing import TYPE_CHECKING
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.passwords import hash_pin, is_trivial_pin, verify_pin
-from app.db.models import Admin, Profile, SessionRecord, TrustedDevice
+from app.db.models import Admin, Profile
+
+if TYPE_CHECKING:
+    from httpx import AsyncClient
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 # ---------------------------------------------------------------------------
@@ -66,7 +66,7 @@ class TestAdminLogin:
 
     @pytest.mark.asyncio
     async def test_lockout_after_5_failures(self, client: AsyncClient, admin_user: Admin):
-        for i in range(5):
+        for _i in range(5):
             response = await client.post(
                 "/api/auth/admin/login",
                 json={"email": "admin@test.com", "password": "wrong"},
@@ -110,14 +110,12 @@ class TestKidLogin:
         assert response.status_code == 401
 
     @pytest.mark.asyncio
-    async def test_pin_lockout(
-        self, client: AsyncClient, child_profile: Profile, trusted_device
-    ):
+    async def test_pin_lockout(self, client: AsyncClient, child_profile: Profile, trusted_device):
         device, token = trusted_device
         from tests.conftest import make_device_cookie
 
         cookies = make_device_cookie(token)
-        for i in range(5):
+        for _i in range(5):
             response = await client.post(
                 "/api/auth/kid/login",
                 json={"profile_id": str(child_profile.id), "pin": "9999"},

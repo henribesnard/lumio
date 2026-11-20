@@ -4,21 +4,19 @@ from __future__ import annotations
 
 import hashlib
 import os
-import uuid
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.config import Settings, get_settings
-from app.db.base import Base
-from app.db.models import Admin, Profile, TrustedDevice
 from app.auth.passwords import hash_password, hash_pin
 from app.auth.sessions import _sign
+from app.config import Settings
+from app.db.base import Base
+from app.db.models import Admin, Profile, TrustedDevice
 
 # Detect database backend from env — defaults to SQLite for local dev
 _TEST_DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///")
@@ -71,8 +69,8 @@ async def db_session(db_engine):
 # ---------------------------------------------------------------------------
 @pytest_asyncio.fixture
 async def app(db_engine):
-    from app.main import app as fastapi_app
     from app.db.session import get_db
+    from app.main import app as fastapi_app
 
     test_session = async_sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -146,7 +144,7 @@ async def second_profile(db_session: AsyncSession) -> Profile:
 
 @pytest_asyncio.fixture
 async def trusted_device(db_session: AsyncSession) -> tuple[TrustedDevice, str]:
-    token = "test-device-token-abc123"
+    token = "test-device-token-abc123"  # noqa: S105
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     device = TrustedDevice(
         label="Test Device",
@@ -160,17 +158,23 @@ async def trusted_device(db_session: AsyncSession) -> tuple[TrustedDevice, str]:
 
 def make_admin_cookies(admin: Admin) -> dict:
     """Create signed admin session cookies for testing."""
-    from app.auth.sessions import _sign, ADMIN_COOKIE, CSRF_COOKIE
     import secrets
+
+    from app.auth.sessions import ADMIN_COOKIE, CSRF_COOKIE
 
     session_id = "test-admin-session"
     csrf_token = secrets.token_urlsafe(32)
-    return {
-        ADMIN_COOKIE: _sign(session_id),
-        CSRF_COOKIE: csrf_token,
-    }, csrf_token, session_id
+    return (
+        {
+            ADMIN_COOKIE: _sign(session_id),
+            CSRF_COOKIE: csrf_token,
+        },
+        csrf_token,
+        session_id,
+    )
 
 
 def make_device_cookie(token: str) -> dict:
-    from app.auth.sessions import DEVICE_COOKIE, _sign
+    from app.auth.sessions import DEVICE_COOKIE
+
     return {DEVICE_COOKIE: _sign(token)}
