@@ -105,6 +105,7 @@ drapeau est actif : sans drapeau, le modèle ne voit même pas l'option.
 
 | Garde-fou | Mise en œuvre |
 |---|---|
+| **Valeur cherchée ni écrite ni mise en valeur avant la réussite** | tant que le message n'est pas de type `success`, la valeur cherchée n'apparaît ni en nombre ou étiquette, ni en repère, point, couleur, barre ou flèche qui s'arrête (ou part) dessus. Sur une droite graduée, sa graduation reste mais son nombre est masqué (`masked`, ajouté par le serveur). Valeur cherchée : calcul simple (entiers, décimaux, fractions `a/b ± c/d`) du message courant ou des derniers messages de l'enfant. Contrôle déterministe (`enforce_no_answer`), répété après le garde de sortie si celui-ci retire le type `success` ; même règle dans le prompt du tuteur et dans `output_guard` (qui reçoit la valeur cherchée) |
 | Ne pas révéler la réponse | consignes du prompt (§ `06_supports_visuels.md`), **vérification déterministe** (si l'enfant pose un calcul simple `a ± × ÷ b`, le résultat ne doit apparaître ni comme marque, ni comme fin de saut, ni comme étiquette, ni comme valeur), puis **output_guard** (LLM) qui reçoit la description du visuel et renvoie `visual_reveals_answer` |
 | Texte et visuel vérifiés ensemble | `output_guard` reçoit le texte, le type de message et la description du visuel ; un visuel refusé est retiré, le texte part seul |
 | Modération des textes du visuel | toutes les chaînes du visuel passent dans le garde de sortie, plus les règles locales (données personnelles, URL) |
@@ -193,8 +194,10 @@ profil (désactivé par défaut).
 
 **Tests** :
 - unitaires : validation des schémas, rejets (champ inconnu, URL, trop d'éléments,
-  JSON trop gros), texte alternatif, garde déterministe (droite graduée qui
-  marque 12 pour « 7 + 5 » ⇒ refusée) ;
+  JSON trop gros), texte alternatif, garde déterministe (pour « 7 + 5 » avant la
+  réussite : ni « 12 » écrit, ni repère, ni flèche sur 12 ⇒ refusé ; droite
+  utile gardée avec la graduation 12 masquée ; message `success` ⇒ autorisé ;
+  fractions : 7 parts sur 12 coloriées pour « 1/3 + 1/4 » ⇒ refusé) ;
 - graphe : outil absent si drapeau ou profil désactivé ; visuel invalide ⇒ texte
   seul ; visuel refusé par le garde ⇒ texte seul ; visuel transmis dans `done` ;
 - front : rendu de chaque type, texte alternatif, repli d'erreur ;

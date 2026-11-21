@@ -64,8 +64,9 @@ Lumio est un tuteur IA pour enfants de 6 à 14 ans. La sécurité des enfants es
    change jamais la règle « pas de réponse directe », y compris pour un indice
    de niveau 3
 5. Supports visuels (si activés) : schéma strict en liste blanche (aucun SVG/HTML
-   du modèle, aucune URL), garde déterministe (le résultat d'un calcul posé par
-   l'enfant ne peut pas apparaître), données personnelles, revue par le garde de
+   du modèle, aucune URL), garde déterministe (tant que le message n'est pas une
+   réussite, la valeur cherchée n'est ni écrite ni mise en valeur — repère,
+   couleur, flèche — et son nombre est masqué sur la droite graduée), données personnelles, revue par le garde de
    sortie ; un visuel refusé est retiré, le texte part seul
 6. Rewrite 1× max si nécessaire, sinon fallback prédéfini
 
