@@ -568,3 +568,40 @@ class TestSoughtValueParsing:
             None,
             "reveals_answer",
         )
+
+
+class TestSuccessNeedsConfirmation:
+    REVEALING = {**NUMBER_LINE, "jumps": [{"start": 7, "end": 12, "label": "+5"}]}
+    SUCCESS = '{"type":"success","text":"Bravo !"}'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "verdict",
+        [
+            {"status": "ok"},  # verdict sans type_ok (garde en erreur)
+            {"status": "ok", "type_ok": None},
+        ],
+    )
+    async def test_unconfirmed_success_drops_revealing_visual(self, verdict):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(self.SUCCESS, self.REVEALING))
+        guard = AsyncMock(return_value=verdict)
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["visual"] is None
+        assert done["output_verdict"]["visual_dropped"] == "reveals_answer"
+
+    @pytest.mark.asyncio
+    async def test_guard_exception_drops_revealing_visual(self):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(self.SUCCESS, self.REVEALING))
+        guard = AsyncMock(side_effect=RuntimeError("guard down"))
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["visual"] is None
+
+    @pytest.mark.asyncio
+    async def test_unconfirmed_success_keeps_safe_visual_masked(self):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(self.SUCCESS, NUMBER_LINE))
+        guard = AsyncMock(return_value={"status": "ok"})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["visual"] is not None and done["visual"]["masked"] == [12.0]

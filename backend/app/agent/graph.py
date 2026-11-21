@@ -496,9 +496,13 @@ async def run_agent(
     hint_level = reply.hint_level if kind == "hint" else None
 
     # Final kind may differ (e.g. « success » refused by the guard): re-apply the
-    # no-answer rule so a result is only ever shown in a success message.
+    # no-answer rule so a result is only ever shown in a success message. A
+    # visual may show the result only if the guard explicitly confirmed the
+    # success (type_ok is True); a missing verdict (guard error) is not a yes.
     if visual is not None:
-        visual, reason = enforce_no_answer(visual, answer, kind)
+        confirmed_success = kind == "success" and output_verdict.get("type_ok") is True
+        visual_kind = kind if kind != "success" or confirmed_success else None
+        visual, reason = enforce_no_answer(visual, answer, visual_kind)
         visual_drop_reason = visual_drop_reason or reason
     if visual_drop_reason:
         output_verdict = {**output_verdict, "visual_dropped": visual_drop_reason}
