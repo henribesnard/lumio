@@ -304,14 +304,21 @@ def alt_text(spec: dict[str, Any]) -> str:
 # (the child counts on it) but its number is masked (``masked`` in the spec).
 
 _NUM = r"-?\d+(?:[.,]\d+)?"
-_FRAC_RE = re.compile(
-    r"(\d+)\s*/\s*(\d+)\s*(\+|-|−|x|×|\*|÷|:|plus|moins|fois)\s*(\d+)\s*/\s*(\d+)",
-    re.IGNORECASE,
-)
+# An operand is a fraction (« 1/2 ») or a number (« 7 », « 2,5 »): the fraction
+# alternative comes first so « 1/2 + 1 » reads as (1/2) + 1, not 1 / 2. When
+# no operator follows, the regex backtracks and « 6 / 3 » stays a division.
+_OPERAND = rf"(?:\d+\s*/\s*\d+|{_NUM})"
 _CALC_RE = re.compile(
-    rf"({_NUM})\s*(\+|-|−|x|×|\*|÷|/|:|plus|moins|fois|divisé par)\s*({_NUM})",
+    rf"({_OPERAND})\s*(\+|-|−|x|×|\*|÷|/|:|plus|moins|fois|divisé par)\s*({_OPERAND})",
     re.IGNORECASE,
 )
+
+
+def _operand(text: str) -> Fraction | None:
+    if "/" in text:
+        num, den = (int(x) for x in text.split("/"))
+        return Fraction(num, den) if den else None
+    return Fraction(text.replace(",", ".").strip())
 
 
 def _apply(a: Fraction, op: str, b: Fraction) -> Fraction | None:
@@ -328,20 +335,16 @@ def _apply(a: Fraction, op: str, b: Fraction) -> Fraction | None:
 
 
 def arithmetic_answer(child_message: str) -> Fraction | None:
-    """Result of a simple calculation asked by the child (« 7 + 5 ? », « 1/3 + 1/4 »)."""
-    text = child_message or ""
-    m = _FRAC_RE.search(text)
-    if m and int(m.group(2)) and int(m.group(5)):
-        return _apply(
-            Fraction(int(m.group(1)), int(m.group(2))),
-            m.group(3),
-            Fraction(int(m.group(4)), int(m.group(5))),
-        )
-    m = _CALC_RE.search(text)
+    """Result of a simple calculation asked by the child.
+
+    « 7 + 5 ? », « 1/3 + 1/4 », « 1/2 + 1 », « 2,5 × 4 », « 6 / 3 ».
+    """
+    m = _CALC_RE.search(child_message or "")
     if not m:
         return None
-    a = Fraction(m.group(1).replace(",", "."))
-    b = Fraction(m.group(3).replace(",", "."))
+    a, b = _operand(m.group(1)), _operand(m.group(3))
+    if a is None or b is None:
+        return None
     return _apply(a, m.group(2), b)
 
 

@@ -537,3 +537,34 @@ class TestChartAxisMasking:
         spec = validate_visual(VALID["chart"])
         out, _ = enforce_no_answer(spec, TWELVE, "success")
         assert out is not None and "masked" not in out
+
+
+class TestSoughtValueParsing:
+    @pytest.mark.parametrize(
+        ("message", "expected"),
+        [
+            ("C'est combien 7 + 5 ?", Fraction(12)),
+            ("1/2 + 1 ?", Fraction(3, 2)),
+            ("2 + 1/2", Fraction(5, 2)),
+            ("1/3 + 1/4", Fraction(7, 12)),
+            ("3/4 - 1/2", Fraction(1, 4)),
+            ("1/2 × 4", Fraction(2)),
+            ("6 / 3 ?", Fraction(2)),
+            ("2,5 + 1", Fraction(7, 2)),
+            ("6 fois 7", Fraction(42)),
+            ("1/0 + 1", None),
+            ("Pourquoi il pleut ?", None),
+        ],
+    )
+    def test_parsing(self, message, expected):
+        assert sought_value(message) == expected
+
+    def test_mixed_fraction_result_shown_is_dropped(self):
+        spec = validate_visual(
+            {**VALID["chart"], "series": [{"name": "x", "values": [1, 1.5, 2, None]}]}
+        )
+        assert spec is not None
+        assert enforce_no_answer(spec, sought_value("1/2 + 1 ?"), "hint") == (
+            None,
+            "reveals_answer",
+        )
