@@ -67,6 +67,24 @@ describe("VisualAid", () => {
     expect(texts).toContain("0,333333");
   });
 
+  it("graphique : la graduation de l'axe égale à la valeur cherchée n'est pas écrite", () => {
+    const spec: VisualSpec = {
+      kind: "chart",
+      title: "Points",
+      chart_type: "bar",
+      x_labels: ["a", "b"],
+      series: [{ name: "s", values: [5, 11] }],
+      masked: [12],
+    };
+    const { container } = render(<VisualAid spec={spec} />);
+    const texts = [...container.querySelectorAll("text")].map(
+      (t) => t.textContent,
+    );
+    // axe 0 → 20 gradué de 4 en 4 : 12 est masqué, les autres restent
+    expect(texts).toEqual(expect.arrayContaining(["0", "4", "8", "16", "20"]));
+    expect(texts).not.toContain("12");
+  });
+
   it("repli lisible si le type est inconnu", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     render(

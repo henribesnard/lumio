@@ -27,6 +27,12 @@ export function Chart({ spec }: { spec: ChartVisual }) {
   const slot = (W - L - R) / n;
   const cx = (i: number) => L + slot * i + slot / 2;
   const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1].map((f) => minV + f * (maxV - minV));
+  // Valeur cherchée : la ligne de l'axe reste, son nombre n'est jamais écrit
+  // (comparaison à la précision d'affichage, arrondi au centième).
+  const isMasked = (t: number) =>
+    (spec.masked ?? []).some(
+      (m) => Math.abs(Math.round(t * 100) / 100 - m) < 0.005,
+    );
   const ns = spec.series.length;
   const bw = Math.min(46, (slot * 0.7) / ns);
   return (
@@ -42,16 +48,18 @@ export function Chart({ spec }: { spec: ChartVisual }) {
             style={{ stroke: C.grid }}
             strokeWidth={1.5}
           />
-          <text
-            x={L - 8}
-            y={y(t) + 5}
-            textAnchor="end"
-            fontFamily={FONT}
-            fontSize={15}
-            style={{ fill: C.muted }}
-          >
-            {fmt(Math.round(t * 100) / 100)}
-          </text>
+          {!isMasked(t) && (
+            <text
+              x={L - 8}
+              y={y(t) + 5}
+              textAnchor="end"
+              fontFamily={FONT}
+              fontSize={15}
+              style={{ fill: C.muted }}
+            >
+              {fmt(Math.round(t * 100) / 100)}
+            </text>
+          )}
         </g>
       ))}
       <path

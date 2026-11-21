@@ -164,6 +164,8 @@ export interface ChartVisual extends VisualBase {
   x_labels: string[];
   series: { name: string; values: (number | null)[] }[];
   y_label?: string;
+  /** graduations de l'axe dont le nombre n'est jamais écrit (valeur cherchée) */
+  masked?: number[];
 }
 
 export interface ShapeVisual extends VisualBase {

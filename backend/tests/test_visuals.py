@@ -520,3 +520,20 @@ class TestFractionalPrecision:
     def test_whole_numbers_stay_exact(self):
         spec = _nl(marks=[{"value": 11.5}])
         assert not reveals_answer(spec, TWELVE)
+
+
+class TestChartAxisMasking:
+    @pytest.mark.parametrize("kind", NON_SUCCESS)
+    def test_chart_axis_masks_sought_value(self, kind):
+        spec = validate_visual(
+            {**VALID["chart"], "series": [{"name": "x", "values": [5, 11, 3, None]}]}
+        )
+        assert spec is not None
+        out, reason = enforce_no_answer(spec, TWELVE, kind)
+        assert reason is None and out is not None
+        assert out["masked"] == [12.0]
+
+    def test_success_chart_not_masked(self):
+        spec = validate_visual(VALID["chart"])
+        out, _ = enforce_no_answer(spec, TWELVE, "success")
+        assert out is not None and "masked" not in out

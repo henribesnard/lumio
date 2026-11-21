@@ -422,8 +422,16 @@ def reveals_answer(spec: dict[str, Any], answer: Fraction | None) -> bool:
 
 
 def mask_answer(spec: dict[str, Any], answer: Fraction | None) -> dict[str, Any]:
-    """Number line: keep the tick of the sought value but never write its number."""
-    if answer is None or spec.get("kind") != "number_line":
+    """Generated graduations keep their line but never write the sought value.
+
+    Number line: its ticks. Chart: its y-axis ticks, computed by the renderer
+    (the server does not know the axis range, so the value is always masked).
+    """
+    if answer is None:
+        return spec
+    if spec.get("kind") == "chart":
+        return {**spec, "masked": [float(answer)]}
+    if spec.get("kind") != "number_line":
         return spec
     if not spec["min"] <= float(answer) <= spec["max"]:
         return spec
