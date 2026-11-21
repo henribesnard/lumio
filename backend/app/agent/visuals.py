@@ -358,24 +358,43 @@ def sought_value(child_message: str, previous_child_messages: list[str] | None =
     return None
 
 
-def _numbers_in(text: str) -> list[Fraction]:
-    """Numbers and fractions written in a label (« 12 », « 2,5 », « 7/12 »)."""
-    out: list[Fraction] = []
+def _numbers_in(text: str) -> list[Fraction | float]:
+    """Numbers and fractions written in a label (« 12 », « 2,5 », « 7/12 »).
+
+    Fractions stay exact; decimals are floats so that a rounded value
+    (« 0,67 » for 2/3) is compared at the precision it is written.
+    """
+    out: list[Fraction | float] = []
     for a, b in re.findall(r"(\d+)\s*/\s*(\d+)", text or ""):
         if int(b):
             out.append(Fraction(int(a), int(b)))
     for n in re.findall(_NUM, text or ""):
-        out.append(Fraction(n.replace(",", ".")))
+        out.append(float(n.replace(",", ".")))
     return out
 
 
 def _eq(x: Any, ans: Fraction) -> bool:
+    """Does ``x`` show ``ans`` *at the precision it is written*?
+
+    Exact for whole numbers; a rounded decimal counts as showing the answer
+    (0,67 or 0,7 for 2/3), since the child reads it as the result.
+    """
     if x is None:
         return False
     try:
-        return abs(float(x) - float(ans)) < 1e-9
+        if isinstance(x, Fraction):
+            return x == ans
+        xf = float(x)
+        af = float(ans)
     except (TypeError, ValueError):
         return False
+    if abs(xf - af) < 1e-9:
+        return True
+    if xf.is_integer():
+        return False
+    # number of decimals as written (« 0.667 » → 3), capped at 6
+    decimals = min(6, len(f"{xf:.6f}".rstrip("0").split(".")[1]))
+    return round(af, decimals) == round(xf, decimals)
 
 
 def reveals_answer(spec: dict[str, Any], answer: Fraction | None) -> bool:

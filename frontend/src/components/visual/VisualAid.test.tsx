@@ -50,6 +50,23 @@ describe("VisualAid", () => {
     expect(container.querySelectorAll("svg > g > path")).toHaveLength(6);
   });
 
+  it("pas fractionnaire : la graduation masquée (2/3) n'est pas écrite", () => {
+    const spec: VisualSpec = {
+      kind: "number_line",
+      title: "1/3 + 1/3",
+      min: 0,
+      max: 1,
+      step: 1 / 3,
+      masked: [2 / 3],
+    };
+    const { container } = render(<VisualAid spec={spec} />);
+    const texts = [...container.querySelectorAll("text")].map(
+      (t) => t.textContent ?? "",
+    );
+    expect(texts.some((t) => t.startsWith("0,6"))).toBe(false);
+    expect(texts).toContain("0,333333");
+  });
+
   it("repli lisible si le type est inconnu", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     render(

@@ -477,3 +477,46 @@ async def test_profile_export_includes_visual(
     msg = r.json()["conversations"][0]["messages"][0]
     assert msg["visual"]["kind"] == "number_line"
     assert msg["kind"] == "hint" and msg["hint_level"] == 2
+
+
+class TestFractionalPrecision:
+    def test_fractional_step_masks_two_thirds(self):
+        ans = sought_value("1/3 + 1/3 ?")
+        assert ans == Fraction(2, 3)
+        spec = validate_visual(
+            {
+                "kind": "number_line",
+                "title": "Des tiers",
+                "min": 0,
+                "max": 1,
+                "step": 1 / 3,
+                "jumps": [{"start": 0, "end": 1 / 3, "label": "+1/3"}],
+            }
+        )
+        assert spec is not None
+        out, reason = enforce_no_answer(spec, ans, "hint")
+        assert reason is None and out is not None
+        assert out["masked"] and abs(out["masked"][0] - 2 / 3) < 1e-9
+
+    @pytest.mark.parametrize("value", [0.67, 0.667, 0.6667, 0.7])
+    def test_rounded_mark_counts_as_the_answer(self, value):
+        spec = validate_visual(
+            {
+                "kind": "number_line",
+                "title": "Des tiers",
+                "min": 0,
+                "max": 1,
+                "step": 0.1,
+                "marks": [{"value": value}],
+            }
+        )
+        assert spec is not None
+        assert enforce_no_answer(spec, Fraction(2, 3), "hint") == (None, "reveals_answer")
+
+    def test_rounded_label_counts_as_the_answer(self):
+        spec = validate_visual({**VALID["timeline"], "title": "Environ 0,67"})
+        assert spec is not None and reveals_answer(spec, Fraction(2, 3))
+
+    def test_whole_numbers_stay_exact(self):
+        spec = _nl(marks=[{"value": 11.5}])
+        assert not reveals_answer(spec, TWELVE)
