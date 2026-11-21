@@ -20,6 +20,7 @@ from app.agent.moderation import (
 from app.agent.prompts.builder import build_system_prompt, get_age_bracket
 from app.agent.tutor_output import TutorReply, parse_tutor_output
 from app.agent.visuals import (
+    describe_for_guard,
     enforce_no_answer,
     sought_value,
     validate_visual,
@@ -407,6 +408,10 @@ async def run_agent(
                             ]
                         )
                         raw = follow.content if isinstance(follow.content, str) else ""
+                        # the follow-up is a real tutor call: count it in the quota
+                        follow_usage = getattr(follow, "usage_metadata", None) or {}
+                        total_tokens_in += follow_usage.get("input_tokens", 0)
+                        total_tokens_out += follow_usage.get("output_tokens", 0)
                     except Exception as e:
                         logger.error("Follow-up after show_visual failed: %s", e)
 
@@ -443,7 +448,7 @@ async def run_agent(
                 niveau=profile.niveau,
                 message_type=reply.kind,
                 hint_level=reply.hint_level,
-                visual_description=visual["alt"] if visual else None,
+                visual_description=describe_for_guard(visual) if visual else None,
                 sought_value=_fmt_answer(answer) if visual else None,
             )
         except Exception as e:

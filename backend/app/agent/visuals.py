@@ -235,7 +235,10 @@ def _fmt(x: float) -> str:
     return str(int(x)) if float(x).is_integer() else str(x).replace(".", ",")
 
 
-def alt_text(spec: dict[str, Any]) -> str:
+ALT_MAX_CHARS = 600
+
+
+def alt_text(spec: dict[str, Any], limit: int | None = ALT_MAX_CHARS) -> str:
     """Accessible description generated from the spec (French)."""
     kind = spec.get("kind")
     title = spec.get("title", "")
@@ -262,6 +265,8 @@ def alt_text(spec: dict[str, Any]) -> str:
     elif kind == "chart":
         t = "Diagramme en barres" if spec["chart_type"] == "bar" else "Courbe"
         parts.append(f"{t}.")
+        if spec.get("y_label"):
+            parts.append(f"Axe vertical : {spec['y_label']}.")
         for s in spec["series"]:
             vals = ", ".join(
                 f"{x} : {_fmt(v) if v is not None else 'à trouver'}"
@@ -291,7 +296,16 @@ def alt_text(spec: dict[str, Any]) -> str:
         parts.append(f"Frise chronologique : {ev}.")
     if spec.get("caption"):
         parts.append(spec["caption"])
-    return " ".join(parts)[:600]
+    text = " ".join(parts)
+    return text if limit is None else text[:limit]
+
+
+def describe_for_guard(spec: dict[str, Any]) -> str:
+    """Full, untruncated description for output_guard: the generated
+    description plus every string the renderer displays, so nothing shown to
+    the child escapes the guard's review."""
+    full = alt_text(spec, limit=None)
+    return f"{full} Textes affichés : {' | '.join(visual_texts(spec))}"
 
 
 # ---------------------------------------------------------------------------------

@@ -605,3 +605,39 @@ class TestSuccessNeedsConfirmation:
         guard = AsyncMock(return_value={"status": "ok"})
         done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
         assert done["visual"] is not None and done["visual"]["masked"] == [12.0]
+
+
+class TestReviewFollowUps:
+    @pytest.mark.asyncio
+    async def test_follow_up_tokens_are_counted(self):
+        first = _response("", NUMBER_LINE)  # appel d'outil sans texte
+        first.usage_metadata = {"input_tokens": 100, "output_tokens": 20}
+        follow = _response(TEXT)
+        follow.usage_metadata = {"input_tokens": 130, "output_tokens": 15}
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(side_effect=[first, follow])
+        guard = AsyncMock(return_value={"status": "ok"})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["full_text"].startswith("Regarde la feuille")
+        assert done["tokens_in"] == 230 and done["tokens_out"] == 35
+
+    @pytest.mark.asyncio
+    async def test_guard_gets_untruncated_description_with_all_texts(self):
+        spec = {
+            "kind": "chart",
+            "title": "Relevés de la semaine",
+            "chart_type": "bar",
+            "x_labels": [f"Jour numéro {i:02d}" for i in range(12)],
+            "series": [{"name": f"Série {k}", "values": list(range(1, 13))} for k in ("A", "B")]
+            + [{"name": "Texte tout au bout", "values": list(range(1, 13))}],
+            "y_label": "Étiquette finale",
+        }
+        validated = validate_visual(spec)
+        assert validated is not None and len(validated["alt"]) == 600  # tronqué pour l'écran
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, spec))
+        guard = AsyncMock(return_value={"status": "ok"})
+        await _run(llm, guard, flag=True, profile_on=True, message="Lis le graphique")
+        described = guard.call_args.kwargs["visual_description"]
+        assert len(described) > 600
+        assert "Texte tout au bout" in described and "Étiquette finale" in described
