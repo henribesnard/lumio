@@ -641,3 +641,33 @@ class TestReviewFollowUps:
         described = guard.call_args.kwargs["visual_description"]
         assert len(described) > 600
         assert "Texte tout au bout" in described and "Étiquette finale" in described
+
+
+class TestWholeExpression:
+    @pytest.mark.parametrize(
+        ("message", "expected"),
+        [
+            ("C'est combien 7 + 5 - 2 ?", Fraction(10)),
+            ("7+5-2", Fraction(10)),
+            ("2 + 3 × 4", Fraction(14)),
+            ("(3 + 4) × 2 ?", Fraction(14)),
+            ("12 - 4 - 3", Fraction(5)),
+            ("20 ÷ 4 + 1", Fraction(6)),
+            ("1/2 + 1/4 + 1/4", Fraction(1)),
+            ("-3 + 5", Fraction(2)),
+            ("7-5", Fraction(2)),
+            ("(7 + 5", Fraction(12)),
+            ("8 ÷ (4 - 4)", None),
+        ],
+    )
+    def test_whole_expression(self, message, expected):
+        assert sought_value(message) == expected
+
+    def test_final_result_of_chain_is_protected(self):
+        ans = sought_value("7 + 5 - 2 ?")
+        spec = _nl(jumps=[{"start": 12, "end": 10, "label": "-2"}])
+        assert enforce_no_answer(spec, ans, "hint") == (None, "reveals_answer")
+        # le saut 7 → 10 du fixture arrive sur 10 : retiré ; une droite sans repère est gardée
+        assert enforce_no_answer(_nl(), ans, "hint")[0] is None
+        ok, _ = enforce_no_answer(_nl(jumps=[{"start": 0, "end": 7}]), ans, "hint")
+        assert ok is not None and ok["masked"] == [10.0]

@@ -322,10 +322,17 @@ _NUM = r"-?\d+(?:[.,]\d+)?"
 # alternative comes first so « 1/2 + 1 » reads as (1/2) + 1, not 1 / 2. When
 # no operator follows, the regex backtracks and « 6 / 3 » stays a division.
 _OPERAND = rf"(?:\d+\s*/\s*\d+|{_NUM})"
-_CALC_RE = re.compile(
-    rf"({_OPERAND})\s*(\+|-|−|x|×|\*|÷|/|:|plus|moins|fois|divisé par)\s*({_OPERAND})",
+_OP = r"(?:\+|-|−|x|×|\*|÷|/|:|plus|moins|fois|divisé par)"
+# A whole calculation: operands, operators and parentheses (« 7 + 5 - 2 »,
+# « (3 + 4) × 2 », « 1/2 + 1 »). The fraction alternative of _OPERAND comes
+# first: « a/b » is one operand, which has the same value as « a ÷ b ».
+_EXPR_RE = re.compile(
+    rf"[(\s]*{_OPERAND}[)\s]*(?:{_OP}[(\s]*{_OPERAND}[)\s]*)+",
     re.IGNORECASE,
 )
+_UNSIGNED_OPERAND = re.compile(r"\d+\s*/\s*\d+|\d+(?:[.,]\d+)?")
+_SIGNED_OPERAND = re.compile(rf"\d+\s*/\s*\d+|{_NUM}")
+_OP_RE = re.compile(_OP, re.IGNORECASE)
 
 
 def _operand(text: str) -> Fraction | None:
@@ -335,31 +342,127 @@ def _operand(text: str) -> Fraction | None:
     return Fraction(text.replace(",", ".").strip())
 
 
-def _apply(a: Fraction, op: str, b: Fraction) -> Fraction | None:
+def _op_kind(op: str) -> str:
     op = op.lower()
     if op in ("+", "plus"):
-        return a + b
+        return "+"
     if op in ("-", "−", "moins"):
-        return a - b
+        return "-"
     if op in ("x", "×", "*", "fois"):
-        return a * b
-    if b == 0:
+        return "*"
+    return "/"
+
+
+def _tokenize(expr: str) -> list[Any] | None:
+    """Tokens: Fraction operands, '+', '-', '*', '/', '(' and ')'.
+
+    After an operand or ')' a « - » is an operator (« 7-5 »); elsewhere it
+    may start a negative number (« -3 + 5 »).
+    """
+    tokens: list[Any] = []
+    i = 0
+    while i < len(expr):
+        c = expr[i]
+        if c.isspace():
+            i += 1
+            continue
+        if c in "()":
+            tokens.append(c)
+            i += 1
+            continue
+        expect_operator = bool(tokens) and (isinstance(tokens[-1], Fraction) or tokens[-1] == ")")
+        if expect_operator:
+            m = _OP_RE.match(expr, i)
+            if not m:
+                return None
+            tokens.append(_op_kind(m.group(0)))
+            i = m.end()
+            continue
+        m = _SIGNED_OPERAND.match(expr, i) or _UNSIGNED_OPERAND.match(expr, i)
+        if not m:
+            return None
+        value = _operand(m.group(0))
+        if value is None:
+            return None
+        tokens.append(value)
+        i = m.end()
+    return tokens
+
+
+def _evaluate(tokens: list[Any]) -> Fraction | None:
+    """Recursive descent: × and ÷ before + and −, parentheses. No eval()."""
+    pos = 0
+
+    def peek() -> Any:
+        return tokens[pos] if pos < len(tokens) else None
+
+    def factor() -> Fraction:
+        nonlocal pos
+        tok = peek()
+        if tok == "(":
+            pos += 1
+            val = expr()
+            if peek() != ")":
+                raise ValueError("unbalanced")
+            pos += 1
+            return val
+        if isinstance(tok, Fraction):
+            pos += 1
+            return tok
+        raise ValueError("operand expected")
+
+    def term() -> Fraction:
+        nonlocal pos
+        val = factor()
+        while peek() in ("*", "/"):
+            op = tokens[pos]
+            pos += 1
+            rhs = factor()
+            if op == "*":
+                val *= rhs
+            else:
+                if rhs == 0:
+                    raise ZeroDivisionError
+                val /= rhs
+        return val
+
+    def expr() -> Fraction:
+        nonlocal pos
+        val = term()
+        while peek() in ("+", "-"):
+            op = tokens[pos]
+            pos += 1
+            rhs = term()
+            val = val + rhs if op == "+" else val - rhs
+        return val
+
+    try:
+        result = expr()
+    except (ValueError, ZeroDivisionError):
         return None
-    return a / b
+    return result if pos == len(tokens) else None
 
 
 def arithmetic_answer(child_message: str) -> Fraction | None:
-    """Result of a simple calculation asked by the child.
+    """Result of the calculation asked by the child (whole expression).
 
-    « 7 + 5 ? », « 1/3 + 1/4 », « 1/2 + 1 », « 2,5 × 4 », « 6 / 3 ».
+    « 7 + 5 ? » → 12, « 7 + 5 - 2 » → 10, « 2 + 3 × 4 » → 14,
+    « (3 + 4) × 2 » → 14, « 1/2 + 1 » → 3/2, « 6 / 3 » → 2.
     """
-    m = _CALC_RE.search(child_message or "")
-    if not m:
+    text = child_message or ""
+    candidates = [m.group(0) for m in _EXPR_RE.finditer(text)]
+    if not candidates:
         return None
-    a, b = _operand(m.group(1)), _operand(m.group(3))
-    if a is None or b is None:
+    expr = max(candidates, key=len)
+    tokens = _tokenize(expr)
+    if tokens is None:
         return None
-    return _apply(a, m.group(2), b)
+    result = _evaluate(tokens)
+    if result is None and expr.count("(") != expr.count(")"):
+        # unbalanced parentheses around the expression: evaluate without them
+        stripped = _tokenize(expr.replace("(", " ").replace(")", " "))
+        result = _evaluate(stripped) if stripped is not None else None
+    return result
 
 
 def sought_value(child_message: str, previous_child_messages: list[str] | None = None):
