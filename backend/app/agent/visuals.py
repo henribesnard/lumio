@@ -465,6 +465,36 @@ def arithmetic_answer(child_message: str) -> Fraction | None:
     return result
 
 
+def arithmetic_answers(child_message: str) -> list[Fraction]:
+    """Results of every calculation in a message (« 7 + 5, puis 3 + 4 » → 12, 7)."""
+    out: list[Fraction] = []
+    for m in _EXPR_RE.finditer(child_message or ""):
+        expr = m.group(0)
+        tokens = _tokenize(expr)
+        val = _evaluate(tokens) if tokens is not None else None
+        if val is None and expr.count("(") != expr.count(")"):
+            stripped = _tokenize(expr.replace("(", " ").replace(")", " "))
+            val = _evaluate(stripped) if stripped is not None else None
+        if val is not None and val not in out:
+            out.append(val)
+    return out
+
+
+def sought_values(
+    child_message: str, previous_child_messages: list[str] | None = None
+) -> list[Fraction]:
+    """Every value the child is looking for: all calculations of the current
+    message, else those of the most recent earlier message that has some."""
+    found = arithmetic_answers(child_message)
+    if found:
+        return found
+    for text in reversed((previous_child_messages or [])[-6:]):
+        found = arithmetic_answers(text)
+        if found:
+            return found
+    return []
+
+
 def sought_value(child_message: str, previous_child_messages: list[str] | None = None):
     """Value the child is looking for: in the current message, else the most
     recent calculation asked earlier in the conversation (« 7 + 5 ? » then « 3 ? »)."""
@@ -541,21 +571,31 @@ def reveals_answer(spec: dict[str, Any], answer: Fraction | None) -> bool:
     return any(_eq(x, answer) for x in shown)
 
 
-def mask_answer(spec: dict[str, Any], answer: Fraction | None) -> dict[str, Any]:
+def _as_list(answer: Any) -> list[Fraction]:
+    if answer is None:
+        return []
+    if isinstance(answer, list | tuple):
+        return [a for a in answer if a is not None]
+    return [answer]
+
+
+def mask_answer(spec: dict[str, Any], answer: Any) -> dict[str, Any]:
     """Generated graduations keep their line but never write the sought value.
 
     Number line: its ticks. Chart: its y-axis ticks, computed by the renderer
     (the server does not know the axis range, so the value is always masked).
     """
-    if answer is None:
+    answers = _as_list(answer)
+    if not answers:
         return spec
     if spec.get("kind") == "chart":
-        return {**spec, "masked": [float(answer)]}
+        return {**spec, "masked": [float(a) for a in answers]}
     if spec.get("kind") != "number_line":
         return spec
-    if not spec["min"] <= float(answer) <= spec["max"]:
+    inside = [float(a) for a in answers if spec["min"] <= float(a) <= spec["max"]]
+    if not inside:
         return spec
-    masked = {**spec, "masked": [float(answer)]}
+    masked = {**spec, "masked": inside}
     # the accessible description follows the masking (bounds included)
     masked["alt"] = alt_text(masked)
     return masked
@@ -563,7 +603,7 @@ def mask_answer(spec: dict[str, Any], answer: Fraction | None) -> dict[str, Any]
 
 def enforce_no_answer(
     spec: dict[str, Any] | None,
-    answer: Fraction | None,
+    answer: Any,
     message_kind: str | None,
 ) -> tuple[dict[str, Any] | None, str | None]:
     """Apply the rule; returns (spec or None, reason when dropped).
@@ -572,12 +612,14 @@ def enforce_no_answer(
     """
     if spec is None or message_kind == "success":
         return spec, None
-    if reveals_answer(spec, answer):
+    answers = _as_list(answer)  # one or several sought values
+    if any(reveals_answer(spec, a) for a in answers):
         return None, "reveals_answer"
-    spec = mask_answer(spec, answer)
+    spec = mask_answer(spec, answers)
     # backstop: the text alternative (read aloud by screen readers) must not
-    # spell out the value either
-    if answer is not None and any(_eq(x, answer) for x in _numbers_in(spec.get("alt", ""))):
+    # spell out a sought value either
+    alt_numbers = _numbers_in(spec.get("alt", ""))
+    if any(_eq(x, a) for a in answers for x in alt_numbers):
         return None, "reveals_answer"
     return spec, None
 

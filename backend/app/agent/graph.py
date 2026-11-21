@@ -22,7 +22,7 @@ from app.agent.tutor_output import TutorReply, parse_tutor_output
 from app.agent.visuals import (
     describe_for_guard,
     enforce_no_answer,
-    sought_value,
+    sought_values,
     validate_visual,
     visual_json_schema,
     visual_texts,
@@ -140,13 +140,18 @@ def check_visual(
     return enforce_no_answer(spec, answer, message_kind)
 
 
-def _fmt_answer(answer: Any) -> str | None:
-    """Sought value as the guard reads it (« 12 », « 7/12 »)."""
-    if answer is None:
-        return None
+def _fmt_one(answer: Any) -> str:
     if getattr(answer, "denominator", 1) == 1:
         return str(answer.numerator)
     return f"{answer.numerator}/{answer.denominator} (≈ {float(answer):.3g})"
+
+
+def _fmt_answer(answer: Any) -> str | None:
+    """Sought value(s) as the guard reads them (« 12 », « 12 ; 7 », « 7/12 »)."""
+    values = answer if isinstance(answer, list) else ([answer] if answer is not None else [])
+    if not values:
+        return None
+    return " ; ".join(_fmt_one(v) for v in values)
 
 
 def _build_chat_messages(
@@ -351,8 +356,8 @@ async def run_agent(
     rewrite_count = 0
     visual: dict | None = None
     visual_drop_reason: str | None = None
-    # Value the child is looking for (simple calculation in this or a recent message)
-    answer = sought_value(
+    # Values the child is looking for (every calculation of this or a recent message)
+    answer = sought_values(
         child_message, [m.contenu for m in history if getattr(m, "role", None) == "child"]
     )
     max_rewrites = settings.max_rewrite_count

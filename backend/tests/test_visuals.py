@@ -707,3 +707,43 @@ class TestVisualNeedsExplicitApproval:
         guard = AsyncMock(return_value={"status": "ok", "visual_ok": True})
         done, _ = await _run(llm, guard, flag=True, profile_on=True, message="Raconte 1789")
         assert done["visual"] is not None and done["visual"]["kind"] == "timeline"
+
+
+class TestSeveralCalculations:
+    def test_all_results_of_the_message(self):
+        from app.agent.visuals import sought_values
+
+        assert sought_values("7 + 5, puis 3 + 4 ?") == [Fraction(12), Fraction(7)]
+        assert sought_values("3 ?", ["7 + 5 et 2 × 3"]) == [Fraction(12), Fraction(6)]
+        assert sought_values("Pourquoi il pleut ?") == []
+
+    @pytest.mark.parametrize("value", [12, 7])
+    def test_visual_showing_any_result_is_dropped(self, value):
+        from app.agent.visuals import sought_values
+
+        answers = sought_values("7 + 5, puis 3 + 4 ?")
+        spec = _nl(marks=[{"value": value}], jumps=[{"start": 0, "end": 1}])
+        assert enforce_no_answer(spec, answers, "hint") == (None, "reveals_answer")
+
+    def test_both_results_are_masked(self):
+        from app.agent.visuals import sought_values
+
+        answers = sought_values("7 + 5, puis 3 + 4 ?")
+        # (titre neutre : « 7 + 5 sur la droite » écrirait 7, le second résultat)
+        spec = _nl(title="Sur la droite", jumps=[{"start": 0, "end": 1}], marks=[])
+        out, _ = enforce_no_answer(spec, answers, "hint")
+        assert out is not None and sorted(out["masked"]) == [7.0, 12.0]
+
+    @pytest.mark.asyncio
+    async def test_guard_receives_every_sought_value(self):
+        llm = AsyncMock()
+        safe = {
+            **NUMBER_LINE,
+            "title": "Sur la droite",
+            "jumps": [{"start": 0, "end": 1}],
+            "marks": [],
+        }
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, safe))
+        guard = AsyncMock(return_value={"status": "ok", "visual_ok": True})
+        await _run(llm, guard, flag=True, profile_on=True, message="7 + 5, puis 3 + 4 ?")
+        assert guard.call_args.kwargs["sought_value"] == "12 ; 7"
