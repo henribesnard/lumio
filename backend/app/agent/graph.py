@@ -498,6 +498,10 @@ async def run_agent(
         visual, visual_drop_reason = None, "output_guard"
     # A type the guard finds inconsistent is dropped: the message is shown plainly.
     kind = reply.kind if output_verdict.get("type_ok", True) is not False else None
+    # « success » shows « Tu as trouvé ! » to the child: it needs the guard's
+    # explicit confirmation (a missing verdict, e.g. guard error, is not a yes).
+    if kind == "success" and output_verdict.get("type_ok") is not True:
+        kind = None
     hint_level = reply.hint_level if kind == "hint" else None
 
     # Final kind may differ (e.g. « success » refused by the guard): re-apply the
