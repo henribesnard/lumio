@@ -76,6 +76,9 @@ def validate_plages_horaires(value: dict | None) -> dict | None:
         return None
     if not isinstance(value, dict):
         raise ValueError("Plages horaires invalides.")
+    if not value:
+        # {} means « no restriction » (see is_within_time_window): store None
+        return None
     # Legacy day keys (« lun », « mon », « monday »…) are merged into the
     # canonical French name so existing profiles stay editable.
     merged: dict[str, list] = {}

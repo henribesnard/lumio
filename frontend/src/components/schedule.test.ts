@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canonicalizeDays,
+  toEditorSchedule,
   defaultSchedule,
   normalizeSchedule,
   validateSchedule,
@@ -67,6 +68,20 @@ describe("canonicalizeDays", () => {
         { debut: "17:00", fin: "18:00" },
       ],
       samedi: [],
+    });
+  });
+});
+
+describe("toEditorSchedule", () => {
+  it("{} ou null = aucune restriction (éditeur désactivé)", () => {
+    expect(toEditorSchedule({})).toBeNull();
+    expect(toEditorSchedule(null)).toBeNull();
+  });
+  it("normalise les clés héritées", () => {
+    expect(
+      toEditorSchedule({ mon: [{ debut: "08:00", fin: "09:00" }] }),
+    ).toEqual({
+      lundi: [{ debut: "08:00", fin: "09:00" }],
     });
   });
 });
