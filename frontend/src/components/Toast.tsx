@@ -38,9 +38,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const styles = {
-    success: "bg-success text-on-dark",
-    error: "bg-danger text-on-dark",
-    info: "bg-info text-on-dark",
+    success: "bg-success-bg text-success border border-success",
+    error: "bg-danger-bg text-danger border border-danger",
+    info: "bg-info-bg text-info border border-info",
   };
 
   return (

@@ -86,9 +86,9 @@ export function AdminSecurity() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-3xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">
+        <h1 className="mb-6 text-heading font-bold text-foreground">
           Sécurité du compte
-        </h2>
+        </h1>
 
         <Card className="max-w-xl">
           <div className="mb-2 flex flex-wrap items-center gap-2">

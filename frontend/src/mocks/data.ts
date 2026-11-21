@@ -117,38 +117,59 @@ export const mockConversations = [
 ];
 
 export const mockMessages = [
-  // Léa - additions (showing Socratic method)
+  // Léa (7 ans) — 7 + 8 avec des boîtes de 10 : question → indice → réussite
   {
     id: "msg-1",
     conversation_id: "conv-lea-1",
     role: "child" as const,
-    contenu: "3 + 5 ça fait combien ?",
+    contenu: "C'est combien 7 + 8 ?",
     created_at: "2025-01-20T14:00:00Z",
   },
   {
     id: "msg-2",
     conversation_id: "conv-lea-1",
     role: "assistant" as const,
+    kind: "question" as const,
+    hint_level: null,
     contenu:
-      "Bonne question ! Est-ce que tu sais compter sur tes doigts ? Essaie de lever 3 doigts, puis 5 de plus !",
+      "Imagine une boîte de 10 cases. Tu mets tes 7 points dedans. Combien de cases restent vides ?",
     created_at: "2025-01-20T14:00:30Z",
   },
   {
     id: "msg-3",
     conversation_id: "conv-lea-1",
     role: "child" as const,
-    contenu: "euh... 8 ?",
+    contenu: "3 !",
     created_at: "2025-01-20T14:01:00Z",
   },
   {
     id: "msg-4",
     conversation_id: "conv-lea-1",
     role: "assistant" as const,
+    kind: "hint" as const,
+    hint_level: 2,
     contenu:
-      "Bravo Léa ! C'est exactement ça ! Tu peux me dire comment tu as trouvé ?",
+      "Bravo ! Je remplis la boîte avec 3 points jaunes pris dans le 8. Il en reste combien ?",
     created_at: "2025-01-20T14:01:30Z",
   },
-  // Noah - fractions (Socratic method with older child)
+  {
+    id: "msg-4b",
+    conversation_id: "conv-lea-1",
+    role: "child" as const,
+    contenu: "Il en reste 5, donc 10 et 5 !",
+    created_at: "2025-01-20T14:02:00Z",
+  },
+  {
+    id: "msg-4c",
+    conversation_id: "conv-lea-1",
+    role: "assistant" as const,
+    kind: "success" as const,
+    hint_level: null,
+    contenu:
+      "Oui ! Tu as complété la boîte de 10 toute seule. Tu peux me réexpliquer ta méthode avec tes mots ?",
+    created_at: "2025-01-20T14:02:30Z",
+  },
+  // Noah (10 ans) — fractions : question → indice 1 → exemple analogue
   {
     id: "msg-5",
     conversation_id: "conv-noah-1",
@@ -160,8 +181,10 @@ export const mockMessages = [
     id: "msg-6",
     conversation_id: "conv-noah-1",
     role: "assistant" as const,
+    kind: "question" as const,
+    hint_level: null,
     contenu:
-      "Bonne question Noah ! Avant de calculer, qu'est-ce que tu sais sur l'addition de fractions ? Est-ce qu'on peut additionner directement quand les dénominateurs sont différents ?",
+      "Bonne question Noah ! Avant de calculer : est-ce qu'on peut additionner directement deux fractions dont les dénominateurs sont différents ?",
     created_at: "2025-01-20T16:00:30Z",
   },
   {
@@ -175,11 +198,23 @@ export const mockMessages = [
     id: "msg-8",
     conversation_id: "conv-noah-1",
     role: "assistant" as const,
+    kind: "hint" as const,
+    hint_level: 1,
     contenu:
-      "Exactement ! Alors, quel nombre pourrait servir de dénominateur commun pour 3 et 4 ? Un indice : cherche le plus petit nombre que 3 et 4 peuvent diviser.",
+      "Exactement. Cherche le plus petit nombre que 3 et 4 divisent tous les deux.",
     created_at: "2025-01-20T16:01:30Z",
   },
-  // Inès - Révolution française
+  {
+    id: "msg-8b",
+    conversation_id: "conv-noah-1",
+    role: "assistant" as const,
+    kind: "example" as const,
+    hint_level: null,
+    contenu:
+      "Un exemple voisin : pour 1/2 + 1/6, on peut tout écrire en sixièmes, car 6 est un multiple de 2. Et pour 3 et 4 ?",
+    created_at: "2025-01-20T16:02:00Z",
+  },
+  // Inès (13 ans) — Révolution française : explication d'une petite étape
   {
     id: "msg-9",
     conversation_id: "conv-ines-1",
@@ -191,8 +226,10 @@ export const mockMessages = [
     id: "msg-10",
     conversation_id: "conv-ines-1",
     role: "assistant" as const,
+    kind: "explanation" as const,
+    hint_level: null,
     contenu:
-      "Question intéressante, Inès. Avant d'explorer les causes, qu'est-ce que tu connais déjà de la situation en France à la fin du XVIIIe siècle ? Pense à la société, à l'économie, au pouvoir politique.",
+      "Question intéressante, Inès. Une première piste : en 1788, le pain coûte très cher et l'État est presque en faillite. À ton avis, qui paie le plus d'impôts à cette époque ?",
     created_at: "2025-01-21T08:00:30Z",
   },
 ];

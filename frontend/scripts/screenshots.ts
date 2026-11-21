@@ -23,7 +23,7 @@ const FILTER = argValue("--filter");
 
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
   console.log(`Captures vers ${OUT_DIR} (base ${BASE})`);
   const shots = buildShots().filter((s) => !FILTER || s.name.includes(FILTER));
   for (const s of shots) {

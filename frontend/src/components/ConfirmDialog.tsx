@@ -36,10 +36,10 @@ export function ConfirmDialog({
             onConfirm();
             onClose();
           }}
-          className={`rounded-button px-4 py-2 text-small font-medium text-on-dark transition-colors duration-fast focus:outline-none focus-visible:shadow-focus ${
+          className={`rounded-button px-4 py-2 text-small font-medium transition-colors duration-fast focus:outline-none focus-visible:shadow-focus ${
             danger
-              ? "bg-danger hover:bg-danger/85"
-              : "bg-primary hover:bg-primary-hover"
+              ? "bg-danger text-on-danger hover:opacity-90"
+              : "bg-primary text-on-primary hover:bg-primary-hover"
           }`}
         >
           {confirmLabel}

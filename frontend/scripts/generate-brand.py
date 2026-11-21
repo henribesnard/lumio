@@ -1,34 +1,62 @@
 #!/usr/bin/env python3
-"""Génère le wordmark vectoriel du logo Lumio (public/brand/lumio-logo.svg).
+"""Génère les assets de marque Lumio « Prisme » dans public/brand/.
 
-Le texte « Lumio » est converti en chemins SVG à partir de la police Lexend
-variable (wght=700, OFL 1.1, auto-hébergée dans public/fonts/), via fontTools.
-L'icône (étincelle sur tuile indigo) est écrite à la main dans lumio-icon.svg.
+- lumio-icon.svg      : prisme + 3 rayons (soleil, menthe, ciel) sur tuile « Lait »
+- lumio-wordmark.svg  : « lumio » en Unbounded 800 vectorisé (OFL 1.1)
+- lumio-logo.svg      : prisme + wordmark (horizontal)
+- lumio-logo-dark.svg : idem, encre claire pour fonds sombres
+- mascot.svg          : mascotte « Lumio, le prisme », état Écoute
+
+Le texte est converti en chemins SVG depuis public/fonts/unbounded-var.woff2
+(fontTools + brotli) : rendu identique partout, aucune police requise.
+Usage : python3 scripts/generate-brand.py
 """
+
 import os
+import tempfile
+
+from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
-from fontTools.pens.svgPathPen import SVGPathPen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FONT = os.path.join(HERE, "..", "public", "fonts", "lexend-var.woff2")
+FONT = os.path.join(HERE, "..", "public", "fonts", "unbounded-var.woff2")
 OUT = os.path.join(HERE, "..", "public", "brand")
 os.makedirs(OUT, exist_ok=True)
 
-TMP = "/tmp/lexend-bold.ttf"
+INK = "#18132B"
+INK_DARK = "#F1EEFA"
+PRISM_DARK = "#5B3FD9"
+PRISM_LIGHT = "#7A62F0"
+SUN, MINT, SKY = "#FFC53D", "#12A37A", "#4C9BFF"
+MILK = "#F6F5FB"
+
+# Prisme (viewBox 0 0 120 120) — repris tel quel du design « Prisme ».
+PRISM = (
+    f'<path d="M56 14 Q60 10 64 14 L100 86 Q104 96 94 96 H26 Q16 96 20 86 Z" fill="{PRISM_DARK}"/>'
+    f'<path d="M60 13 Q62 12 64 14 L100 86 Q104 96 94 96 H60 Z" fill="{PRISM_LIGHT}"/>'
+)
+RAYS = (
+    '<g stroke-width="6" stroke-linecap="round">'
+    f'<path d="M96 54 L116 44" stroke="{SUN}"/>'
+    f'<path d="M100 64 L118 64" stroke="{MINT}"/>'
+    f'<path d="M96 74 L116 84" stroke="{SKY}"/>'
+    "</g>"
+)
+
+# --- wordmark vectorisé ---
 font = TTFont(FONT)
-instantiateVariableFont(font, {"wght": 700}, inplace=True)
-font.save(TMP)
-font = TTFont(TMP)
+instantiateVariableFont(font, {"wght": 800}, inplace=True)
+with tempfile.NamedTemporaryFile(suffix=".ttf", delete=False) as tmp:
+    font.save(tmp.name)
+    font = TTFont(tmp.name)
 upm = font["head"].unitsPerEm
 glyph_set = font.getGlyphSet()
 cmap = font.getBestCmap()
 hmtx = font["hmtx"]
 
-TEXT = "Lumio"
-CAP = 700  # hauteur de capitale en unités font
-scale = CAP / upm
-
+TEXT = "lumio"
+TRACK = -0.035 * upm  # letter-spacing -2px à 58px dans le design
 paths = []
 x = 0.0
 for ch in TEXT:
@@ -38,49 +66,67 @@ for ch in TEXT:
     d = pen.getCommands()
     if d:
         paths.append(f'<path transform="translate({x:.1f},0)" d="{d}"/>')
-    x += hmtx[gname][0]
-width = x
-height = CAP + 0.22 * CAP  # petit débordement pour les descendantes éventuelles
+    x += hmtx[gname][0] + TRACK
+width = x - TRACK
+ASC = 0.80 * upm  # haut des ascendantes (l, i)
+height = ASC + 0.04 * upm
 
-wordmark = (
+
+def wordmark_group(tx: float, ty: float, s: float, fill: str) -> str:
+    return (
+        f'<g transform="translate({tx:.1f},{ty:.1f}) scale({s:.6f},{-s:.6f}) '
+        f'translate(0,{-ASC:.1f})" fill="{fill}">' + "".join(paths) + "</g>"
+    )
+
+
+wm_svg = (
     f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width:.0f} {height:.0f}" '
-    f'width="{width:.0f}" height="{height:.0f}">'
-    f'<g transform="scale({scale:.6f},{-scale:.6f}) translate(0,{-upm * 0.78:.1f})" fill="#1C2333">'
-    + "".join(paths)
-    + "</g></svg>"
+    f'width="{width:.0f}" height="{height:.0f}">' + wordmark_group(0, 0, 1, INK) + "</svg>\n"
 )
 with open(os.path.join(OUT, "lumio-wordmark.svg"), "w") as f:
-    f.write(wordmark)
-print("wordmark:", os.path.join(OUT, "lumio-wordmark.svg"), f"viewBox 0 0 {width:.0f} {height:.0f}")
+    f.write(wm_svg)
 
-# --- Icône seule (écrite à la main) : tuile indigo + étincelle ambre ---
-ICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
-  <rect width="96" height="96" rx="22" fill="#4F46E5"/>
-  <path d="M48 20 L55 41 L76 48 L55 55 L48 76 L41 55 L20 48 L41 41 Z" fill="#FBBF24"/>
-  <path d="M67 20 L68.9 26.6 L75.5 28.5 L68.9 30.4 L67 37 L65.1 30.4 L58.5 28.5 L65.1 26.6 Z" fill="#FFFFFF" opacity="0.92"/>
-</svg>
-"""
+# --- icône : tuile Lait arrondie + prisme + rayons ---
+ICON = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">'
+    f'<rect width="120" height="120" rx="28" fill="{MILK}"/>'
+    f'<g transform="translate(-4 4)">{RAYS}{PRISM}</g>'
+    "</svg>\n"
+)
 with open(os.path.join(OUT, "lumio-icon.svg"), "w") as f:
     f.write(ICON)
-print("icon:", os.path.join(OUT, "lumio-icon.svg"))
 
-# --- Logo horizontal : icône + wordmark vectorisé ---
-ICON_SIZE = 96
-WM_H = 58  # hauteur du wordmark dans le logo
-s = WM_H / height
-wm_w = width * s
-x0 = ICON_SIZE + 18
-total_w = x0 + wm_w
-inner = "".join(paths).replace("<path ", "<path ")
-logo = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {total_w:.0f} 96" width="{total_w:.0f}" height="96">
-  <rect width="96" height="96" rx="22" fill="#4F46E5"/>
-  <path d="M48 20 L55 41 L76 48 L55 55 L48 76 L41 55 L20 48 L41 41 Z" fill="#FBBF24"/>
-  <path d="M67 20 L68.9 26.6 L75.5 28.5 L68.9 30.4 L67 37 L65.1 30.4 L58.5 28.5 L65.1 26.6 Z" fill="#FFFFFF" opacity="0.92"/>
-  <g transform="translate({x0:.1f},{(96 - WM_H) / 2:.1f}) scale({s:.6f},{-s:.6f}) translate(0,{-upm * 0.78:.1f})" fill="#1C2333">
-    {inner}
-  </g>
-</svg>
-"""
+
+# --- logo horizontal ---
+def logo(ink: str) -> str:
+    wm_h = 62
+    s = wm_h / height
+    x0 = 132
+    total_w = x0 + width * s
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {total_w:.0f} 120" '
+        f'width="{total_w:.0f}" height="120">'
+        f"{RAYS}{PRISM}"
+        + wordmark_group(x0, (120 - wm_h) / 2 + 4, s, ink)
+        + "</svg>\n"
+    )
+
+
 with open(os.path.join(OUT, "lumio-logo.svg"), "w") as f:
-    f.write(logo)
-print("logo:", os.path.join(OUT, "lumio-logo.svg"), f"viewBox 0 0 {total_w:.0f} 96")
+    f.write(logo(INK))
+with open(os.path.join(OUT, "lumio-logo-dark.svg"), "w") as f:
+    f.write(logo(INK_DARK))
+
+# --- mascotte (état Écoute) ---
+MASCOT = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">'
+    + PRISM
+    + '<circle cx="50" cy="66" r="7" fill="#FFFFFF"/><circle cx="70" cy="66" r="7" fill="#FFFFFF"/>'
+    f'<circle cx="50" cy="67" r="3.5" fill="{INK}"/><circle cx="70" cy="67" r="3.5" fill="{INK}"/>'
+    '<path d="M53 80 Q60 85 67 80" fill="none" stroke="#FFFFFF" stroke-width="3.5" '
+    'stroke-linecap="round"/></svg>\n'
+)
+with open(os.path.join(OUT, "mascot.svg"), "w") as f:
+    f.write(MASCOT)
+
+print("Assets de marque générés dans", OUT)

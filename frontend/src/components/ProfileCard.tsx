@@ -21,13 +21,13 @@ export function ProfileCard({
       disabled={inactive}
       aria-disabled={inactive || undefined}
       className={[
-        "flex flex-col items-center gap-2 rounded-card bg-surface p-6 shadow-card",
+        "flex flex-col items-center gap-3 rounded-card bg-surface px-6 py-5 shadow-card",
         "transition-all duration-fast ease-out focus:outline-none focus-visible:shadow-focus",
         "min-h-[var(--size-touch-target)]",
         inactive
           ? "opacity-50 cursor-not-allowed"
           : "cursor-pointer hover:shadow-modal hover:-translate-y-0.5 active:translate-y-0 active:scale-95",
-        locked ? "ring-2 ring-warning" : "",
+        locked ? "shadow-[inset_0_0_0_2px_var(--color-question-ring)]" : "",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -38,11 +38,11 @@ export function ProfileCard({
         alt={prenom}
         className={inactive ? "grayscale" : ""}
       />
-      <span className="text-subheading font-semibold text-foreground">
+      <span className="font-display text-subheading font-bold text-foreground">
         {prenom}
       </span>
       {locked && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-tiny font-medium text-warning">
+        <span className="inline-flex items-center gap-1 rounded-full bg-warning-bg px-2.5 py-0.5 text-tiny font-medium text-warning">
           <svg
             viewBox="0 0 24 24"
             className="h-3 w-3"
@@ -58,7 +58,7 @@ export function ProfileCard({
         </span>
       )}
       {inactive && (
-        <span className="rounded-full bg-foreground-muted/10 px-2.5 py-0.5 text-tiny font-medium text-foreground-muted">
+        <span className="rounded-full bg-surface-alt px-2.5 py-0.5 text-tiny font-medium text-foreground-muted">
           Désactivé
         </span>
       )}

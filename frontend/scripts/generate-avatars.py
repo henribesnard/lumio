@@ -1,55 +1,52 @@
 #!/usr/bin/env python3
 """Génère les 12 avatars originaux de Lumio (public/avatars/avatar-01..12.svg).
 
-Formes géométriques simples, originales, cohérentes avec la piste « Brume » :
-chaque avatar = une silhouette colorée sur un disque de teinte claire, avec un
-visage minimal (2 yeux + sourire). viewBox 0 0 64 64, pas de texte, pas d'emoji.
+Identité « Prisme » : un disque aux couleurs du spectre (soleil, ciel, menthe,
+corail, lavande, prisme) et une forme géométrique à l'encre, comme dans le
+design (Léa : triangle sur soleil ; Noah : carré tourné sur ciel).
+viewBox 0 0 52 52, pas de texte, pas de visage, pas d'emoji.
+Usage : python3 scripts/generate-avatars.py
 """
+
 import os
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "public", "avatars")
 os.makedirs(OUT, exist_ok=True)
 
-INK = "#1C2333"
-
-def tint(hex_color, ratio=0.82):
-    c = hex_color.lstrip("#")
-    r, g, b = (int(c[i:i+2], 16) for i in (0, 2, 4))
-    f = lambda v: round(v + (255 - v) * ratio)
-    return "#%02X%02X%02X" % (f(r), f(g), f(b))
-
-# (couleur, forme svg centrée, nom)
-SHAPES = [
-    ("#4F46E5", '<circle cx="32" cy="34" r="22"/>'),
-    ("#0E7490", '<rect x="12" y="14" width="40" height="40" rx="12"/>'),
-    ("#D97706", '<path d="M32 12 L54 50 L10 50 Z"/>'),
-    ("#DB2777", '<path d="M32 12 L51 25 L43 48 L21 48 L13 25 Z"/>'),
-    ("#15803D", '<path d="M32 12 L52 32 L32 52 L12 32 Z"/>'),
-    ("#7C3AED", '<path d="M32 10 L38.5 25.5 L54 32 L38.5 38.5 L32 54 L25.5 38.5 L10 32 L25.5 25.5 Z"/>'),
-    ("#B45309", '<path d="M32 12 C44 12 52 22 52 33 C52 45 43 54 32 54 C21 54 12 45 12 33 C12 22 20 12 32 12 Z"/>'),
-    ("#0D9488", '<path d="M32 10 C40 10 46 18 46 26 C46 30 44 33 42 35 L42 48 C42 52 38 55 32 55 C26 55 22 52 22 48 L22 35 C20 33 18 30 18 26 C18 18 24 10 32 10 Z"/>'),
-    ("#EA580C", '<rect x="14" y="20" width="36" height="30" rx="15"/>'),
-    ("#2563EB", '<path d="M14 44 C14 26 22 14 32 14 C42 14 50 26 50 44 Z"/>'),
-    ("#65A30D", '<path d="M20 14 H44 L52 30 L44 50 H20 L12 30 Z"/>'),
-    ("#9333EA", '<rect x="16" y="18" width="32" height="32" rx="8"/><line x1="26" y1="18" x2="22" y2="9" stroke="{c}" stroke-width="3" stroke-linecap="round"/><line x1="38" y1="18" x2="42" y2="9" stroke="{c}" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="8" r="2.6" fill="{c}"/><circle cx="42" cy="8" r="2.6" fill="{c}"/>'),
-]
-
-FACE = (
-    '<circle cx="25.5" cy="30" r="4.2" fill="#FFFFFF"/>'
-    '<circle cx="38.5" cy="30" r="4.2" fill="#FFFFFF"/>'
-    f'<circle cx="26.6" cy="31" r="2.1" fill="{INK}"/>'
-    f'<circle cx="39.6" cy="31" r="2.1" fill="{INK}"/>'
-    '<path d="M25 39 Q32 46 39 39" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round"/>'
+INK = "#18132B"
+WHITE = "#FFFFFF"
+SUN, SKY, MINT, CORAL, LAVENDER, PRISM = (
+    "#FFC53D",
+    "#4C9BFF",
+    "#4FD1A5",
+    "#FF9A7F",
+    "#B7AEE0",
+    "#7A62F0",
 )
 
-for i, (color, shape) in enumerate(SHAPES, start=1):
-    shape = shape.replace("{c}", color)
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <circle cx="32" cy="32" r="30" fill="{tint(color)}"/>
-  <g fill="{color}">{shape}</g>
-  {FACE}
-</svg>
-"""
+# (fond, forme, couleur de la forme)
+AVATARS = [
+    (SUN, '<path d="M26 10 L40 36 H12 Z"/>', INK),  # 01 triangle
+    (SKY, '<rect x="15" y="15" width="22" height="22" rx="4" transform="rotate(12 26 26)"/>', INK),
+    (MINT, '<circle cx="26" cy="26" r="11"/>', INK),  # 03 rond
+    (CORAL, '<path d="M26 11 L41 26 L26 41 L11 26 Z"/>', INK),  # 04 losange
+    (LAVENDER, '<path d="M12 33 A14 14 0 0 1 40 33 Z"/>', INK),  # 05 demi-lune
+    (PRISM, '<path d="M26 10 L30 22 L42 26 L30 30 L26 42 L22 30 L10 26 L22 22 Z"/>', WHITE),
+    (SUN, '<path d="M26 11 L39 18.5 V33.5 L26 41 L13 33.5 V18.5 Z"/>', INK),  # 07 hexagone
+    (SKY, '<path d="M21 12 H31 V21 H40 V31 H31 V40 H21 V31 H12 V21 H21 Z"/>', INK),  # 08 croix
+    (MINT, '<circle cx="26" cy="26" r="12" fill="none" stroke-width="6"/>', INK),  # 09 anneau
+    (CORAL, '<path d="M13 40 V26 A13 13 0 0 1 39 26 V40 H31 V27 A5 5 0 0 0 21 27 V40 Z"/>', INK),
+    (LAVENDER, '<g><rect x="12" y="15" width="28" height="6" rx="3"/><rect x="12" y="23" width="28" height="6" rx="3"/><rect x="12" y="31" width="28" height="6" rx="3"/></g>', INK),
+    (PRISM, '<path d="M26 11 L39 38 H13 Z"/><path d="M26 11 L39 38 H26 Z" opacity="0.7"/>', WHITE),
+]
+
+for i, (bg, shape, fg) in enumerate(AVATARS, start=1):
+    attr = f'stroke="{fg}"' if 'fill="none"' in shape else f'fill="{fg}"'
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="52" height="52">'
+        f'<circle cx="26" cy="26" r="26" fill="{bg}"/>'
+        f"<g {attr}>{shape}</g></svg>\n"
+    )
     with open(os.path.join(OUT, f"avatar-{i:02d}.svg"), "w") as f:
         f.write(svg)
-    print(f"avatar-{i:02d}.svg", color)
+print("12 avatars générés dans", OUT)

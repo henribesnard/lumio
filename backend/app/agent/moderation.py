@@ -136,14 +136,23 @@ async def run_output_guard(
     child_message: str,
     age: int,
     niveau: str,
+    message_type: str | None = None,
+    hint_level: int | None = None,
 ) -> dict:
-    """Run the output guard on the tutor's draft response."""
+    """Run the output guard on the tutor's draft response.
+
+    ``message_type`` / ``hint_level`` come from the tutor's structured output;
+    the guard checks the text (never reveals the answer, whatever the type)
+    and whether the declared type is consistent (``type_ok``).
+    """
     template = (_PROMPT_DIR / "output_guard.md").read_text(encoding="utf-8")
     prompt = template.format(
         draft=draft,
         child_message=child_message,
         age=age,
         niveau=niveau,
+        message_type=message_type or "aucun",
+        hint_level=hint_level if hint_level is not None else "aucun",
     )
 
     try:

@@ -59,7 +59,11 @@ Lumio est un tuteur IA pour enfants de 6 à 14 ans. La sécurité des enfants es
 1. Vérification que la réponse ne donne pas directement la solution
 2. Vérification de l'adaptation à l'âge
 3. Vérification de l'absence de contenu inapproprié
-4. Rewrite 1× max si nécessaire, sinon fallback prédéfini
+4. Cohérence du type pédagogique déclaré par le tuteur (question, indice…) : un
+   type incohérent est retiré (le message s'affiche sans mise en forme), il ne
+   change jamais la règle « pas de réponse directe », y compris pour un indice
+   de niveau 3
+5. Rewrite 1× max si nécessaire, sinon fallback prédéfini
 
 ### Réponses prédéfinies
 Pour les cas critiques (détresse, auto-agression, maltraitance), **aucune génération LLM** : les réponses sont prédéfinies par tranche d'âge dans `safe_responses.yaml`, incluant les numéros d'urgence (119, 3018, 3114).

@@ -35,14 +35,14 @@ export function TagInput({
       {tags.map((tag, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-tiny font-medium text-primary"
+          className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-0.5 text-tiny font-medium text-link"
         >
           {tag}
           <button
             type="button"
             onClick={() => removeTag(i)}
             aria-label={`Retirer ${tag}`}
-            className="rounded-full p-0.5 transition-colors hover:bg-danger/10 hover:text-danger focus:outline-none focus-visible:shadow-focus"
+            className="rounded-full p-0.5 transition-colors hover:bg-danger-bg hover:text-danger focus:outline-none focus-visible:shadow-focus"
           >
             <svg
               viewBox="0 0 24 24"

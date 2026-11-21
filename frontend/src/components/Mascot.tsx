@@ -1,10 +1,14 @@
 /**
- * Lumi la luciole — mascotte Lumio, 5 états : ecoute / reflechit / indice / bravo / pause.
- * SVG inline propre (viewBox 0 0 120 120) ; les couleurs passent par les
- * tokens CSS (--color-mascot-*) pour suivre le thème. Asset statique de
- * référence : public/brand/mascot.svg.
+ * Lumio, le prisme — mascotte, 6 états :
+ * ecoute / reflechit / indice / bravo (« se réjouit ») / pause / reconfort.
+ * SVG inline (viewBox 0 0 120 120) repris du design « Prisme » ; couleurs via
+ * les tokens --color-mascot-* et --color-ray-* pour suivre le thème.
+ * Règles : le prisme ne s'irise (rayons du spectre) qu'au moment du déclic
+ * (« bravo ») ; en « reconfort » : couleurs désaturées, aucun rayon, aucune
+ * animation. Asset statique de référence : public/brand/mascot.svg.
  */
-export type MascotState = "ecoute" | "reflechit" | "indice" | "bravo" | "pause";
+export type MascotState =
+  "ecoute" | "reflechit" | "indice" | "bravo" | "pause" | "reconfort";
 
 export const MASCOT_STATES: MascotState[] = [
   "ecoute",
@@ -12,203 +16,178 @@ export const MASCOT_STATES: MascotState[] = [
   "indice",
   "bravo",
   "pause",
+  "reconfort",
 ];
 
-const STATE_LABEL: Record<MascotState, string> = {
+export const MASCOT_LABEL: Record<MascotState, string> = {
   ecoute: "Écoute",
   reflechit: "Réfléchit",
   indice: "Indice",
-  bravo: "Bravo",
+  bravo: "Se réjouit",
   pause: "Pause",
+  reconfort: "Réconfort",
 };
 
 interface MascotProps {
   state: MascotState;
   size?: number;
   className?: string;
-  /** halo animé (désactivé automatiquement si prefers-reduced-motion) */
+  /** animation des rayons (désactivée si prefers-reduced-motion et en réconfort) */
   animated?: boolean;
+  /** texte alternatif ; vide = décoratif (aria-hidden) */
+  label?: string;
 }
+
+const PRISM_DARK =
+  "M56 14 Q60 10 64 14 L100 86 Q104 96 94 96 H26 Q16 96 20 86 Z";
+const PRISM_LIGHT = "M60 13 Q62 12 64 14 L100 86 Q104 96 94 96 H60 Z";
+
+const v = (name: string) => ({ fill: `var(${name})` });
+const s = (name: string) => ({ stroke: `var(${name})` });
 
 export function Mascot({
   state,
   size = 96,
   className = "",
   animated = true,
+  label,
 }: MascotProps) {
-  const dim = state === "pause";
-  const c = {
-    body: "var(--color-mascot-body)",
-    outline: "var(--color-mascot-outline)",
-    glow: "var(--color-mascot-glow)",
-    face: "var(--color-mascot-face)",
-    wing: "var(--color-mascot-wing)",
-  };
+  const alt = label ?? `Lumio, ${MASCOT_LABEL[state].toLowerCase()}`;
+  const body =
+    state === "pause"
+      ? "--color-mascot-dim"
+      : state === "reconfort"
+        ? "--color-mascot-calm"
+        : "--color-mascot-body";
+  const head =
+    state === "pause"
+      ? "--color-mascot-dim-soft"
+      : state === "reconfort"
+        ? "--color-mascot-calm-soft"
+        : "--color-mascot-head";
+  const tilt = state === "reflechit" ? "rotate(-6 60 60)" : undefined;
+  const a11y =
+    alt === ""
+      ? { "aria-hidden": true as const }
+      : { role: "img", "aria-label": alt };
+
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 120 120"
-      role="img"
-      aria-label={`Lumi, état ${STATE_LABEL[state]}`}
       className={className}
+      {...a11y}
     >
-      {/* halo de la queue */}
-      {state !== "pause" && (
-        <circle
-          cx="60"
-          cy="95"
-          r="16"
-          style={{ fill: c.glow, opacity: state === "bravo" ? 0.45 : 0.35 }}
-          className={animated ? "mascot-halo" : undefined}
+      {/* rayons */}
+      {state === "indice" && (
+        <path
+          d="M98 64 L118 64"
+          style={s("--color-ray-mint")}
+          strokeWidth="6"
+          strokeLinecap="round"
         />
       )}
-      <circle
-        cx="60"
-        cy="95"
-        r="8"
-        style={{ fill: dim ? "var(--color-mascot-dim-soft)" : c.glow }}
-      />
+      {state === "bravo" && (
+        <g
+          strokeWidth="6"
+          strokeLinecap="round"
+          className={animated ? "prism-rays" : undefined}
+        >
+          <path d="M96 54 L116 44" style={s("--color-ray-sun")} />
+          <path d="M100 64 L118 64" style={s("--color-ray-mint")} />
+          <path d="M96 74 L116 84" style={s("--color-ray-sky")} />
+          <path d="M24 54 L4 44" style={s("--color-ray-coral")} />
+        </g>
+      )}
 
-      {/* ailes */}
-      <g opacity={dim ? 0.4 : 0.9}>
-        <ellipse
-          cx="41"
-          cy={state === "bravo" ? 48 : 58}
-          rx="14"
-          ry="8"
-          style={{ fill: c.wing, stroke: c.outline }}
-          strokeWidth="2"
-          transform={`rotate(${state === "bravo" ? -48 : -28} 41 ${state === "bravo" ? 48 : 58})`}
-        />
-        <ellipse
-          cx="79"
-          cy={state === "bravo" ? 48 : 58}
-          rx="14"
-          ry="8"
-          style={{ fill: c.wing, stroke: c.outline }}
-          strokeWidth="2"
-          transform={`rotate(${state === "bravo" ? 48 : 28} 79 ${state === "bravo" ? 48 : 58})`}
-        />
-      </g>
-
-      {/* corps + tête */}
-      <ellipse
-        cx="60"
-        cy="68"
-        rx="19"
-        ry="24"
-        style={{ fill: c.body, opacity: dim ? 0.45 : 1 }}
-      />
-      <circle
-        cx="60"
-        cy="38"
-        r="13"
-        style={{
-          fill: dim ? "var(--color-mascot-dim)" : "var(--color-mascot-head)",
-        }}
-      />
-      <g
-        stroke={dim ? "var(--color-mascot-dim)" : "var(--color-mascot-head)"}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      >
-        <line x1="54" y1="27" x2="48" y2="16" />
-        <line x1="66" y1="27" x2="72" y2="16" />
-      </g>
-      <circle
-        cx="48"
-        cy="15"
-        r="2.6"
-        style={{
-          fill: dim ? "var(--color-mascot-dim)" : "var(--color-mascot-head)",
-        }}
-      />
-      <circle
-        cx="72"
-        cy="15"
-        r="2.6"
-        style={{
-          fill: dim ? "var(--color-mascot-dim)" : "var(--color-mascot-head)",
-        }}
-      />
+      {/* prisme */}
+      <path d={PRISM_DARK} style={v(body)} transform={tilt} />
+      <path d={PRISM_LIGHT} style={v(head)} transform={tilt} />
 
       {/* visage */}
-      {state !== "pause" ? (
-        <g>
-          <circle
-            cx="55"
-            cy="36"
-            r="3.4"
-            style={{ fill: "var(--color-on-dark)" }}
-          />
-          <circle
-            cx="65"
-            cy="36"
-            r="3.4"
-            style={{ fill: "var(--color-on-dark)" }}
-          />
-          <circle cx="55.8" cy="36.8" r="1.7" style={{ fill: c.face }} />
-          <circle cx="65.8" cy="36.8" r="1.7" style={{ fill: c.face }} />
-          <path
-            d={
-              state === "bravo" ? "M53 43 Q60 50 67 43" : "M54 44 Q60 49 66 44"
-            }
-            fill="none"
-            style={{ stroke: "var(--color-on-dark)" }}
-            strokeWidth={state === "bravo" ? 2.6 : 2.4}
-            strokeLinecap="round"
-          />
-        </g>
-      ) : (
-        <g style={{ fill: c.face }}>
-          <rect x="50" y="52" width="6.5" height="24" rx="3.25" />
-          <rect x="63.5" y="52" width="6.5" height="24" rx="3.25" />
-        </g>
-      )}
-
-      {/* états */}
       {state === "ecoute" && (
-        <g
-          fill="none"
-          stroke={c.body}
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          opacity="0.8"
-        >
-          <path d="M28 32 q-6 8 0 16" />
-          <path d="M92 32 q6 8 0 16" />
+        <g>
+          <Eyes px={50} py={67} />
+          <Mouth d="M53 80 Q60 85 67 80" />
         </g>
       )}
       {state === "reflechit" && (
-        <g style={{ fill: c.body }}>
-          <circle cx="60" cy="6" r="2.6" />
-          <circle cx="51" cy="12" r="3" />
-          <circle cx="69" cy="12" r="3" />
+        <g>
+          <circle cx="48" cy="66" r="7" style={v("--color-mascot-wing")} />
+          <circle cx="68" cy="64" r="7" style={v("--color-mascot-wing")} />
+          <circle cx="50" cy="63" r="3.5" style={v("--color-mascot-face")} />
+          <circle cx="70" cy="61" r="3.5" style={v("--color-mascot-face")} />
+          <path
+            d="M53 81 H64"
+            style={s("--color-mascot-wing")}
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          <circle cx="98" cy="22" r="4" style={v("--color-mascot-body")} />
+          <circle cx="108" cy="12" r="5" style={v("--color-mascot-body")} />
         </g>
       )}
-      {state === "indice" && <Sparkle x={95} y={20} s={10} color={c.glow} />}
+      {state === "indice" && (
+        <g>
+          <Eyes px={52} py={66} />
+          <circle cx="60" cy="82" r="4" style={v("--color-mascot-wing")} />
+        </g>
+      )}
       {state === "bravo" && (
         <g>
-          <Sparkle x={96} y={16} s={9} color={c.glow} />
-          <Sparkle x={24} y={24} s={6.5} color={c.glow} />
+          <Mouth d="M43 67 Q50 59 57 67" w={4} />
+          <Mouth d="M63 67 Q70 59 77 67" w={4} />
+          <path d="M50 76 Q60 90 70 76 Z" style={v("--color-mascot-wing")} />
+        </g>
+      )}
+      {state === "pause" && (
+        <g>
+          <Mouth d="M43 67 H57" w={4} />
+          <Mouth d="M63 67 H77" w={4} />
+          <Mouth d="M55 81 Q60 84 65 81" />
+          <text
+            x="94"
+            y="28"
+            fontFamily="var(--font-display)"
+            fontWeight="800"
+            fontSize="20"
+            style={v("--color-mascot-body")}
+          >
+            z
+          </text>
+        </g>
+      )}
+      {state === "reconfort" && (
+        <g>
+          <Mouth d="M43 65 Q50 71 57 65" w={4} />
+          <Mouth d="M63 65 Q70 71 77 65" w={4} />
+          <Mouth d="M55 81 Q60 83 65 81" />
         </g>
       )}
     </svg>
   );
 }
 
-function Sparkle({
-  x,
-  y,
-  s,
-  color,
-}: {
-  x: number;
-  y: number;
-  s: number;
-  color: string;
-}) {
-  const d = `M ${x} ${y - s} L ${x + s * 0.28} ${y - s * 0.28} L ${x + s} ${y} L ${x + s * 0.28} ${y + s * 0.28} L ${x} ${y + s} L ${x - s * 0.28} ${y + s * 0.28} L ${x - s} ${y} L ${x - s * 0.28} ${y - s * 0.28} Z`;
-  return <path d={d} style={{ fill: color }} />;
+function Eyes({ px, py }: { px: number; py: number }) {
+  return (
+    <g>
+      <circle cx="50" cy="66" r="7" style={v("--color-mascot-wing")} />
+      <circle cx="70" cy="66" r="7" style={v("--color-mascot-wing")} />
+      <circle cx={px} cy={py} r="3.5" style={v("--color-mascot-face")} />
+      <circle cx={px + 20} cy={py} r="3.5" style={v("--color-mascot-face")} />
+    </g>
+  );
+}
+
+function Mouth({ d, w = 3.5 }: { d: string; w?: number }) {
+  return (
+    <path
+      d={d}
+      fill="none"
+      style={s("--color-mascot-wing")}
+      strokeWidth={w}
+      strokeLinecap="round"
+    />
+  );
 }

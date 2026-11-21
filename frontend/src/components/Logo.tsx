@@ -1,22 +1,30 @@
 interface LogoProps {
-  /** logo horizontal complet (icône + wordmark) ; false = icône seule */
+  /** logo horizontal complet (prisme + wordmark) ; false = icône seule */
   withWordmark?: boolean;
   height?: number;
   className?: string;
+  /** encre claire pour les fonds sombres (registre 9-14) */
+  onDark?: boolean;
 }
 
 /**
- * Logo Lumio. Assets vectoriels dans public/brand/ (voir scripts/generate-brand.py).
- * Le wordmark est en chemins SVG (Lexend 700 vectorisé) : rendu identique partout.
+ * Logo Lumio « Prisme ». Assets vectoriels dans public/brand/
+ * (voir scripts/generate-brand.py) : wordmark Unbounded 800 vectorisé.
  */
 export function Logo({
   withWordmark = true,
   height = 40,
   className = "",
+  onDark = false,
 }: LogoProps) {
+  const src = withWordmark
+    ? onDark
+      ? "/brand/lumio-logo-dark.svg"
+      : "/brand/lumio-logo.svg"
+    : "/brand/lumio-icon.svg";
   return (
     <img
-      src={withWordmark ? "/brand/lumio-logo.svg" : "/brand/lumio-icon.svg"}
+      src={src}
       alt="Lumio"
       height={height}
       style={{ height, width: "auto" }}

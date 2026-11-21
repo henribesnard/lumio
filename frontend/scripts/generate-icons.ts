@@ -7,7 +7,7 @@
  *   favicon.svg            (copie de l'icône, lien dans index.html)
  *   icons/icon-192.png     (PWA)
  *   icons/icon-512.png     (PWA)
- *   icons/icon-maskable-512.png (PWA maskable : fond plein, marque à 66 %)
+ *   icons/icon-maskable-512.png (PWA maskable : fond plein, prisme à ~80 %)
  *   icons/apple-touch-icon.png  (180×180)
  */
 import { chromium } from "@playwright/test";
@@ -34,13 +34,13 @@ async function main() {
   const svg = fs.readFileSync(ICON, "utf8");
   const dataUrl = "data:image/svg+xml;base64," + Buffer.from(svg).toString("base64");
 
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
   // Icône sur fond transparent (le SVG a déjà sa tuile arrondie)
   const htmlIcon = (size: number) =>
     `<body style="margin:0"><img src="${dataUrl}" style="width:${size}px;height:${size}px;display:block"></body>`;
-  // Maskable : tuile pleine + étincelle à 66 % (zone sûre ~80 % du diamètre)
+  // Maskable : tuile pleine + prisme à ~80 % (zone sûre ~80 % du diamètre)
   const htmlMaskable = (size: number) =>
-    `<body style="margin:0;width:${size}px;height:${size}px;background:#4F46E5">${svg.replace('viewBox="0 0 96 96"', `viewBox="14 14 68 68" width="${size}" height="${size}"`)}</body>`;
+    `<body style="margin:0;width:${size}px;height:${size}px;background:#F6F5FB">${svg.replace('viewBox="0 0 120 120" width="120" height="120"', `viewBox="14 14 92 92" width="${size}" height="${size}"`)}</body>`;
 
   await rasterize(browser, path.join(OUT, "icon-192.png"), 192, htmlIcon(192));
   await rasterize(browser, path.join(OUT, "icon-512.png"), 512, htmlIcon(512));

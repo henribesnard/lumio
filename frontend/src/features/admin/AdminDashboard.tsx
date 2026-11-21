@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { apiGet } from "@/api/client";
+import { AlertCard } from "@/components/AlertCard";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
@@ -43,7 +44,7 @@ function ShortcutIcon({ path }: { path: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-[var(--size-icon)] w-[var(--size-icon)] text-primary"
+      className="h-[var(--size-icon)] w-[var(--size-icon)] text-link"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -84,15 +85,15 @@ export function AdminDashboard() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-5xl">
-        <h2 className="mb-6 text-heading font-bold text-foreground">
+        <h1 className="mb-6 text-heading font-bold text-foreground">
           Tableau de bord
-        </h2>
+        </h1>
 
         {/* Alertes critiques — visibles en tête, sans être anxiogènes */}
         {criticalEvents.length > 0 && (
           <section
             aria-label="Alertes critiques"
-            className="mb-6 rounded-card border border-danger/30 bg-surface p-5 shadow-card"
+            className="mb-6 rounded-card bg-danger-bg p-5"
           >
             <div className="mb-3 flex items-center gap-2">
               <Badge variant="critical">
@@ -102,26 +103,28 @@ export function AdminDashboard() {
                 {criticalEvents.length > 1 ? "s" : ""}
               </Badge>
             </div>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {criticalEvents.slice(0, 3).map((event) => (
-                <li
-                  key={event.id}
-                  className="flex items-center justify-between gap-4 text-small"
-                >
-                  <span className="truncate text-foreground">
-                    {event.type} — {event.extrait?.slice(0, 60)}
-                    {event.extrait && event.extrait.length > 60 ? "…" : ""}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate("/admin/safety")}
-                  >
-                    Voir
-                  </Button>
+                <li key={event.id}>
+                  <AlertCard
+                    event={event}
+                    compact
+                    onOpenConversation={(id) =>
+                      navigate(`/admin/conversations/${id}`)
+                    }
+                  />
                 </li>
               ))}
             </ul>
+            <div className="mt-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate("/admin/safety")}
+              >
+                Voir toutes les alertes
+              </Button>
+            </div>
           </section>
         )}
 

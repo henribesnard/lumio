@@ -15,6 +15,8 @@ export interface ProfilePublic {
   prenom: string;
   avatar: string;
   actif: boolean;
+  locked?: boolean;
+  hors_plage_horaire?: boolean;
 }
 
 export interface ProfileResponse {
@@ -50,6 +52,10 @@ export interface MessageResponse {
   conversation_id: string;
   role: "child" | "assistant" | "system_notice";
   contenu: string;
+  /** type pédagogique du message de Lumio (absent = message normal) */
+  kind?: MessageKind | null;
+  /** niveau d'indice 1 (léger) → 3 (fort), pour kind = "hint" */
+  hint_level?: number | null;
   tokens_in?: number;
   tokens_out?: number;
   modele?: string;
@@ -57,6 +63,9 @@ export interface MessageResponse {
   guard_verdict?: Record<string, unknown>;
   created_at: string;
 }
+
+export type MessageKind =
+  "question" | "hint" | "example" | "success" | "explanation" | "safety";
 
 export interface KidMeResponse {
   prenom: string;
