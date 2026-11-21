@@ -363,7 +363,7 @@ class TestGraphNoAnswerRule:
         text = '{"type":"success","text":"Oui ! Tu as trouvé 12 tout seul."}'
         llm = AsyncMock()
         llm.ainvoke = AsyncMock(return_value=_response(text, ok))
-        guard = AsyncMock(return_value={"status": "ok", "type_ok": True})
+        guard = AsyncMock(return_value={"status": "ok", "type_ok": True, "visual_ok": True})
         done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 = 12 ?")
         assert done["kind"] == "success"
         assert done["visual"] is not None and "masked" not in done["visual"]
@@ -578,8 +578,8 @@ class TestSuccessNeedsConfirmation:
     @pytest.mark.parametrize(
         "verdict",
         [
-            {"status": "ok"},  # verdict sans type_ok (garde en erreur)
-            {"status": "ok", "type_ok": None},
+            {"status": "ok", "visual_ok": True},  # verdict sans type_ok
+            {"status": "ok", "type_ok": None, "visual_ok": True},
         ],
     )
     async def test_unconfirmed_success_drops_revealing_visual(self, verdict):
@@ -602,7 +602,7 @@ class TestSuccessNeedsConfirmation:
     async def test_unconfirmed_success_keeps_safe_visual_masked(self):
         llm = AsyncMock()
         llm.ainvoke = AsyncMock(return_value=_response(self.SUCCESS, NUMBER_LINE))
-        guard = AsyncMock(return_value={"status": "ok"})
+        guard = AsyncMock(return_value={"status": "ok", "visual_ok": True})
         done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
         assert done["visual"] is not None and done["visual"]["masked"] == [12.0]
 
@@ -671,3 +671,39 @@ class TestWholeExpression:
         assert enforce_no_answer(_nl(), ans, "hint")[0] is None
         ok, _ = enforce_no_answer(_nl(jumps=[{"start": 0, "end": 7}]), ans, "hint")
         assert ok is not None and ok["masked"] == [10.0]
+
+
+class TestVisualNeedsExplicitApproval:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "verdict",
+        [
+            {"status": "ok"},
+            {"status": "ok", "visual_ok": None},
+            {"status": "ok", "visual_ok": False},
+        ],
+    )
+    async def test_visual_without_explicit_approval_is_dropped(self, verdict):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, VALID["timeline"]))
+        guard = AsyncMock(return_value=verdict)
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="Raconte 1789")
+        assert done["visual"] is None
+        assert done["output_verdict"]["visual_dropped"] == "output_guard"
+        assert done["full_text"].startswith("Regarde la feuille")  # le texte part seul
+
+    @pytest.mark.asyncio
+    async def test_guard_error_drops_visual(self):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, VALID["timeline"]))
+        guard = AsyncMock(side_effect=RuntimeError("guard down"))
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="Raconte 1789")
+        assert done["visual"] is None
+
+    @pytest.mark.asyncio
+    async def test_explicitly_approved_visual_is_kept(self):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, VALID["timeline"]))
+        guard = AsyncMock(return_value={"status": "ok", "visual_ok": True})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="Raconte 1789")
+        assert done["visual"] is not None and done["visual"]["kind"] == "timeline"

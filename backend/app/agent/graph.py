@@ -492,7 +492,9 @@ async def run_agent(
 
     # A visual the guard rejects is dropped: the text goes alone.
     if visual is not None and (
-        output_verdict.get("visual_ok", True) is False
+        # keep a visual only if the guard explicitly approved it: a missing or
+        # null visual_ok (guard error, incomplete JSON) is not an approval
+        output_verdict.get("visual_ok") is not True
         or output_verdict.get("visual_reveals_answer") is True
     ):
         visual, visual_drop_reason = None, "output_guard"
