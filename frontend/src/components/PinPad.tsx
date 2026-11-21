@@ -52,7 +52,7 @@ export function PinPad({
             aria-hidden="true"
             className={[
               "rounded-full transition-colors duration-fast ease-out",
-              "w-[var(--size-pin-dot)] h-[var(--size-pin-dot)] border-2",
+              "w-[var(--size-pin-dot)] h-[var(--size-pin-dot)] border-[3px]",
               i < value.length
                 ? error
                   ? "bg-danger border-danger"
@@ -88,10 +88,15 @@ export function PinPad({
       )}
 
       {/* Keypad */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-4">
         {KEYS.flat().map((key, i) => {
           if (key === "") {
-            return <div key={i} className="min-w-touch min-h-touch" />;
+            return (
+              <div
+                key={i}
+                className="h-[var(--size-pin-key)] w-[var(--size-pin-key)]"
+              />
+            );
           }
 
           if (key === "back") {
@@ -140,9 +145,9 @@ export function PinPad({
               onClick={() => handlePress(key)}
               aria-label={key}
               className={[
-                "flex items-center justify-center min-w-touch min-h-touch",
-                "rounded-button bg-surface text-foreground border border-border shadow-card",
-                "text-subheading font-semibold transition-all duration-fast ease-out",
+                "flex items-center justify-center h-[var(--size-pin-key)] w-[var(--size-pin-key)]",
+                "rounded-full bg-surface text-foreground shadow-card",
+                "font-display text-subheading font-bold transition-all duration-fast ease-out",
                 "hover:bg-surface-alt hover:-translate-y-0.5 active:bg-primary-light active:translate-y-0",
                 "focus:outline-none focus-visible:shadow-focus",
                 isDisabled || value.length >= maxLength

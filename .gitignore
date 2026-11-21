@@ -44,3 +44,6 @@ backups/
 # Generated
 docs/openapi.json
 backend/tests/evals/report.md
+
+# Local virtualenvs
+.venv/

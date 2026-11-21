@@ -1,17 +1,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiGet } from "@/api/client";
+import { apiGet, apiPost } from "@/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
-import type { KidMeResponse, MessageResponse } from "@/api/types";
+import type {
+  ConversationResponse,
+  KidMeResponse,
+  MessageResponse,
+} from "@/api/types";
 import { ChatBubble } from "@/components/ChatBubble";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { Notice } from "@/components/Notice";
 import { Avatar } from "@/components/Avatar";
 import { Mascot } from "@/components/Mascot";
+import { TutorMessage } from "@/components/TutorMessage";
+import { LumioSheet, type SheetPage } from "@/components/LumioSheet";
+import {
+  BackIcon,
+  ExitIcon,
+  EyeIcon,
+  ParentsNotice,
+  PrismMark,
+} from "@/components/KidChrome";
 
 interface StreamedMessage extends MessageResponse {
   calm?: boolean;
+  /** reçu pendant cette session (animations autorisées) */
+  fresh?: boolean;
 }
 
 export function KidChatPage() {
@@ -23,8 +38,11 @@ export function KidChatPage() {
   const [streaming, setStreaming] = useState(false);
   const [streamText, setStreamText] = useState("");
   const [notice, setNotice] = useState("");
-  const [safetyNotice, setSafetyNotice] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState("");
+  const [activePage, setActivePage] = useState(0);
+  const [sheetCollapsed, setSheetCollapsed] = useState(false);
+  const wide = useMediaQuery("(min-width: 1024px)");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const ageBracket = me ? (me.age <= 8 ? "6-8" : "9-14") : "9-14";
@@ -43,11 +61,29 @@ export function KidChatPage() {
       })
       .catch(() => navigate("/chat", { replace: true }))
       .finally(() => setLoading(false));
+    // Titre de la conversation (en-tête 9-14) : lecture seule, non bloquant.
+    apiGet<ConversationResponse[]>("/api/kid/conversations")
+      .then((convs) =>
+        setTitle(convs.find((c) => c.id === conversationId)?.titre ?? ""),
+      )
+      .catch(() => {});
   }, [conversationId, navigate]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamText]);
+
+  // Une page de feuille par message illustré (jamais sur la sécurité).
+  const sheetPages: SheetPage[] = messages
+    .filter((m) => m.role === "assistant" && m.visual && !m.calm)
+    .map((m) => ({ id: m.id, visual: m.visual! }));
+  const pageCount = sheetPages.length;
+  useEffect(() => {
+    if (pageCount > 0) {
+      setActivePage(pageCount - 1);
+      setSheetCollapsed(false);
+    }
+  }, [pageCount]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -65,7 +101,6 @@ export function KidChatPage() {
       setStreaming(true);
       setStreamText("");
       setNotice("");
-      setSafetyNotice(false);
 
       try {
         // Get CSRF token
@@ -121,19 +156,27 @@ export function KidChatPage() {
               } else if (eventType === "done") {
                 // Add the complete assistant message
                 if (data.full_text) {
+                  // Réponse de sécurité : uniquement sur événement critique
+                  // (détresse, auto-agression, maltraitance).
                   const isSafety =
-                    Array.isArray(data.safety_events) &&
-                    data.safety_events.length > 0;
+                    data.kind === "safety" ||
+                    (Array.isArray(data.safety_events) &&
+                      data.safety_events.some(
+                        (e: { severity?: string }) => e.severity === "critical",
+                      ));
                   const assistantMsg: StreamedMessage = {
                     id: data.message_id || `assistant-${Date.now()}`,
                     conversation_id: conversationId,
                     role: "assistant",
                     contenu: data.full_text,
                     created_at: new Date().toISOString(),
+                    kind: isSafety ? "safety" : (data.kind ?? null),
+                    hint_level: data.hint_level ?? null,
+                    visual: isSafety ? null : (data.visual ?? null),
                     calm: isSafety,
+                    fresh: true,
                   };
                   setMessages((prev) => [...prev, assistantMsg]);
-                  if (isSafety) setSafetyNotice(true);
                 }
                 setStreamText("");
               }
@@ -150,6 +193,23 @@ export function KidChatPage() {
     [conversationId, streaming],
   );
 
+  async function handleNewConversation() {
+    try {
+      const conv = await apiPost<ConversationResponse>(
+        "/api/kid/conversations",
+        {},
+      );
+      navigate(`/chat/${conv.id}`);
+    } catch {
+      // silencieux : le bouton reste disponible
+    }
+  }
+
+  async function handleLogout() {
+    await logout();
+    navigate("/select", { replace: true });
+  }
+
   if (loading) {
     return (
       <div
@@ -158,7 +218,7 @@ export function KidChatPage() {
       >
         <div className="flex flex-col items-center gap-4">
           <Mascot state="ecoute" size={88} />
-          <div className="animate-pulse text-foreground-muted text-heading">
+          <div className="animate-pulse text-heading text-foreground-muted">
             Chargement…
           </div>
         </div>
@@ -166,165 +226,335 @@ export function KidChatPage() {
     );
   }
 
-  const inputDisabled =
-    streaming ||
-    !!me?.hors_plage_horaire ||
-    (me?.quota_messages_restant ?? 0) <= 0;
+  const outOfHours = !!me?.hors_plage_horaire;
+  const quotaEmpty = !!me && me.quota_messages_restant <= 0;
+  const inputDisabled = streaming || outOfHours || quotaEmpty;
+  const isYoung = ageBracket === "6-8";
+  const pageOf = (id: string) => sheetPages.findIndex((p) => p.id === id);
+  const thread = (
+    <div className="flex flex-col gap-[0.9rem]">
+      {messages.length === 0 && !streaming && (
+        <div className="flex flex-col items-center gap-3 py-12 text-center">
+          <Mascot state="ecoute" size={104} />
+          <p className="text-body text-foreground-muted">
+            Pose ta question pour commencer !
+          </p>
+        </div>
+      )}
 
+      {messages.map((msg) => (
+        <div key={msg.id} className="msg-in">
+          {msg.role === "assistant" ? (
+            <AssistantRow
+              msg={msg}
+              page={pageOf(msg.id)}
+              onOpenPage={(i) => {
+                setActivePage(i);
+                setSheetCollapsed(false);
+              }}
+            />
+          ) : (
+            <ChatBubble role={msg.role}>{msg.contenu}</ChatBubble>
+          )}
+        </div>
+      ))}
+
+      {/* Texte en cours de réception */}
+      {streaming && streamText && (
+        <div className="msg-in flex items-end gap-2">
+          <Mascot state="reflechit" size={44} label="" className="shrink-0" />
+          <ChatBubble role="assistant">{streamText}</ChatBubble>
+        </div>
+      )}
+
+      {/* Lumio réfléchit */}
+      {streaming && !streamText && <TypingIndicator />}
+
+      <div ref={messagesEndRef} />
+    </div>
+  );
+
+  const notices = (
+    <>
+      {notice && (
+        <Notice variant="warning" onDismiss={() => setNotice("")}>
+          {notice}
+        </Notice>
+      )}
+      {outOfHours && (
+        <Notice variant="warning">
+          Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les
+          heures autorisées !
+        </Notice>
+      )}
+      {quotaEmpty && (
+        <Notice variant="info">
+          Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve
+          demain !
+        </Notice>
+      )}
+    </>
+  );
+
+  const input = (
+    <ChatInput
+      onSend={sendMessage}
+      disabled={inputDisabled}
+      maxLength={1000}
+      showSendLabel={false}
+      placeholder={
+        outOfHours
+          ? "Lumio fait une pause pour l'instant…"
+          : quotaEmpty
+            ? "On se retrouve demain !"
+            : isYoung
+              ? "Ta réponse…"
+              : "Écris à Lumio…"
+      }
+    />
+  );
+
+  /* Feuille de Lumio : à droite en paysage (≥ 1024 px), au-dessus en portrait. */
+  const withSheet = (chatColumn: React.ReactNode) =>
+    sheetPages.length === 0 ? (
+      chatColumn
+    ) : (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-6 lg:pb-5 lg:pr-6">
+        <LumioSheet
+          pages={sheetPages}
+          active={activePage}
+          onSelect={setActivePage}
+          variant={isYoung ? "young" : "older"}
+          collapsible={!wide}
+          collapsed={!wide && sheetCollapsed}
+          onToggleCollapsed={() => setSheetCollapsed((c) => !c)}
+          className={`mx-4 shrink-0 lg:order-2 lg:mx-0 ${wide ? "" : sheetCollapsed ? "" : "max-h-[46vh]"}`}
+        />
+        <div className="flex min-h-0 flex-1 flex-col lg:order-1">
+          {chatColumn}
+        </div>
+      </div>
+    );
+
+  /* ---------- 6-8 : clair, gros boutons, chat pleine largeur ---------- */
+  if (isYoung) {
+    return (
+      <div
+        data-age="6-8"
+        className="flex h-screen flex-col bg-background text-foreground"
+      >
+        <header className="flex items-center justify-between gap-3 px-4 py-3 sm:px-8">
+          <button
+            onClick={() => navigate("/chat")}
+            className="inline-flex min-h-[var(--size-touch-target)] items-center gap-2 rounded-full bg-surface py-2 pl-3 pr-5 text-body font-medium shadow-card transition-colors duration-fast hover:bg-surface-alt focus:outline-none focus-visible:shadow-focus"
+          >
+            <BackIcon />
+            Retour
+          </button>
+          <div className="flex items-center gap-3">
+            {me && (
+              <div className="hidden min-h-[var(--size-touch-target)] items-center gap-3 rounded-full bg-surface py-1 pl-1 pr-5 shadow-card sm:flex">
+                <Avatar avatarKey={me.avatar} size="sm" alt="" />
+                <span className="font-display text-body font-bold">
+                  {me.prenom}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className="inline-flex min-h-[var(--size-touch-target)] items-center gap-2 rounded-full px-5 text-body font-medium shadow-[inset_0_0_0_2px_var(--color-border-subtle)] transition-colors duration-fast hover:bg-surface-alt focus:outline-none focus-visible:shadow-focus"
+            >
+              <ExitIcon />
+              Quitter
+            </button>
+          </div>
+        </header>
+
+        {withSheet(
+          <>
+            <main
+              tabIndex={0}
+              aria-label="Fil de la conversation"
+              className="flex-1 overflow-y-auto px-4 pb-2 focus-visible:shadow-[inset_0_0_0_3px_var(--color-focus)] sm:px-8"
+            >
+              <div className="mx-auto flex max-w-3xl flex-col gap-3">
+                {thread}
+              </div>
+            </main>
+
+            <footer className="px-4 pb-2 pt-2 sm:px-8">
+              <div className="mx-auto flex max-w-3xl flex-col gap-2">
+                {notices}
+                {input}
+              </div>
+              <ParentsNotice className="!justify-start sm:!justify-center" />
+            </footer>
+          </>,
+        )}
+      </div>
+    );
+  }
+
+  /* ---------- 9-14 : sombre « étude », rail de navigation ---------- */
   return (
-    <div data-age={ageBracket} className="flex h-screen flex-col bg-background">
-      {/* Header */}
-      <header className="flex items-center justify-between gap-2 border-b border-border bg-surface px-4 py-3">
+    <div
+      data-age="9-14"
+      className="grid h-screen grid-cols-[4.5rem_minmax(0,1fr)] bg-background text-foreground"
+    >
+      <nav
+        aria-label="Navigation"
+        className="flex flex-col items-center gap-3 bg-nav px-3 py-4"
+      >
+        <PrismMark size={36} />
         <button
-          onClick={() => navigate("/chat")}
-          className="inline-flex items-center gap-1 rounded-button px-2 py-1.5 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)]"
+          type="button"
+          onClick={handleNewConversation}
+          aria-label="Nouvelle conversation"
+          disabled={outOfHours || quotaEmpty}
+          className="mt-3 flex h-12 w-12 items-center justify-center rounded-button bg-primary text-on-primary transition-colors duration-fast hover:bg-primary-hover focus:outline-none focus-visible:shadow-focus disabled:opacity-50"
         >
           <svg
             viewBox="0 0 24 24"
-            className="h-4 w-4"
+            className="h-[var(--size-icon)] w-[var(--size-icon)]"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.5"
+            strokeWidth="2.6"
+            strokeLinecap="round"
             aria-hidden="true"
           >
-            <path
-              d="M19 12H5m7-7-7 7 7 7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M12 5v14M5 12h14" />
           </svg>
-          Retour
         </button>
-        <div className="flex items-center gap-2">
-          <Mascot
-            state={streaming ? (streamText ? "indice" : "reflechit") : "ecoute"}
-            size={40}
-            animated={streaming}
-          />
-          {me && <Avatar avatarKey={me.avatar} size="sm" alt={me.prenom} />}
-          <span className="text-small font-semibold text-foreground">
-            {me?.prenom}
-          </span>
-        </div>
         <button
-          onClick={async () => {
-            await logout();
-            navigate("/select", { replace: true });
-          }}
-          className="rounded-button px-3 py-1.5 text-small text-foreground-muted transition-colors duration-fast hover:bg-surface-alt hover:text-foreground focus:outline-none focus-visible:shadow-focus min-h-[var(--size-touch-target)]"
+          type="button"
+          onClick={() => navigate("/chat")}
+          aria-label="Mes conversations"
+          className="flex h-12 w-12 items-center justify-center rounded-button text-foreground-muted shadow-[inset_0_0_0_1.5px_var(--color-border-subtle)] transition-colors duration-fast hover:text-foreground focus:outline-none focus-visible:shadow-focus"
         >
-          Quitter
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[var(--size-icon)] w-[var(--size-icon)]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M12 7v5l3 2" />
+          </svg>
         </button>
-      </header>
+        <div className="flex-1" />
+        {me && <Avatar avatarKey={me.avatar} size="sm" alt={me.prenom} />}
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label="Quitter"
+          className="flex h-12 w-12 items-center justify-center rounded-button text-foreground shadow-[inset_0_0_0_1.5px_var(--color-border-subtle)] transition-colors duration-fast hover:bg-surface focus:outline-none focus-visible:shadow-focus"
+        >
+          <ExitIcon />
+        </button>
+      </nav>
 
-      {/* Notices */}
-      {notice && (
-        <div className="px-4 pt-3">
-          <Notice variant="warning" onDismiss={() => setNotice("")}>
-            {notice}
-          </Notice>
-        </div>
-      )}
-      {safetyNotice && (
-        <div className="px-4 pt-3">
-          <Notice variant="info">
-            Tes parents ont été prévenus. Tu peux aussi appeler le{" "}
-            <strong>119</strong> (urgences) ou le <strong>3018</strong>{" "}
-            (harcèlement), gratuitement et à toute heure.
-          </Notice>
-        </div>
-      )}
-      {me?.hors_plage_horaire && (
-        <div className="px-4 pt-3">
-          <Notice variant="warning">
-            Ce n'est pas le moment de discuter avec Lumio. Reviens pendant les
-            heures autorisées !
-          </Notice>
-        </div>
-      )}
-      {me && me.quota_messages_restant <= 0 && (
-        <div className="px-4 pt-3">
-          <Notice variant="info">
-            Tu as utilisé tous tes messages pour aujourd'hui. On se retrouve
-            demain !
-          </Notice>
-        </div>
-      )}
+      <div className="flex min-h-0 min-w-0 flex-col">
+        <header className="flex min-h-16 flex-wrap items-center gap-3 border-b border-border-subtle px-4 py-3 sm:px-7">
+          <h1 className="truncate text-subheading font-bold">
+            {title || "Conversation avec Lumio"}
+          </h1>
+          <div className="flex-1" />
+          <span className="hidden items-center gap-1.5 text-tiny text-foreground-muted sm:flex">
+            <EyeIcon />
+            Tes parents peuvent lire tes conversations
+          </span>
+        </header>
 
-      {/* Messages */}
-      <main className="flex-1 overflow-y-auto p-4">
-        <div className="mx-auto max-w-2xl space-y-1">
-          {messages.length === 0 && !streaming && (
-            <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <Mascot state="indice" size={96} />
-              <p className="text-body text-foreground-muted">
-                Pose ta question pour commencer !
-              </p>
-            </div>
-          )}
-
-          {messages.map((msg) => (
-            <div key={msg.id} className="msg-in">
-              {msg.role === "assistant" && !msg.calm ? (
-                <div className="flex items-end gap-2">
-                  <Mascot
-                    state="ecoute"
-                    size={32}
-                    animated={false}
-                    className="mb-1 shrink-0"
-                  />
-                  <div className="max-w-[80%]">
-                    <ChatBubble role="assistant">{msg.contenu}</ChatBubble>
-                  </div>
-                </div>
-              ) : (
-                <ChatBubble role={msg.role} calm={msg.calm}>
-                  {msg.contenu}
-                </ChatBubble>
-              )}
-            </div>
-          ))}
-
-          {/* Streaming text */}
-          {streaming && streamText && (
-            <div className="flex items-end gap-2 msg-in">
-              <Mascot state="reflechit" size={32} className="mb-1 shrink-0" />
-              <div className="max-w-[80%]">
-                <ChatBubble role="assistant">{streamText}</ChatBubble>
+        {withSheet(
+          <>
+            <main
+              tabIndex={0}
+              aria-label="Fil de la conversation"
+              className="flex-1 overflow-y-auto px-4 py-4 focus-visible:shadow-[inset_0_0_0_3px_var(--color-focus)] sm:px-7"
+            >
+              <div className="mx-auto flex max-w-3xl flex-col gap-3">
+                {thread}
               </div>
-            </div>
-          )}
+            </main>
 
-          {/* Typing indicator */}
-          {streaming && !streamText && (
-            <div className="flex items-end gap-2">
-              <Mascot state="reflechit" size={32} className="mb-1 shrink-0" />
-              <TypingIndicator />
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-      </main>
-
-      {/* Input */}
-      <ChatInput
-        onSend={sendMessage}
-        disabled={inputDisabled}
-        maxLength={1000}
-        placeholder={
-          me?.hors_plage_horaire
-            ? "Lumio fait une pause pour l'instant…"
-            : (me?.quota_messages_restant ?? 0) <= 0
-              ? "On se retrouve demain !"
-              : "Écris ton message..."
-        }
-      />
-
-      {/* Footer */}
-      <div className="border-t border-border bg-surface-alt px-4 py-1.5 text-center text-tiny text-foreground-muted">
-        Tes parents peuvent lire tes conversations.
+            <footer className="px-4 pb-4 sm:px-7">
+              <div className="mx-auto flex max-w-3xl flex-col gap-2">
+                {notices}
+                {input}
+              </div>
+              <ParentsNotice className="sm:hidden" />
+            </footer>
+          </>,
+        )}
       </div>
     </div>
   );
+}
+
+/** Message de Lumio : carte typée (question, indice, exemple…) ou bulle. */
+function AssistantRow({
+  msg,
+  page,
+  onOpenPage,
+}: {
+  msg: StreamedMessage;
+  /** index de la page de feuille de ce message (-1 = pas de dessin) */
+  page: number;
+  onOpenPage: (index: number) => void;
+}) {
+  return (
+    <TutorMessage
+      kind={msg.calm ? "safety" : msg.kind}
+      hintLevel={msg.hint_level}
+      animated={!!msg.fresh}
+      footer={
+        page >= 0 ? (
+          <button
+            type="button"
+            onClick={() => onOpenPage(page)}
+            className="flex min-h-[var(--size-touch-target)] items-center gap-2 self-start rounded-button text-small font-bold text-link underline-offset-4 hover:underline focus:outline-none focus-visible:shadow-focus"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-[1.2em] w-[1.2em]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14" />
+              <path d="M13 6l6 6-6 6" />
+            </svg>
+            Regarde la feuille {page + 1}
+          </button>
+        ) : undefined
+      }
+    >
+      {msg.contenu}
+    </TutorMessage>
+  );
+}
+
+/** Vrai si la media query correspond (mise à jour au redimensionnement). */
+function useMediaQuery(query: string) {
+  const get = () =>
+    typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia(query).matches
+      : false;
+  const [matches, setMatches] = useState(get);
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mql = window.matchMedia(query);
+    const on = () => setMatches(mql.matches);
+    mql.addEventListener("change", on);
+    return () => mql.removeEventListener("change", on);
+  }, [query]);
+  return matches;
 }

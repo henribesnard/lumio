@@ -84,6 +84,7 @@ async def create_profile(
         consignes_admin=body.consignes_admin,
         sujets_interdits=body.sujets_interdits,
         modele=body.modele,
+        supports_visuels=body.supports_visuels,
         quota_messages_jour=body.quota_messages_jour,
         quota_tokens_jour=body.quota_tokens_jour,
         plages_horaires=body.plages_horaires,
@@ -349,7 +350,14 @@ async def export_profile(
             select(Message).where(Message.conversation_id == conv.id).order_by(Message.created_at)
         )
         messages = [
-            {"role": m.role, "contenu": m.contenu, "created_at": m.created_at.isoformat()}
+            {
+                "role": m.role,
+                "contenu": m.contenu,
+                "kind": m.kind,
+                "hint_level": m.hint_level,
+                "visual": m.visual,
+                "created_at": m.created_at.isoformat(),
+            }
             for m in msg_result.scalars().all()
         ]
         conversations.append(

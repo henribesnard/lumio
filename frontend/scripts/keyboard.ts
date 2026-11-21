@@ -97,7 +97,15 @@ async function chatFlow(page: Page) {
   await spaGoto(page, "/chat/conv-lea-1");
   await page.waitForTimeout(500);
 
-  const input = page.getByRole("textbox", { name: /message/i });
+  // Parcours au Tab jusqu'à la zone de saisie (Retour → Quitter → fil → saisie)
+  let reached = "";
+  for (let i = 0; i < 10; i++) {
+    await page.keyboard.press("Tab");
+    reached = await activeDesc(page);
+    if (/textarea/i.test(reached)) break;
+  }
+  check("zone de saisie atteinte au Tab", /textarea/i.test(reached), reached);
+  const input = page.getByRole("textbox", { name: /réponse|écris/i });
   await input.focus();
   check("zone de saisie focalisable", (await activeDesc(page)).includes("textbox") || (await page.evaluate(() => document.activeElement?.getAttribute("contenteditable") === "true" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "INPUT")));
   check("focus visible (chat)", await focusVisible(page));
@@ -106,6 +114,8 @@ async function chatFlow(page: Page) {
   await page.waitForTimeout(800);
   const sent = await page.getByText("3 + 5 = ?").count();
   check("Entrée envoie le message", sent > 0);
+  await page.waitForTimeout(4000);
+  check("carte « Question pour toi » rendue après la réponse", (await page.getByText("Question pour toi").count()) > 0);
 }
 
 async function adminProfileFlow(page: Page) {
@@ -160,10 +170,34 @@ async function adminProfileFlow(page: Page) {
   }
   check("bouton Enregistrer atteint au Tab", /enregistrer/i.test(saveDesc), saveDesc);
   check("focus visible (enregistrer)", await focusVisible(page));
+
+  // Onglet Limites : éditeur de plages horaires au clavier
+  await page.getByRole("tab", { name: /limites/i }).focus();
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(300);
+  const sw = page.getByRole("switch", { name: /limiter les horaires/i });
+  await sw.focus();
+  check("interrupteur horaires focalisable", (await activeDesc(page)).includes("switch"));
+  const firstStart = page.getByLabel("Lundi, plage 1, début");
+  await firstStart.focus();
+  check("champ d'heure focalisable + focus visible", await focusVisible(page));
+  let addDesc = "";
+  // un champ <input type="time"> compte plusieurs arrêts (heures, minutes)
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press("Tab");
+    addDesc = await activeDesc(page);
+    if (/ajouter une plage/i.test(addDesc)) break;
+  }
+  check("« Ajouter une plage » atteint au Tab", /ajouter une plage/i.test(addDesc), addDesc);
+  const before = await page.getByLabel(/^Lundi, plage \d+, début$/).count();
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(200);
+  const afterCount = await page.getByLabel(/^Lundi, plage \d+, début$/).count();
+  check("Entrée ajoute une plage", afterCount === before + 1, `${before} → ${afterCount}`);
 }
 
 async function main() {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
   const ctx = await browser.newContext({ viewport: { width: 768, height: 1024 }, locale: "fr-FR" });
   const page = await ctx.newPage();
   page.setDefaultTimeout(15000);

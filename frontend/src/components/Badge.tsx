@@ -4,10 +4,10 @@ interface BadgeProps {
 }
 
 const styles: Record<NonNullable<BadgeProps["variant"]>, string> = {
-  info: "bg-info/10 text-info",
-  warning: "bg-warning/10 text-warning",
-  critical: "bg-danger/10 text-danger",
-  success: "bg-success/10 text-success",
+  info: "bg-info-bg text-info",
+  warning: "bg-warning-bg text-warning",
+  critical: "bg-danger-bg text-danger",
+  success: "bg-success-bg text-success",
 };
 
 /** Forme par variante : l'information ne repose jamais sur la seule couleur. */

@@ -159,6 +159,69 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-noah-1",
     run: async (p) => void (await kidLoginTo(p, "conv-noah-1", "Noah")),
   });
+  push({
+    name: "04-chat-landscape-6-8",
+    vp: "tabletLandscape",
+    url: "/chat/conv-lea-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-lea-1")),
+  });
+  /* ===== 5. Feuille de Lumio (supports visuels) ===== */
+  push({
+    name: "05-sheet-6-8-landscape",
+    vp: "tabletLandscape",
+    url: "/chat/conv-lea-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-lea-1")),
+  });
+  push({
+    name: "05-sheet-6-8-portrait",
+    vp: "tabletPortrait",
+    url: "/chat/conv-lea-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-lea-1")),
+  });
+  push({
+    name: "05-sheet-9-14-landscape",
+    vp: "tabletLandscape",
+    url: "/chat/conv-noah-2",
+    run: async (p) => void (await kidLoginTo(p, "conv-noah-2", "Noah")),
+  });
+  push({
+    name: "05-sheet-9-14-portrait",
+    vp: "tabletPortrait",
+    url: "/chat/conv-noah-2",
+    run: async (p) => void (await kidLoginTo(p, "conv-noah-2", "Noah")),
+  });
+  push({
+    name: "05-sheet-9-14-page1",
+    vp: "tabletLandscape",
+    url: "/chat/conv-noah-2",
+    run: async (p) => {
+      await kidLoginTo(p, "conv-noah-2", "Noah");
+      await p.getByRole("button", { name: /regarde la feuille 1/i }).click();
+      await p.waitForTimeout(700);
+    },
+  });
+  push({
+    name: "05-sheet-zoom",
+    vp: "tabletLandscape",
+    url: "/chat/conv-noah-2",
+    run: async (p) => {
+      await kidLoginTo(p, "conv-noah-2", "Noah");
+      await p.getByRole("button", { name: /agrandir la feuille/i }).click();
+      await p.waitForTimeout(400);
+    },
+  });
+  push({
+    name: "05-sheet-mobile",
+    vp: "mobile",
+    url: "/chat/conv-lea-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-lea-1")),
+  });
+  push({
+    name: "04-chat-9-14-mobile",
+    vp: "mobile",
+    url: "/chat/conv-noah-1",
+    run: async (p) => void (await kidLoginTo(p, "conv-noah-1", "Noah")),
+  });
   push({ name: "04-chat-mobile", vp: "mobile", url: "/chat/conv-lea-1", run: async (p) => void (await kidLoginTo(p, "conv-lea-1")) });
   push({
     name: "04-chat-9-14",
@@ -172,7 +235,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("Et 7 + 6 ?");
+      await p.getByPlaceholder(/réponse|écris/i).fill("Et 7 + 6 ?");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(700);
     },
@@ -183,7 +246,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("Dis-moi un indice");
+      await p.getByPlaceholder(/réponse|écris/i).fill("Dis-moi un indice");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(150);
     },
@@ -194,7 +257,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("je suis triste personne ne m'aime");
+      await p.getByPlaceholder(/réponse|écris/i).fill("je suis triste personne ne m'aime");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(4500);
     },
@@ -214,7 +277,7 @@ export function buildShots(): ShotDef[] {
     url: "/chat/conv-lea-1",
     run: async (p) => {
       await kidLoginTo(p, "conv-lea-1");
-      await p.getByPlaceholder(/écrire|message/i).fill("combien de messages il me reste ?");
+      await p.getByPlaceholder(/réponse|écris/i).fill("combien de messages il me reste ?");
       await p.keyboard.press("Enter");
       await p.waitForTimeout(1500);
     },
@@ -320,6 +383,7 @@ export function buildShots(): ShotDef[] {
     await p.waitForTimeout(300);
   });
   adminShot("11-admin-conversation", "/admin/conversations/conv-lea-1");
+  adminShot("11-admin-conversation-visual", "/admin/conversations/conv-noah-2");
   adminShot("12-admin-safety", "/admin/safety");
   adminShot("12-admin-safety-all", "/admin/safety", "desktop", async (p) => {
     await p.getByRole("button", { name: /toutes/i }).click();

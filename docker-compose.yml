@@ -41,6 +41,7 @@ services:
       PUBLIC_URL: ${PUBLIC_URL:-https://lumio.wezon.fr}
       TZ: ${TZ:-Europe/Paris}
       CONVERSATION_RETENTION_DAYS: ${CONVERSATION_RETENTION_DAYS:-365}
+      VISUAL_AIDS_ENABLED: ${VISUAL_AIDS_ENABLED:-false}
     depends_on:
       db:
         condition: service_healthy

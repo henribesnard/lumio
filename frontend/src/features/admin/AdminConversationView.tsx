@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import type { MessageResponse } from "@/api/types";
 
 import { AdminLayout } from "./AdminLayout";
+import { VisualAid } from "@/components/visual/VisualAid";
 
 function roleMeta(role: MessageResponse["role"]): {
   label: string;
@@ -60,9 +61,9 @@ export function AdminConversationView() {
           </svg>
           Retour
         </Button>
-        <h2 className="mb-6 text-heading font-bold text-foreground">
+        <h1 className="mb-6 text-heading font-bold text-foreground">
           Conversation
-        </h2>
+        </h1>
 
         {loading ? (
           <p className="animate-pulse text-body text-foreground-muted">
@@ -82,6 +83,9 @@ export function AdminConversationView() {
                 <Card key={msg.id} className="!p-4">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <Badge variant={meta.badge}>{meta.label}</Badge>
+                    {msg.kind && (
+                      <KindTag kind={msg.kind} level={msg.hint_level} />
+                    )}
                     {hasGuard && (
                       <Badge variant="warning">Modération appliquée</Badge>
                     )}
@@ -95,6 +99,23 @@ export function AdminConversationView() {
                   <p className="whitespace-pre-wrap text-small text-foreground leading-body">
                     {msg.contenu}
                   </p>
+
+                  {msg.visual && (
+                    <div className="mt-3 rounded-input bg-sheet p-4 shadow-[inset_0_0_0_1px_var(--color-border-subtle)]">
+                      <p className="mb-2 text-tiny font-semibold text-sheet-muted">
+                        Feuille de Lumio jointe
+                      </p>
+                      <VisualAid spec={msg.visual} animated={false} />
+                      <details className="mt-2">
+                        <summary className="cursor-pointer rounded-button text-tiny font-medium text-sheet-muted focus:outline-none focus-visible:shadow-focus">
+                          Spécification du visuel
+                        </summary>
+                        <pre className="mt-1 overflow-x-auto rounded-input bg-surface-alt p-2 font-mono text-tiny text-foreground">
+                          {JSON.stringify(msg.visual, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
+                  )}
 
                   {/* Détails modération & garde-fou */}
                   {hasGuard && (
@@ -141,5 +162,37 @@ export function AdminConversationView() {
         )}
       </div>
     </AdminLayout>
+  );
+}
+
+const KIND_LABEL: Record<string, string> = {
+  question: "Question",
+  hint: "Indice",
+  example: "Exemple analogue",
+  success: "Réussite",
+  explanation: "Explication",
+  safety: "Réponse de sécurité",
+};
+
+const KIND_DOT: Record<string, string> = {
+  question: "bg-ray-sun",
+  hint: "bg-ray-mint",
+  example: "bg-ray-sky",
+  success: "bg-primary",
+  explanation: "bg-border",
+  safety: "bg-mascot-calm",
+};
+
+/** Type pédagogique du message de Lumio (libellé + pastille du spectre). */
+function KindTag({ kind, level }: { kind: string; level?: number | null }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-alt px-2.5 py-0.5 text-tiny font-medium text-foreground">
+      <span
+        className={`h-2 w-2 rounded-full ${KIND_DOT[kind] ?? "bg-border"}`}
+        aria-hidden="true"
+      />
+      {KIND_LABEL[kind] ?? kind}
+      {kind === "hint" && level ? ` ${level}/3` : ""}
+    </span>
   );
 }

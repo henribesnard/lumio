@@ -80,6 +80,8 @@ export const handlers = [
         prenom: p.prenom,
         avatar: p.avatar,
         actif: p.actif,
+        locked: !!p.locked_until && new Date(p.locked_until) > new Date(),
+        hors_plage_horaire: false,
       })),
     );
   }),
@@ -137,7 +139,7 @@ export const handlers = [
   http.post("/api/kid/conversations/:id/messages", async () => {
     // Simulated SSE response
     const responseText =
-      "Bonne question ! Qu'est-ce que tu sais déjà sur ce sujet ? Essaie de me dire ce qui te vient en tête, et on avancera ensemble.";
+      "Bonne question ! Qu'est-ce que tu sais déjà sur ce sujet ? Dis-moi ce qui te vient en tête, et on avancera ensemble.";
     const words = responseText.split(" ");
     const encoder = new TextEncoder();
 
@@ -150,6 +152,8 @@ export const handlers = [
         }
         const doneData = JSON.stringify({
           full_text: responseText,
+          kind: "question",
+          hint_level: null,
           message_id: `msg-${Date.now()}`,
           safety_events: [],
           tokens_in: 150,

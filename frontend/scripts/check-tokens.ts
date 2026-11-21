@@ -163,16 +163,28 @@ export function runChecks(): CheckError[] {
     ["bulle enfant", "--color-bubble-child-text", "--color-bubble-child"],
     ["bulle assistant", "--color-bubble-assistant-text", "--color-bubble-assistant"],
     ["avis système", "--color-bubble-notice-text", "--color-bubble-notice"],
+    ["carte question", "--color-question-text", "--color-question-bg"],
+    ["carte indice", "--color-hint-text", "--color-hint-bg"],
+    ["carte exemple", "--color-example-text", "--color-example-bg"],
+    ["lien", "--color-link", "--color-background"],
+    ["encre de la feuille", "--color-sheet-ink", "--color-sheet"],
+    ["texte secondaire de la feuille", "--color-sheet-muted", "--color-sheet"],
+    ["indice sur la feuille", "--color-sheet-hint-text", "--color-sheet"],
+    ["case ? sur la feuille", "--color-sheet-sun-text", "--color-sheet-sun-bg"],
+    ["prisme sur la feuille", "--color-sheet-prism", "--color-sheet"],
+    ["onglet actif de la feuille", "--color-sheet-tab-active-text", "--color-sheet-tab-active"],
   ];
   const uiPairs: [string, string, string][] = [
     ["bordure", "--color-border", "--color-background"],
-    ["focus", "--color-primary", "--color-background"],
+    ["focus", "--color-focus", "--color-background"],
+    ["focus sur surface", "--color-focus", "--color-surface"],
   ];
-  const whiteOn: [string, string][] = [
-    ["blanc sur primaire", "--color-primary"],
-    ["blanc sur primaire-hover", "--color-primary-hover"],
-    ["blanc sur secondaire", "--color-secondary"],
-    ["blanc sur danger", "--color-danger"],
+  /* texte posé sur un aplat coloré : couleur « on-* » du thème (blanc par défaut) */
+  const onPairs: [string, string, string][] = [
+    ["texte sur primaire", "--color-on-primary", "--color-primary"],
+    ["texte sur primaire-hover", "--color-on-primary", "--color-primary-hover"],
+    ["texte sur secondaire", "--color-on-secondary", "--color-secondary"],
+    ["texte sur danger", "--color-on-danger", "--color-danger"],
   ];
   for (const theme of themeList) {
     const label = theme ?? ":root (9-14)";
@@ -193,11 +205,12 @@ export function runChecks(): CheckError[] {
         if (r < 3) errors.push({ rule: "contraste-UI", message: `${label} : ${what} ${fg} sur ${bg} = ${r.toFixed(2)} < 3` });
       }
     }
-    for (const [what, n] of whiteOn) {
-      const fg = get(n);
-      if (isHex(fg)) {
-        const r = contrast("#ffffff", fg);
-        if (r < 4.5) errors.push({ rule: "contraste-AA", message: `${label} : ${what} #FFFFFF sur ${fg} = ${r.toFixed(2)} < 4.5` });
+    for (const [what, fgN, bgN] of onPairs) {
+      const fg = get(fgN);
+      const bg = get(bgN);
+      if (isHex(fg) && isHex(bg)) {
+        const r = contrast(fg, bg);
+        if (r < 4.5) errors.push({ rule: "contraste-AA", message: `${label} : ${what} ${fg} sur ${bg} = ${r.toFixed(2)} < 4.5` });
       }
     }
   }

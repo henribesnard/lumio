@@ -3,20 +3,6 @@
 /* Polices auto-hébergées (OFL 1.1) — aucun appel externe au chargement.
    Voir public/fonts/README.md pour les attributions. */
 @font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("/fonts/atkinson-400.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Atkinson Hyperlegible";
-  src: url("/fonts/atkinson-700.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
   font-family: "Lexend";
   src: url("/fonts/lexend-var.woff2") format("woff2");
   font-weight: 100 900;
@@ -24,9 +10,9 @@
   font-display: swap;
 }
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/inter-var.woff2") format("woff2");
-  font-weight: 100 900;
+  font-family: "Unbounded";
+  src: url("/fonts/unbounded-var.woff2") format("woff2");
+  font-weight: 200 900;
   font-style: normal;
   font-display: swap;
 }
@@ -44,6 +30,17 @@
 
   * {
     @apply border-border;
+  }
+
+  /* Titres : Unbounded (géométrique, assurée) ; texte courant : Lexend. */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    color: var(--color-link);
   }
 
   /* Focus toujours visible (WCAG 2.4.7) — anneau contrasté, jamais supprimé. */
@@ -100,6 +97,45 @@
     50% {
       opacity: 0.55;
       transform: scale(1.06);
+    }
+  }
+
+  /* Prisme qui s'irise au moment du déclic (SuccessMoment, mascotte « bravo »). */
+  .prism-rays > * {
+    transform-origin: left center;
+    transform-box: fill-box;
+    animation: prism-ray var(--duration-slow) var(--ease-out) both;
+  }
+  .prism-rays > *:nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .prism-rays > *:nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .prism-rays > *:nth-child(4) {
+    animation-delay: 240ms;
+  }
+  @keyframes prism-ray {
+    from {
+      opacity: 0;
+      transform: scaleX(0.2);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Tracé progressif des dessins de la feuille (600 ms, gauche → droite). */
+  .sheet-draw {
+    animation: sheet-draw var(--duration-slow) var(--ease-out) both;
+  }
+  @keyframes sheet-draw {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
     }
   }
 

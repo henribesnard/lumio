@@ -24,7 +24,7 @@ export function Avatar({
       src={`/avatars/${avatarKey}.svg`}
       alt={alt}
       className={[
-        "rounded-full object-cover shrink-0 ring-2 ring-border/40",
+        "rounded-full object-cover shrink-0",
         sizeClasses[size],
         className,
       ]

@@ -87,7 +87,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               className={({ isActive }) =>
                 `flex items-center gap-2.5 rounded-button px-3 py-2 text-small font-medium transition-colors duration-fast ease-out focus:outline-none focus-visible:shadow-focus ${
                   isActive
-                    ? "bg-primary-light text-primary"
+                    ? "bg-primary-light text-link"
                     : "text-foreground-muted hover:bg-surface-alt hover:text-foreground"
                 }`
               }
@@ -143,7 +143,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               className={({ isActive }) =>
                 `flex items-center gap-1.5 whitespace-nowrap rounded-button px-3 py-1.5 text-small font-medium transition-colors duration-fast ${
                   isActive
-                    ? "bg-primary-light text-primary"
+                    ? "bg-primary-light text-link"
                     : "text-foreground-muted"
                 }`
               }

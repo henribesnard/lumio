@@ -1,254 +1,294 @@
 {
-  "generatedAt": "2026-11-19T19:31:16.022Z",
-  "base": "http://localhost:3200",
+  "generatedAt": "2026-11-20T18:17:19.000Z",
+  "base": "http://localhost:3100",
   "results": {
-    "00-design-pistes": {
-      "url": "http://localhost:3200/__design",
-      "violations": [],
-      "seriousOrCritical": []
-    },
-    "00-design-pistes-mobile": {
-      "url": "http://localhost:3200/__design",
-      "violations": [],
-      "seriousOrCritical": []
-    },
     "00-design-components": {
-      "url": "http://localhost:3200/__design/components",
+      "url": "http://localhost:3100/__design/components",
       "violations": [],
       "seriousOrCritical": []
     },
     "01-select": {
-      "url": "http://localhost:3200/select",
+      "url": "http://localhost:3100/select",
       "violations": [],
       "seriousOrCritical": []
     },
     "01-select-landscape": {
-      "url": "http://localhost:3200/select",
+      "url": "http://localhost:3100/select",
       "violations": [],
       "seriousOrCritical": []
     },
     "01-select-mobile": {
-      "url": "http://localhost:3200/select",
+      "url": "http://localhost:3100/select",
       "violations": [],
       "seriousOrCritical": []
     },
     "01-select-untrusted-device": {
-      "url": "http://localhost:3200/select",
+      "url": "http://localhost:3100/select",
       "violations": [],
       "seriousOrCritical": []
     },
     "01-select-error": {
-      "url": "http://localhost:3200/select",
+      "url": "http://localhost:3100/select",
       "violations": [],
       "seriousOrCritical": []
     },
     "01-select-empty": {
-      "url": "http://localhost:3200/select",
+      "url": "http://localhost:3100/select",
       "violations": [],
       "seriousOrCritical": []
     },
     "02-pin": {
-      "url": "http://localhost:3200/pin/profile-lea",
+      "url": "http://localhost:3100/pin/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "02-pin-error": {
-      "url": "http://localhost:3200/pin/profile-lea",
+      "url": "http://localhost:3100/pin/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "02-pin-locked": {
-      "url": "http://localhost:3200/pin/profile-ines",
+      "url": "http://localhost:3100/pin/profile-ines",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-landscape": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-mobile": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-9-14": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-hors-horaires": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-quota-0": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-quota-low": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-empty-suggestions-6-8": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "03-kid-home-empty-suggestions-9-14": {
-      "url": "http://localhost:3200/chat",
+      "url": "http://localhost:3100/chat",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat": {
-      "url": "http://localhost:3200/chat/conv-lea-1",
+      "url": "http://localhost:3100/chat/conv-lea-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-landscape-9-14": {
-      "url": "http://localhost:3200/chat/conv-noah-1",
+      "url": "http://localhost:3100/chat/conv-noah-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "04-chat-landscape-6-8": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-6-8-landscape": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-6-8-portrait": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-9-14-landscape": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-9-14-portrait": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-9-14-page1": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-zoom": {
+      "url": "http://localhost:3100/chat/conv-noah-2",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "05-sheet-mobile": {
+      "url": "http://localhost:3100/chat/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "04-chat-9-14-mobile": {
+      "url": "http://localhost:3100/chat/conv-noah-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-mobile": {
-      "url": "http://localhost:3200/chat/conv-lea-1",
+      "url": "http://localhost:3100/chat/conv-lea-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-9-14": {
-      "url": "http://localhost:3200/chat/conv-ines-1",
+      "url": "http://localhost:3100/chat/conv-ines-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-streaming": {
-      "url": "http://localhost:3200/chat/conv-lea-1",
+      "url": "http://localhost:3100/chat/conv-lea-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-typing": {
-      "url": "http://localhost:3200/chat/conv-lea-1",
+      "url": "http://localhost:3100/chat/conv-lea-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-safety-response": {
-      "url": "http://localhost:3200/chat/conv-lea-1",
+      "url": "http://localhost:3100/chat/conv-lea-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "04-chat-notice": {
-      "url": "http://localhost:3200/chat/conv-lea-1",
+      "url": "http://localhost:3100/chat/conv-lea-1",
       "violations": [],
       "seriousOrCritical": []
     },
     "07-admin-login": {
-      "url": "http://localhost:3200/admin/login",
+      "url": "http://localhost:3100/admin/login",
       "violations": [],
       "seriousOrCritical": []
     },
     "07-admin-login-totp": {
-      "url": "http://localhost:3200/admin/login",
+      "url": "http://localhost:3100/admin/login",
       "violations": [],
       "seriousOrCritical": []
     },
     "07-admin-login-error": {
-      "url": "http://localhost:3200/admin/login",
+      "url": "http://localhost:3100/admin/login",
       "violations": [],
       "seriousOrCritical": []
     },
     "08-admin-dashboard": {
-      "url": "http://localhost:3200/admin",
+      "url": "http://localhost:3100/admin",
       "violations": [],
       "seriousOrCritical": []
     },
     "08-admin-dashboard-mobile": {
-      "url": "http://localhost:3200/admin",
+      "url": "http://localhost:3100/admin",
       "violations": [],
       "seriousOrCritical": []
     },
     "09-admin-profiles": {
-      "url": "http://localhost:3200/admin/profiles",
+      "url": "http://localhost:3100/admin/profiles",
       "violations": [],
       "seriousOrCritical": []
     },
     "09-admin-profiles-create": {
-      "url": "http://localhost:3200/admin/profiles",
+      "url": "http://localhost:3100/admin/profiles",
       "violations": [],
       "seriousOrCritical": []
     },
     "10-admin-profile-detail": {
-      "url": "http://localhost:3200/admin/profiles/profile-lea",
+      "url": "http://localhost:3100/admin/profiles/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "10-admin-profile-comportement": {
-      "url": "http://localhost:3200/admin/profiles/profile-lea",
+      "url": "http://localhost:3100/admin/profiles/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "10-admin-profile-limites": {
-      "url": "http://localhost:3200/admin/profiles/profile-lea",
+      "url": "http://localhost:3100/admin/profiles/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "10-admin-profile-prompt": {
-      "url": "http://localhost:3200/admin/profiles/profile-lea",
+      "url": "http://localhost:3100/admin/profiles/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "10-admin-profile-conversations": {
-      "url": "http://localhost:3200/admin/profiles/profile-lea",
+      "url": "http://localhost:3100/admin/profiles/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "10-admin-profile-danger": {
-      "url": "http://localhost:3200/admin/profiles/profile-lea",
+      "url": "http://localhost:3100/admin/profiles/profile-lea",
       "violations": [],
       "seriousOrCritical": []
     },
     "11-admin-conversation": {
-      "url": "http://localhost:3200/admin/conversations/conv-lea-1",
+      "url": "http://localhost:3100/admin/conversations/conv-lea-1",
+      "violations": [],
+      "seriousOrCritical": []
+    },
+    "11-admin-conversation-visual": {
+      "url": "http://localhost:3100/admin/conversations/conv-noah-2",
       "violations": [],
       "seriousOrCritical": []
     },
     "12-admin-safety": {
-      "url": "http://localhost:3200/admin/safety",
+      "url": "http://localhost:3100/admin/safety",
       "violations": [],
       "seriousOrCritical": []
     },
     "12-admin-safety-all": {
-      "url": "http://localhost:3200/admin/safety",
+      "url": "http://localhost:3100/admin/safety",
       "violations": [],
       "seriousOrCritical": []
     },
     "13-admin-devices": {
-      "url": "http://localhost:3200/admin/devices",
+      "url": "http://localhost:3100/admin/devices",
       "violations": [],
       "seriousOrCritical": []
     },
     "14-admin-security": {
-      "url": "http://localhost:3200/admin/security",
+      "url": "http://localhost:3100/admin/security",
       "violations": [],
       "seriousOrCritical": []
     },
     "14-admin-security-setup": {
-      "url": "http://localhost:3200/admin/security",
+      "url": "http://localhost:3100/admin/security",
       "violations": [],
       "seriousOrCritical": []
     },
     "14-admin-security-setup-error": {
-      "url": "http://localhost:3200/admin/security",
+      "url": "http://localhost:3100/admin/security",
       "violations": [],
       "seriousOrCritical": []
     },
     "14-admin-security-enabled": {
-      "url": "http://localhost:3200/admin/security",
+      "url": "http://localhost:3100/admin/security",
       "violations": [],
       "seriousOrCritical": []
     }

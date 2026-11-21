@@ -77,6 +77,9 @@ class Profile(Base):
     consignes_admin: Mapped[str | None] = mapped_column(Text, nullable=True)
     sujets_interdits: Mapped[list | None] = mapped_column(JSON, nullable=True, default=list)
     modele: Mapped[str | None] = mapped_column(String(50), nullable=True)  # override model
+    # Visual aids (« feuille de Lumio ») — opt-in per profile, also gated by
+    # the VISUAL_AIDS_ENABLED flag.
+    supports_visuels: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Limits
     quota_messages_jour: Mapped[int] = mapped_column(Integer, default=50, nullable=False)
     quota_tokens_jour: Mapped[int] = mapped_column(Integer, default=50000, nullable=False)
@@ -151,6 +154,12 @@ class Message(Base):
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False)  # child, assistant, system_notice
     contenu: Mapped[str] = mapped_column(Text, nullable=False)
+    # Pedagogical type of an assistant message (question, hint, example, success,
+    # explanation, safety) — None = plain message. See app/agent/tutor_output.py.
+    kind: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    hint_level: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Validated visual aid spec (see app/agent/visuals.py) — None = no drawing.
+    visual: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     tokens_in: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     tokens_out: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     modele: Mapped[str | None] = mapped_column(String(50), nullable=True)

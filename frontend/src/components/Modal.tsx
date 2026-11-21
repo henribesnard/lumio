@@ -5,9 +5,17 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  /** "wide" : modale large (feuille agrandie) */
+  size?: "md" | "wide";
 }
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  size = "md",
+}: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -37,7 +45,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)] p-4"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
@@ -46,7 +54,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-lg rounded-card bg-surface p-6 shadow-modal"
+        className={`w-full ${size === "wide" ? "max-h-[92vh] max-w-5xl overflow-y-auto" : "max-w-lg"} rounded-card bg-surface p-6 shadow-modal`}
       >
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 className="text-subheading font-bold text-foreground">{title}</h2>
