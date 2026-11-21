@@ -35,9 +35,12 @@ export function SafetyMessage({
       </div>
       {showHelplines && (
         <div className="flex flex-col gap-[0.4em] border-t border-border-subtle pt-[0.6em] text-small text-foreground">
+          {/* Ne jamais affirmer qu'un adulte a été prévenu : Lumio enregistre
+              seulement une alerte dans l'espace parents, il ne contacte
+              personne. L'enfant est invité à aller chercher de l'aide lui-même. */}
           <p>
-            Tes parents ont été prévenus. Tu peux aussi appeler, gratuitement et
-            à toute heure :
+            Parles-en tout de suite à un adulte de confiance (un parent, un
+            enseignant…). Tu peux aussi appeler, gratuitement et à toute heure :
           </p>
           <ul className="flex flex-wrap gap-x-[1.5em] gap-y-[0.3em]">
             <li>
