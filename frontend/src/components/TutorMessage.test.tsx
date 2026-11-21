@@ -44,6 +44,9 @@ describe("TutorMessage", () => {
     );
     expect(screen.getByText("119")).toBeTruthy();
     expect(screen.getByText("3018")).toBeTruthy();
+    // ne prétend jamais que les parents ont été prévenus (aucune notification réelle)
+    expect(screen.queryByText(/ont été prévenus/i)).toBeNull();
+    expect(screen.getByText(/adulte de confiance/i)).toBeTruthy();
     // aucune animation festive
     expect(container.querySelector(".prism-rays")).toBeNull();
   });
