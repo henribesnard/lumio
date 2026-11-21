@@ -19,6 +19,10 @@ class TestValidatePlagesHoraires:
     def test_none_means_no_restriction(self):
         assert validate_plages_horaires(None) is None
 
+    def test_empty_schedule_is_normalised_to_none(self):
+        # {} est déjà « sans restriction » côté contrôle horaire : on le stocke None
+        assert validate_plages_horaires({}) is None
+
     def test_valid_schedule_is_sorted(self):
         out = validate_plages_horaires(
             {

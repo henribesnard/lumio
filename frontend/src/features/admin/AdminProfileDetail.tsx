@@ -16,7 +16,7 @@ import { TagInput } from "@/components/TagInput";
 import { Toggle } from "@/components/Toggle";
 import { ScheduleEditor } from "@/components/ScheduleEditor";
 import {
-  canonicalizeDays,
+  toEditorSchedule,
   validateSchedule,
   type Schedule,
 } from "@/components/schedule";
@@ -90,9 +90,8 @@ export function AdminProfileDetail() {
         // Clés de jour héritées (« lun », « mon »…) ramenées aux noms français.
         setForm({
           ...p,
-          plages_horaires: p.plages_horaires
-            ? canonicalizeDays(p.plages_horaires)
-            : null,
+          // {} ou null = aucune restriction ; clés héritées normalisées
+          plages_horaires: toEditorSchedule(p.plages_horaires),
         });
         setSujetsInput(p.sujets_interdits.join(", "));
       })

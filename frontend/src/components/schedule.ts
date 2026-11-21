@@ -126,3 +126,14 @@ export function defaultSchedule(): Schedule {
     dimanche: weekend,
   };
 }
+
+/**
+ * Valeur stockée → valeur de l'éditeur : `null` ou `{}` = aucune restriction
+ * (comme côté serveur), clés héritées ramenées aux noms français.
+ */
+export function toEditorSchedule(
+  value: Record<string, TimeSlot[]> | null | undefined,
+): Schedule | null {
+  if (!value || Object.keys(value).length === 0) return null;
+  return canonicalizeDays(value);
+}
