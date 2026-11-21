@@ -111,3 +111,15 @@ export function Label({
 export function fmt(n: number) {
   return Number.isInteger(n) ? String(n) : String(n).replace(".", ",");
 }
+
+/**
+ * Deux valeurs s'affichent-elles pareil une fois arrondies à `decimals`
+ * décimales (comme le rendu) ? Évite qu'une erreur d'arrondi flottant laisse
+ * écrite la valeur cherchée (ex. −3,595 rendu « −3,59 »).
+ */
+export function sameAtDisplay(a: number, b: number, decimals: number) {
+  const f = 10 ** decimals;
+  const r = (x: number) => Math.round(x * f) / f;
+  // on compare aussi la valeur brute pour les arrondis « au milieu »
+  return r(a) === r(b) || Math.abs(a - b) < 0.5 / f + 1e-12;
+}

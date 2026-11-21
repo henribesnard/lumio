@@ -85,6 +85,25 @@ describe("VisualAid", () => {
     expect(texts).not.toContain("12");
   });
 
+  it("graphique : graduation à mi-chemin (−3,595) masquée malgré l'arrondi flottant", () => {
+    // 1,5 − 5,095 = −3,595 ; valeurs [−4,99375 ; 1] → graduation calculée −3,595
+    const spec: VisualSpec = {
+      kind: "chart",
+      title: "Écarts",
+      chart_type: "bar",
+      x_labels: ["a", "b"],
+      series: [{ name: "s", values: [-4.99375, 1] }],
+      masked: [-3.595],
+    };
+    const { container } = render(<VisualAid spec={spec} />);
+    const texts = [...container.querySelectorAll("text")].map(
+      (t) => t.textContent ?? "",
+    );
+    expect(
+      texts.some((t) => t.startsWith("-3,59") || t.startsWith("-3,6")),
+    ).toBe(false);
+  });
+
   it("repli lisible si le type est inconnu", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     render(

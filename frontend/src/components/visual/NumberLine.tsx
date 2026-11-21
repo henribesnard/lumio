@@ -1,5 +1,5 @@
 import type { NumberLineVisual } from "@/api/types";
-import { C, FONT, Label, fmt, layerStroke } from "./shared";
+import { C, FONT, Label, fmt, layerStroke, sameAtDisplay } from "./shared";
 
 const W = 640;
 const PAD = 30;
@@ -18,7 +18,7 @@ export function NumberLine({ spec }: { spec: NumberLineVisual }) {
   // Comparaison à la précision d'affichage : les graduations sont arrondies
   // au millionième (pas fractionnaire : 2/3 → 0,666667).
   const isMasked = (v: number) =>
-    (spec.masked ?? []).some((m) => Math.abs(m - v) < 1e-6);
+    (spec.masked ?? []).some((m) => sameAtDisplay(v, m, 6));
   const labelEvery = ticks.length > 21 ? 5 : ticks.length > 11 ? 5 : 1;
   return (
     <svg viewBox={`0 0 ${W} 170`} width="100%" aria-hidden="true">

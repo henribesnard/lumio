@@ -1,5 +1,5 @@
 import type { ChartVisual } from "@/api/types";
-import { C, FONT, UnknownBox, fmt } from "./shared";
+import { C, FONT, UnknownBox, fmt, sameAtDisplay } from "./shared";
 
 const W = 640;
 const H = 300;
@@ -30,9 +30,7 @@ export function Chart({ spec }: { spec: ChartVisual }) {
   // Valeur cherchée : la ligne de l'axe reste, son nombre n'est jamais écrit
   // (comparaison à la précision d'affichage, arrondi au centième).
   const isMasked = (t: number) =>
-    (spec.masked ?? []).some(
-      (m) => Math.abs(Math.round(t * 100) / 100 - m) < 0.005,
-    );
+    (spec.masked ?? []).some((m) => sameAtDisplay(t, m, 2));
   const ns = spec.series.length;
   const bw = Math.min(46, (slot * 0.7) / ns);
   return (
