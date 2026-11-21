@@ -151,3 +151,32 @@ class TestAgentMessageKind:
             ]
         done = [e for e in events if e["type"] == "done"][0]["data"]
         assert done["kind"] == "safety"
+
+
+class TestSuccessConfirmation:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("verdict", [{"status": "ok"}, {"status": "ok", "type_ok": None}])
+    async def test_unconfirmed_success_is_shown_plainly(self, verdict):
+        guard = AsyncMock(return_value=verdict)
+        data = await _done(_llm_returning('{"type":"success","text":"Bravo !"}'), guard)
+        assert data["kind"] is None and data["full_text"] == "Bravo !"
+
+    @pytest.mark.asyncio
+    async def test_guard_error_never_publishes_success(self):
+        guard = AsyncMock(side_effect=RuntimeError("guard down"))
+        data = await _done(_llm_returning('{"type":"success","text":"Bravo !"}'), guard)
+        assert data["kind"] is None
+
+    @pytest.mark.asyncio
+    async def test_confirmed_success_is_kept(self):
+        guard = AsyncMock(return_value={"status": "ok", "type_ok": True})
+        data = await _done(_llm_returning('{"type":"success","text":"Bravo !"}'), guard)
+        assert data["kind"] == "success"
+
+    @pytest.mark.asyncio
+    async def test_other_kinds_do_not_need_confirmation(self):
+        guard = AsyncMock(return_value={"status": "ok"})
+        data = await _done(
+            _llm_returning('{"type":"hint","hint_level":1,"text":"Pense à 10."}'), guard
+        )
+        assert data["kind"] == "hint"
