@@ -350,7 +350,14 @@ async def export_profile(
             select(Message).where(Message.conversation_id == conv.id).order_by(Message.created_at)
         )
         messages = [
-            {"role": m.role, "contenu": m.contenu, "created_at": m.created_at.isoformat()}
+            {
+                "role": m.role,
+                "contenu": m.contenu,
+                "kind": m.kind,
+                "hint_level": m.hint_level,
+                "visual": m.visual,
+                "created_at": m.created_at.isoformat(),
+            }
             for m in msg_result.scalars().all()
         ]
         conversations.append(
