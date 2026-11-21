@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+from fractions import Fraction
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError, field_validator
@@ -289,20 +290,25 @@ def alt_text(spec: dict[str, Any]) -> str:
 # ---------------------------------------------------------------------------------
 # Deterministic « no answer in the visual » guard
 # ---------------------------------------------------------------------------------
+# Rule (docs/VISUAL_AIDS.md §3): until the child has found it, the value sought
+# is neither written nor highlighted in a visual — no label, no mark, no jump or
+# arrow ending on it, no coloured bar or point standing for it. Only a message
+# of type « success » may show it. On a number line the tick of the value stays
+# (the child counts on it) but its number is masked (``masked`` in the spec).
+
+_NUM = r"-?\d+(?:[.,]\d+)?"
+_FRAC_RE = re.compile(
+    r"(\d+)\s*/\s*(\d+)\s*(\+|-|−|x|×|\*|÷|:|plus|moins|fois)\s*(\d+)\s*/\s*(\d+)",
+    re.IGNORECASE,
+)
 _CALC_RE = re.compile(
-    r"(-?\d+(?:[.,]\d+)?)\s*(\+|-|−|x|×|\*|÷|/|:|plus|moins|fois|divisé par)\s*(-?\d+(?:[.,]\d+)?)",
+    rf"({_NUM})\s*(\+|-|−|x|×|\*|÷|/|:|plus|moins|fois|divisé par)\s*({_NUM})",
     re.IGNORECASE,
 )
 
 
-def arithmetic_answer(child_message: str) -> float | None:
-    """Result of a simple calculation asked by the child (« 7 + 5 ? »), if any."""
-    m = _CALC_RE.search(child_message or "")
-    if not m:
-        return None
-    a = float(m.group(1).replace(",", "."))
-    b = float(m.group(3).replace(",", "."))
-    op = m.group(2).lower()
+def _apply(a: Fraction, op: str, b: Fraction) -> Fraction | None:
+    op = op.lower()
     if op in ("+", "plus"):
         return a + b
     if op in ("-", "−", "moins"):
@@ -314,30 +320,106 @@ def arithmetic_answer(child_message: str) -> float | None:
     return a / b
 
 
-def _numbers_in(text: str) -> list[float]:
-    return [float(n.replace(",", ".")) for n in re.findall(r"-?\d+(?:[.,]\d+)?", text or "")]
+def arithmetic_answer(child_message: str) -> Fraction | None:
+    """Result of a simple calculation asked by the child (« 7 + 5 ? », « 1/3 + 1/4 »)."""
+    text = child_message or ""
+    m = _FRAC_RE.search(text)
+    if m and int(m.group(2)) and int(m.group(5)):
+        return _apply(
+            Fraction(int(m.group(1)), int(m.group(2))),
+            m.group(3),
+            Fraction(int(m.group(4)), int(m.group(5))),
+        )
+    m = _CALC_RE.search(text)
+    if not m:
+        return None
+    a = Fraction(m.group(1).replace(",", "."))
+    b = Fraction(m.group(3).replace(",", "."))
+    return _apply(a, m.group(2), b)
 
 
-def reveals_arithmetic_answer(spec: dict[str, Any], child_message: str) -> bool:
-    """True if the result of the child's calculation is shown in the visual."""
+def sought_value(child_message: str, previous_child_messages: list[str] | None = None):
+    """Value the child is looking for: in the current message, else the most
+    recent calculation asked earlier in the conversation (« 7 + 5 ? » then « 3 ? »)."""
     ans = arithmetic_answer(child_message)
-    if ans is None:
+    if ans is not None:
+        return ans
+    for text in reversed((previous_child_messages or [])[-6:]):
+        ans = arithmetic_answer(text)
+        if ans is not None:
+            return ans
+    return None
+
+
+def _numbers_in(text: str) -> list[Fraction]:
+    """Numbers and fractions written in a label (« 12 », « 2,5 », « 7/12 »)."""
+    out: list[Fraction] = []
+    for a, b in re.findall(r"(\d+)\s*/\s*(\d+)", text or ""):
+        if int(b):
+            out.append(Fraction(int(a), int(b)))
+    for n in re.findall(_NUM, text or ""):
+        out.append(Fraction(n.replace(",", ".")))
+    return out
+
+
+def _eq(x: Any, ans: Fraction) -> bool:
+    if x is None:
+        return False
+    try:
+        return abs(float(x) - float(ans)) < 1e-9
+    except (TypeError, ValueError):
         return False
 
-    def eq(x: float | None) -> bool:
-        return x is not None and abs(x - ans) < 1e-9
 
+def reveals_answer(spec: dict[str, Any], answer: Fraction | None) -> bool:
+    """True if the visual writes or highlights ``answer``."""
+    if answer is None:
+        return False
     kind = spec.get("kind")
-    shown: list[float] = []
+    shown: list[Any] = []
     if kind == "number_line":
+        # a point on it, or a jump (arrow) starting or ending on it
         shown += [m["value"] for m in spec.get("marks", [])]
-        # the end of the last jump is the place where the answer lands
-        shown += [j["end"] for j in spec.get("jumps", [])]
+        shown += [v for j in spec.get("jumps", []) for v in (j["start"], j["end"])]
+    elif kind == "fraction_bars":
+        # a coloured share equal to the answer (« 7 parts sur 12 » for 1/3 + 1/4)
+        shown += [Fraction(b["shaded"], b["parts"]) for b in spec["bars"] if b["shaded"]]
+        if answer.denominator == 1:
+            shown += [b["shaded"] for b in spec["bars"] if b["shaded"]]
     elif kind == "chart":
         shown += [v for s in spec["series"] for v in s["values"] if v is not None]
     elif kind == "timeline":
         shown += [e["year"] for e in spec["events"] if e.get("year") is not None]
-    # Any label or title spelling out the result
     for text in visual_texts(spec):
         shown += _numbers_in(text)
-    return any(eq(x) for x in shown)
+    return any(_eq(x, answer) for x in shown)
+
+
+def mask_answer(spec: dict[str, Any], answer: Fraction | None) -> dict[str, Any]:
+    """Number line: keep the tick of the sought value but never write its number."""
+    if answer is None or spec.get("kind") != "number_line":
+        return spec
+    if not spec["min"] <= float(answer) <= spec["max"]:
+        return spec
+    return {**spec, "masked": [float(answer)]}
+
+
+def enforce_no_answer(
+    spec: dict[str, Any] | None,
+    answer: Fraction | None,
+    message_kind: str | None,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Apply the rule; returns (spec or None, reason when dropped).
+
+    A « success » message may show the result: the spec is kept as is.
+    """
+    if spec is None or message_kind == "success":
+        return spec, None
+    if reveals_answer(spec, answer):
+        return None, "reveals_answer"
+    return mask_answer(spec, answer), None
+
+
+def reveals_arithmetic_answer(spec: dict[str, Any], child_message: str) -> bool:
+    """Backward-compatible helper: does the visual show the child's result?"""
+    return reveals_answer(spec, arithmetic_answer(child_message))

@@ -139,6 +139,7 @@ async def run_output_guard(
     message_type: str | None = None,
     hint_level: int | None = None,
     visual_description: str | None = None,
+    sought_value: str | None = None,
 ) -> dict:
     """Run the output guard on the tutor's draft response.
 
@@ -155,6 +156,7 @@ async def run_output_guard(
         message_type=message_type or "aucun",
         hint_level=hint_level if hint_level is not None else "aucun",
         visual=visual_description or "aucune",
+        sought_value=sought_value or "non déterminée automatiquement",
     )
 
     try:

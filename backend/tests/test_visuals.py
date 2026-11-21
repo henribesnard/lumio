@@ -244,3 +244,165 @@ class TestGraphVisuals:
         done, get_llm = await _run(llm, guard, flag=True, profile_on=True)
         assert done["visual"] is None and done["kind"] == "hint"
         assert get_llm.call_args_list[-1].kwargs.get("with_visual_tool", False) is False
+
+
+# ---------------------------------------------------------------------------
+# Règle : la valeur cherchée n'est ni écrite ni mise en valeur avant la réussite
+# ---------------------------------------------------------------------------
+from fractions import Fraction  # noqa: E402
+
+from app.agent.visuals import (  # noqa: E402
+    enforce_no_answer,
+    reveals_answer,
+    sought_value,
+)
+
+NON_SUCCESS = ["question", "hint", "example", "explanation", None]
+TWELVE = Fraction(12)
+
+
+def _nl(**over):
+    spec = validate_visual({**NUMBER_LINE, **over})
+    assert spec is not None
+    return spec
+
+
+class TestNoAnswerBeforeSuccess:
+    @pytest.mark.parametrize("kind", NON_SUCCESS)
+    def test_helpful_line_kept_and_tick_12_masked(self, kind):
+        out, reason = enforce_no_answer(_nl(), TWELVE, kind)
+        assert reason is None and out is not None
+        assert out["masked"] == [12.0]  # la graduation reste, son nombre n'est pas écrit
+
+    @pytest.mark.parametrize("kind", NON_SUCCESS)
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"marks": [{"value": 12}]},  # point sur 12
+            {"marks": [{"value": 7}, {"value": 12, "label": "ici"}]},
+            {"jumps": [{"start": 7, "end": 12, "label": "+5"}]},  # flèche qui s'arrête sur 12
+            {"jumps": [{"start": 12, "end": 15, "label": "+3"}]},  # flèche qui part de 12
+            {"title": "7 + 5 = 12"},  # « 12 » écrit
+            {"caption": "La réponse est 12"},
+            {"jumps": [{"start": 7, "end": 10, "label": "12"}]},  # étiquette « 12 »
+        ],
+    )
+    def test_twelve_written_or_highlighted_is_dropped(self, kind, over):
+        out, reason = enforce_no_answer(_nl(**over), TWELVE, kind)
+        assert out is None and reason == "reveals_answer"
+
+    def test_success_may_show_the_result(self):
+        spec = _nl(marks=[{"value": 12, "label": "12"}], jumps=[{"start": 7, "end": 12}])
+        out, reason = enforce_no_answer(spec, TWELVE, "success")
+        assert out == spec and reason is None
+        assert "masked" not in out
+
+    def test_value_outside_line_is_not_masked(self):
+        out, _ = enforce_no_answer(_nl(max=10), TWELVE, "hint")
+        assert out is not None and "masked" not in out
+
+    def test_sought_value_from_previous_child_message(self):
+        assert sought_value("3 ?", ["C'est combien 7 + 5 ?", "je sais pas"]) == 12
+        assert sought_value("Pourquoi il pleut ?", []) is None
+
+    def test_fraction_answer(self):
+        ans = sought_value("Combien font 1/3 + 1/4 ?")
+        assert ans == Fraction(7, 12)
+        seven_twelfths = validate_visual(
+            {
+                "kind": "fraction_bars",
+                "title": "Douzièmes",
+                "bars": [{"parts": 12, "shaded": 7}],
+            }
+        )
+        thirds = validate_visual(VALID["fraction_bars"])
+        assert seven_twelfths and thirds
+        assert reveals_answer(seven_twelfths, ans)  # 7 parts sur 12 coloriées
+        assert not reveals_answer(thirds, ans)
+        labelled = validate_visual(
+            {
+                "kind": "fraction_bars",
+                "title": "Résultat 7/12",
+                "bars": [{"parts": 3, "shaded": 1}],
+            }
+        )
+        assert labelled and reveals_answer(labelled, ans)
+
+    def test_chart_value_equal_to_answer_is_dropped(self):
+        spec = validate_visual(
+            {**VALID["chart"], "series": [{"name": "x", "values": [2, 12, 3, None]}]}
+        )
+        assert spec is not None
+        assert enforce_no_answer(spec, TWELVE, "hint")[0] is None
+
+
+class TestGraphNoAnswerRule:
+    @pytest.mark.asyncio
+    async def test_hint_line_has_tick_12_masked_and_guard_gets_value(self):
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, NUMBER_LINE))
+        guard = AsyncMock(return_value={"status": "ok", "visual_ok": True})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["visual"]["masked"] == [12.0]
+        assert guard.call_args.kwargs["sought_value"] == "12"
+
+    @pytest.mark.asyncio
+    async def test_twelve_marked_in_a_hint_is_dropped(self):
+        bad = {**NUMBER_LINE, "marks": [{"value": 12}]}
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(TEXT, bad))
+        guard = AsyncMock(return_value={"status": "ok", "visual_ok": True})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["visual"] is None
+        assert done["output_verdict"]["visual_dropped"] == "reveals_answer"
+        assert done["kind"] == "hint"  # le texte part quand même
+
+    @pytest.mark.asyncio
+    async def test_success_message_may_show_twelve(self):
+        ok = {**NUMBER_LINE, "jumps": [{"start": 7, "end": 12, "label": "+5"}]}
+        text = '{"type":"success","text":"Oui ! Tu as trouvé 12 tout seul."}'
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(text, ok))
+        guard = AsyncMock(return_value={"status": "ok", "type_ok": True})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 = 12 ?")
+        assert done["kind"] == "success"
+        assert done["visual"] is not None and "masked" not in done["visual"]
+
+    @pytest.mark.asyncio
+    async def test_success_refused_by_guard_drops_revealing_visual(self):
+        ok = {**NUMBER_LINE, "jumps": [{"start": 7, "end": 12, "label": "+5"}]}
+        text = '{"type":"success","text":"Bravo !"}'
+        llm = AsyncMock()
+        llm.ainvoke = AsyncMock(return_value=_response(text, ok))
+        guard = AsyncMock(return_value={"status": "ok", "type_ok": False})
+        done, _ = await _run(llm, guard, flag=True, profile_on=True, message="7 + 5 ?")
+        assert done["kind"] is None
+        assert done["visual"] is None
+
+    @pytest.mark.asyncio
+    async def test_output_guard_prompt_states_the_rule(self):
+        from app.agent import moderation
+
+        captured = {}
+
+        async def fake_invoke(prompt):
+            captured["prompt"] = prompt
+            m = MagicMock()
+            m.content = '{"status":"ok"}'
+            return m
+
+        fake = MagicMock()
+        fake.ainvoke = fake_invoke
+        with patch.object(moderation, "_get_guard_llm", return_value=fake):
+            await moderation.run_output_guard(
+                draft="Regarde la feuille",
+                child_message="7 + 5 ?",
+                age=7,
+                niveau="CE1",
+                message_type="hint",
+                visual_description="Droite graduée de 0 à 15.",
+                sought_value="12",
+            )
+        prompt = captured["prompt"]
+        assert "Valeur cherchée par l'enfant" in prompt and ": 12" in prompt
+        assert "seul un message « success »" in prompt

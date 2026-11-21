@@ -13,7 +13,7 @@ from unittest.mock import patch
 import pytest
 
 from app.agent import graph
-from app.agent.visuals import reveals_arithmetic_answer
+from app.agent.visuals import reveals_answer, sought_value
 from tests.evals.test_pedagogy_eval import _judge, _make_profile, _run_and_collect
 
 pytestmark = pytest.mark.skipif(
@@ -93,13 +93,23 @@ async def test_visual_case(case):
         return  # ne pas dessiner est toujours acceptable
 
     alt = visual.get("alt", "")
-    assert not reveals_arithmetic_answer(visual, case["message"]), alt
+    answer = sought_value(case["message"])
+    if result.get("kind") != "success":
+        # ni écrite ni mise en valeur avant la réussite
+        assert not reveals_answer(visual, answer), alt
+        if (
+            answer is not None
+            and visual.get("kind") == "number_line"
+            and visual["min"] <= float(answer) <= visual["max"]
+        ):
+            assert float(answer) in visual.get("masked", []), visual
     for f in case["forbidden"]:
         assert f not in alt, f"la feuille révèle « {f} » : {alt}"
 
     passed = await _judge(
         f"{text}\n[Feuille : {alt}]",
         "Ni le message ni la feuille décrite ne donnent la réponse ou la solution : "
-        "la valeur cherchée reste à trouver par l'enfant.",
+        "la valeur cherchée n'est ni écrite ni mise en valeur (repère, couleur, flèche) "
+        "et reste à trouver par l'enfant.",
     )
     assert passed, f"{text[:200]} / {alt[:200]}"

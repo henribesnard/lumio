@@ -20,7 +20,8 @@ from app.agent.moderation import (
 from app.agent.prompts.builder import build_system_prompt, get_age_bracket
 from app.agent.tutor_output import TutorReply, parse_tutor_output
 from app.agent.visuals import (
-    reveals_arithmetic_answer,
+    enforce_no_answer,
+    sought_value,
     validate_visual,
     visual_json_schema,
     visual_texts,
@@ -121,15 +122,30 @@ def _extract_visual(response: Any) -> tuple[dict | None, str | None]:
     return None, None
 
 
-def check_visual(spec: dict | None, child_message: str) -> tuple[dict | None, str | None]:
-    """Deterministic visual checks; returns (spec or None, reason when dropped)."""
+def check_visual(
+    spec: dict | None,
+    answer: Any,
+    message_kind: str | None,
+) -> tuple[dict | None, str | None]:
+    """Deterministic visual checks; returns (spec or None, reason when dropped).
+
+    The value sought is never written nor highlighted unless the message is a
+    « success » (see ``enforce_no_answer``); number-line ticks are masked.
+    """
     if spec is None:
         return None, None
-    if reveals_arithmetic_answer(spec, child_message):
-        return None, "reveals_answer"
     if detect_personal_info(" ".join(visual_texts(spec))):
         return None, "personal_info"
-    return spec, None
+    return enforce_no_answer(spec, answer, message_kind)
+
+
+def _fmt_answer(answer: Any) -> str | None:
+    """Sought value as the guard reads it (« 12 », « 7/12 »)."""
+    if answer is None:
+        return None
+    if getattr(answer, "denominator", 1) == 1:
+        return str(answer.numerator)
+    return f"{answer.numerator}/{answer.denominator} (≈ {float(answer):.3g})"
 
 
 def _build_chat_messages(
@@ -334,6 +350,10 @@ async def run_agent(
     rewrite_count = 0
     visual: dict | None = None
     visual_drop_reason: str | None = None
+    # Value the child is looking for (simple calculation in this or a recent message)
+    answer = sought_value(
+        child_message, [m.contenu for m in history if getattr(m, "role", None) == "child"]
+    )
     max_rewrites = settings.max_rewrite_count
 
     reply: TutorReply | None = None
@@ -374,8 +394,6 @@ async def run_agent(
                 visual = validate_visual(raw_visual)
                 if visual is None:
                     visual_drop_reason = "invalid_spec"
-                visual, reason = check_visual(visual, child_message)
-                visual_drop_reason = visual_drop_reason or reason
                 if not raw.strip():
                     # Tool call without text: ask for the text once, without tools.
                     try:
@@ -393,6 +411,9 @@ async def run_agent(
                         logger.error("Follow-up after show_visual failed: %s", e)
 
         reply = parse_tutor_output(raw)
+        if reply is not None and visual is not None:
+            visual, reason = check_visual(visual, answer, reply.kind)
+            visual_drop_reason = visual_drop_reason or reason
         if reply is None:
             # Unreadable structured output: ask once for a clean answer.
             if rewrite_count < max_rewrites:
@@ -423,6 +444,7 @@ async def run_agent(
                 message_type=reply.kind,
                 hint_level=reply.hint_level,
                 visual_description=visual["alt"] if visual else None,
+                sought_value=_fmt_answer(answer) if visual else None,
             )
         except Exception as e:
             logger.error("Output guard failed: %s", e)
@@ -469,12 +491,17 @@ async def run_agent(
         or output_verdict.get("visual_reveals_answer") is True
     ):
         visual, visual_drop_reason = None, "output_guard"
-    if visual_drop_reason:
-        output_verdict = {**output_verdict, "visual_dropped": visual_drop_reason}
-
     # A type the guard finds inconsistent is dropped: the message is shown plainly.
     kind = reply.kind if output_verdict.get("type_ok", True) is not False else None
     hint_level = reply.hint_level if kind == "hint" else None
+
+    # Final kind may differ (e.g. « success » refused by the guard): re-apply the
+    # no-answer rule so a result is only ever shown in a success message.
+    if visual is not None:
+        visual, reason = enforce_no_answer(visual, answer, kind)
+        visual_drop_reason = visual_drop_reason or reason
+    if visual_drop_reason:
+        output_verdict = {**output_verdict, "visual_dropped": visual_drop_reason}
 
     # -----------------------------------------------------------------------
     # 6. Stream the validated response
