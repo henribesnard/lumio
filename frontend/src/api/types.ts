@@ -141,6 +141,11 @@ export interface NumberLineVisual extends VisualBase {
   step: number;
   marks?: { value: number; label?: string }[];
   jumps?: { start: number; end: number; label?: string; layer?: VisualLayer }[];
+  /**
+   * Graduations dont le nombre n'est jamais écrit (valeur cherchée par
+   * l'enfant, ajoutée par le serveur tant qu'il n'a pas trouvé).
+   */
+  masked?: number[];
 }
 
 export interface FractionBarsVisual extends VisualBase {

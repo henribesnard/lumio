@@ -14,6 +14,9 @@ export function NumberLine({ spec }: { spec: NumberLineVisual }) {
     ticks.push(Math.round(v * 1e6) / 1e6);
   const marks = spec.marks ?? [];
   const markValues = new Set(marks.map((m) => m.value));
+  // Valeur cherchée : le trait reste, son nombre n'est jamais écrit.
+  const isMasked = (v: number) =>
+    (spec.masked ?? []).some((m) => Math.abs(m - v) < 1e-9);
   const labelEvery = ticks.length > 21 ? 5 : ticks.length > 11 ? 5 : 1;
   return (
     <svg viewBox={`0 0 ${W} 170`} width="100%" aria-hidden="true">
@@ -30,27 +33,28 @@ export function NumberLine({ spec }: { spec: NumberLineVisual }) {
             style={{ stroke: C.ink }}
             strokeWidth={2.5}
           />
-          {(i % labelEvery === 0 ||
-            i === ticks.length - 1 ||
-            markValues.has(t)) && (
-            <text
-              x={x(t)}
-              y={AXIS_Y + 30}
-              textAnchor="middle"
-              fontFamily={FONT}
-              fontSize={17}
-              fontWeight={markValues.has(t) ? 700 : 400}
-              style={{ fill: C.ink }}
-            >
-              {fmt(t)}
-            </text>
-          )}
+          {!isMasked(t) &&
+            (i % labelEvery === 0 ||
+              i === ticks.length - 1 ||
+              markValues.has(t)) && (
+              <text
+                x={x(t)}
+                y={AXIS_Y + 30}
+                textAnchor="middle"
+                fontFamily={FONT}
+                fontSize={17}
+                fontWeight={markValues.has(t) ? 700 : 400}
+                style={{ fill: C.ink }}
+              >
+                {fmt(t)}
+              </text>
+            )}
         </g>
       ))}
       {marks.map((m, i) => (
         <g key={`m${i}`}>
           <circle cx={x(m.value)} cy={AXIS_Y} r={6} style={{ fill: C.prism }} />
-          {m.label && m.label !== fmt(m.value) && (
+          {m.label && m.label !== fmt(m.value) && !isMasked(m.value) && (
             <Label x={x(m.value)} y={AXIS_Y + 52} text={m.label} />
           )}
         </g>

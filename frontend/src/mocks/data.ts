@@ -179,6 +179,7 @@ export const mockMessages = [
         { start: 0, end: 7, layer: "known" as const },
         { start: 7, end: 10, label: "+3", layer: "hint" as const },
       ],
+      masked: [15],
       alt: "7 + 8 sur la droite. Droite graduée de 0 à 20. Repère 7. Saut de 0 à 7, connu. Saut de 7 à 10 (+3), ajouté par l'indice.",
     },
     contenu:

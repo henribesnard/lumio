@@ -13,6 +13,7 @@ export const VISUAL_SAMPLES: VisualSpec[] = [
       { start: 0, end: 7, layer: "known" },
       { start: 7, end: 10, label: "+3", layer: "hint" },
     ],
+    masked: [12],
     alt: "7 + 5 sur la droite. Droite graduée de 0 à 15. Repère 7. Saut de 0 à 7, connu. Saut de 7 à 10 (+3), ajouté par l'indice.",
   },
   {

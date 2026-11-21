@@ -30,6 +30,26 @@ describe("VisualAid", () => {
     expect(texts).toContain("?");
   });
 
+  it("droite graduée : la graduation masquée garde son trait mais pas son nombre", () => {
+    const spec: VisualSpec = {
+      kind: "number_line",
+      title: "7 + 5",
+      min: 10,
+      max: 15,
+      step: 1,
+      masked: [12],
+    };
+    const { container } = render(<VisualAid spec={spec} />);
+    const texts = [...container.querySelectorAll("text")].map(
+      (t) => t.textContent,
+    );
+    expect(texts).toContain("11");
+    expect(texts).toContain("13");
+    expect(texts).not.toContain("12");
+    // 6 graduations dessinées (10 → 15), dont celle de 12
+    expect(container.querySelectorAll("svg > g > path")).toHaveLength(6);
+  });
+
   it("repli lisible si le type est inconnu", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     render(
