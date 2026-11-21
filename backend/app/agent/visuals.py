@@ -241,7 +241,14 @@ def alt_text(spec: dict[str, Any]) -> str:
     title = spec.get("title", "")
     parts: list[str] = [f"{title}."]
     if kind == "number_line":
-        parts.append(f"Droite graduée de {_fmt(spec['min'])} à {_fmt(spec['max'])}.")
+        masked = spec.get("masked") or []
+
+        def bound(v: float) -> str:
+            # a masked bound is the value sought: never spelled out, even for
+            # screen readers
+            return "une valeur à trouver" if any(abs(v - m) < 1e-9 for m in masked) else _fmt(v)
+
+        parts.append(f"Droite graduée de {bound(spec['min'])} à {bound(spec['max'])}.")
         for m in spec.get("marks", []):
             parts.append(f"Repère {m.get('label') or _fmt(m['value'])}.")
         for j in spec.get("jumps", []):
@@ -401,7 +408,10 @@ def mask_answer(spec: dict[str, Any], answer: Fraction | None) -> dict[str, Any]
         return spec
     if not spec["min"] <= float(answer) <= spec["max"]:
         return spec
-    return {**spec, "masked": [float(answer)]}
+    masked = {**spec, "masked": [float(answer)]}
+    # the accessible description follows the masking (bounds included)
+    masked["alt"] = alt_text(masked)
+    return masked
 
 
 def enforce_no_answer(
@@ -417,7 +427,12 @@ def enforce_no_answer(
         return spec, None
     if reveals_answer(spec, answer):
         return None, "reveals_answer"
-    return mask_answer(spec, answer), None
+    spec = mask_answer(spec, answer)
+    # backstop: the text alternative (read aloud by screen readers) must not
+    # spell out the value either
+    if answer is not None and any(_eq(x, answer) for x in _numbers_in(spec.get("alt", ""))):
+        return None, "reveals_answer"
+    return spec, None
 
 
 def reveals_arithmetic_answer(spec: dict[str, Any], child_message: str) -> bool:

@@ -406,3 +406,74 @@ class TestGraphNoAnswerRule:
         prompt = captured["prompt"]
         assert "Valeur cherchée par l'enfant" in prompt and ": 12" in prompt
         assert "seul un message « success »" in prompt
+
+
+class TestAnswerSafeAltText:
+    @pytest.mark.parametrize("kind", NON_SUCCESS)
+    def test_endpoint_equal_to_answer_not_in_alt(self, kind):
+        out, reason = enforce_no_answer(_nl(max=12), TWELVE, kind)
+        assert reason is None and out is not None
+        assert out["masked"] == [12.0]
+        assert "12" not in out["alt"]
+        assert "une valeur à trouver" in out["alt"]
+
+    def test_success_alt_keeps_the_endpoint(self):
+        out, _ = enforce_no_answer(_nl(max=12), TWELVE, "success")
+        assert out is not None and "12" in out["alt"]
+
+    def test_number_line_alt_is_regenerated_after_masking(self):
+        spec = _nl()
+        spec["alt"] = "Une droite qui mène à 12."
+        out, _ = enforce_no_answer(spec, TWELVE, "hint")
+        assert out is not None and "12" not in out["alt"]
+
+    def test_alt_backstop(self):
+        spec = validate_visual(VALID["timeline"])
+        assert spec is not None
+        spec["alt"] = "Frise : réponse 12."
+        assert enforce_no_answer(spec, TWELVE, "hint") == (None, "reveals_answer")
+
+
+# --- Export RGPD : le visuel et le type du message sont inclus ---------------
+import pytest_asyncio  # noqa: E402
+from httpx import ASGITransport, AsyncClient  # noqa: E402
+
+from app.db.models import Admin, Conversation, Message, Profile  # noqa: E402
+
+
+@pytest_asyncio.fixture
+async def https_client(app):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="https://testserver") as c:
+        yield c
+
+
+@pytest.mark.asyncio
+async def test_profile_export_includes_visual(
+    https_client: AsyncClient, admin_user: Admin, child_profile: Profile, db_session
+):
+    conv = Conversation(profile_id=child_profile.id, titre="Additions")
+    db_session.add(conv)
+    await db_session.flush()
+    spec = validate_visual(NUMBER_LINE)
+    db_session.add(
+        Message(
+            conversation_id=conv.id,
+            role="assistant",
+            contenu="Regarde la feuille",
+            kind="hint",
+            hint_level=2,
+            visual=spec,
+        )
+    )
+    await db_session.commit()
+    r = await https_client.post(
+        "/api/auth/admin/login",
+        json={"email": "admin@test.com", "password": "test-password-123"},
+    )
+    assert r.status_code == 200
+    r = await https_client.get(f"/api/admin/profiles/{child_profile.id}/export")
+    assert r.status_code == 200, r.text
+    msg = r.json()["conversations"][0]["messages"][0]
+    assert msg["visual"]["kind"] == "number_line"
+    assert msg["kind"] == "hint" and msg["hint_level"] == 2
